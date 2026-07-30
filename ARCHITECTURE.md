@@ -227,7 +227,7 @@ PR:
 1. the exact property expressing freeness/countable incompleteness;
 2. the compact codomain for probability ultralimits;
 3. the precise `AddContent`/Carathéodory construction and its relation to the
-   Elek--Szegedy null-completion definition;
+   Elek–Szegedy null-completion definition;
 4. whether general probability spaces cost essentially more than finite counting
    spaces at M3; and
 5. whether `Graded.ProbabilitySpace` bundles measurable spaces, measures, or both with

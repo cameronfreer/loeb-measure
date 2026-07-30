@@ -9,7 +9,7 @@ Issue: not yet created
 ## Context
 
 Mathlib can extend a sigma-subadditive `MeasureTheory.AddContent` on a set semiring by
-Carathéodory. Elek--Szegedy instead present the measurable sets directly as sets that
+Carathéodory. Elek–Szegedy instead present the measurable sets directly as sets that
 are internal modulo a sigma-ideal of null sets.
 
 Downstream work needs both:
@@ -56,7 +56,7 @@ Two consequences are **not** automatic and remain substantive theorems:
 
 Start with `AddContent.measureCaratheodory` along the route above if a toy
 construction shows that its measurable space and completion API lead cleanly to the
-Elek--Szegedy characterization. Otherwise define the paper's completion directly and
+Elek–Szegedy characterization. Otherwise define the paper's completion directly and
 prove its equivalence to the Carathéodory presentation.
 
 ## Consequences

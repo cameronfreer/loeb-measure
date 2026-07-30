@@ -8,7 +8,7 @@ limits, in Lean 4 / [mathlib](https://github.com/leanprover-community/mathlib4).
 The project is deliberately narrower than a general nonstandard-analysis framework. Its
 first goal is a reusable library for dependent ultraproducts, internal sets and bounded
 functions, Loeb measure and integration, and the **graded** finite-power/Fubini theory
-needed by Hoover and Elek--Szegedy.
+needed by Hoover and Elek–Szegedy.
 
 The repository is currently a scaffold: the build, root import spine, and CI are wired
 up, but the mathematical content has not landed yet.
@@ -31,7 +31,7 @@ bounded internal integration
 graded finite powers, sections, and Fubini
         ↓
         ├── Hoover relation-sampling representation
-        └── Elek--Szegedy coordinate factors and graphon realization
+        └── Elek–Szegedy coordinate factors and graphon realization
 ```
 
 The finite-power spaces are graded: the Loeb measurable space on an ultraproduct

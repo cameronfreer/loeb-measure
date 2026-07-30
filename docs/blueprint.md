@@ -96,8 +96,8 @@ Required laws:
 
 `Filter.Product` provides no canonical representative selection. Everything downstream
 is defined by quotient lifting through the eliminators above, with representative
-independence proved from eventual equality; the eliminators should be usable with
-`@[elab_as_elim]`.
+independence proved from eventual equality. The eliminators should follow the existing
+`Filter.Germ.inductionOn` precedent exactly: theorems marked `@[elab_as_elim]`.
 
 Do not duplicate a lemma already available for `Filter.Germ`; either generalize it to
 the dependent product or reuse it through a proved equivalence.
@@ -142,12 +142,12 @@ Two recorded caveats:
 - Carrier injectivity/extensionality needs only nonempty fibers and holds for any
   ultrafilter; freeness or countable incompleteness first becomes essential in the
   Layer D diagonal lemma. Hypotheses should be split accordingly.
-- `InternalSet` as stated quantifies over *all* stagewise subsets, which is correct
-  for the initial normalized-counting model where every stagewise set is measurable.
-  General measured families will instead need internal *measurable* sets (a stagewise
-  `MeasurableSet` subtype or an equivalent constraint). The M2 issue must record this
-  as an explicit layering decision so the later generalization does not force a
-  refactor underneath the measure layer.
+- `InternalSet` deliberately quantifies over *all* stagewise subsets and should stay
+  that way. General measured families will add a separate `InternalMeasurableSet`
+  with a forgetful map to `InternalSet`; finite counting stages identify the two
+  because every stagewise set is measurable. The generalization risk therefore lives
+  in the domain of `internalContent`, not in the basic internal-set layer, and the
+  M2/M3 issues should record that boundary explicitly.
 
 Boolean API:
 
@@ -183,7 +183,7 @@ than fix `Filter.hyperfilter ℕ` throughout the entire library.
 Required mathematical forms:
 
 1. an increasing-envelope lemma for a sequence of internal sets, matching
-   Elek--Szegedy Lemma 2.4;
+   Elek–Szegedy Lemma 2.4;
 2. a decreasing nonempty-intersection lemma when convenient;
 3. a null-cover lemma for countable unions; and
 4. a version usable to prove sigma-subadditivity of internal content.
@@ -406,18 +406,18 @@ full injection category of finite sets initially; expose canonical reindexing,
 permutation, and splitting maps with their compatibility lemmas.
 
 Required section API (`section` is a Lean keyword, so the API needs non-keyword names
-such as `sectionSet`/`sectionMeasure`):
+such as `sectionAt`/`sectionMeasure`):
 
 ```lean
-def sectionSet
+def sectionAt
     (s : Set (Fin (m + n) → Ω))
     (x : Fin m → Ω) :
     Set (Fin n → Ω)
 
-theorem measurableSet_sectionSet ...
+theorem measurableSet_sectionAt ...
 theorem measurable_sectionMeasure ...
 theorem lintegral_sectionMeasure ...
-theorem integral_sectionSet ...
+theorem integral_sectionAt ...
 ```
 
 The degree-`m+n` measurable-space hypothesis is the graded space's own `mspace
@@ -442,7 +442,7 @@ the public internal finite-power API.
 
 ## Stability policy
 
-- M0--M2 declaration names are provisional.
+- M0–M2 declaration names are provisional.
 - Once a milestone gate is reached, renaming its public declarations requires a
   migration note and issue.
 - Mathematical assumptions may never be hidden merely to preserve a provisional

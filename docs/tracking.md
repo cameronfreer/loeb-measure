@@ -137,7 +137,7 @@ Create issues in this order:
 2. M1 epic and only its first representative/map work units.
 3. M2 and M3 epics as visible future work, with their units left blocked.
 4. M4 vertical-slice epic so the first application target is visible.
-5. M5--M10 as roadmap entries; create detailed issues only as their assumptions become
+5. M5–M10 as roadmap entries; create detailed issues only as their assumptions become
    stable.
 
 This avoids a backlog of dozens of stale theorem signatures.

@@ -47,11 +47,12 @@ Initial proposed records:
 - [ADR-0002: probability ultralimit codomain](0002-probability-ultralimit.md)
 - [ADR-0003: Loeb measure construction](0003-loeb-measure-construction.md)
 
-Anticipated records, deferred until their milestone reaches the decision point:
+Anticipated records, deliberately not created yet so unstable work is not seeded
+prematurely:
 
-- ADR-0004 (at M3): whether general probability-space families cost essentially more
-  than normalized finite counting spaces.
-- ADR-0005 (at M6): what `Graded.ProbabilitySpace` bundles — measurable spaces,
-  measures, or both — and its compatibility fields.
+- general versus counting-space construction — activate before M3 implementation
+  starts;
+- contents of `Graded.ProbabilitySpace` — activate before M6 implementation starts.
 
-These correspond to open decisions 4 and 5 in [ARCHITECTURE.md](../../ARCHITECTURE.md).
+These correspond to open decisions 4 and 5 in [ARCHITECTURE.md](../../ARCHITECTURE.md);
+they receive ADR numbers when activated.

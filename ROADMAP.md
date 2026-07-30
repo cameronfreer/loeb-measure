@@ -14,7 +14,7 @@ The common foundation should support:
 3. separate Loeb measurable spaces and measures on every finite power;
 4. measurable sections and Fubini for those larger, graded measurable spaces;
 5. Hoover's ultraproduct relation-sampling representation; and
-6. the Elek--Szegedy finite-to-ultraproduct-to-graphon route, first for graphs.
+6. the Elek–Szegedy finite-to-ultraproduct-to-graphon route, first for graphs.
 
 The project does not initially depend on a universal star transform, automatic
 first-order transfer, hypernaturals, overspill, or infinitesimal calculus.
@@ -27,7 +27,7 @@ calling the entire program “almost done” after only the Loeb construction.
 | Track | First complete target | Later target | Stretch target |
 | --- | --- | --- | --- |
 | Core | Loeb measure on finite counting ultraproducts | bounded integration and graded Fubini | general measured families |
-| Elek--Szegedy | fixed-graph hom-density identity | graph (`k = 2`) realization | uniform hypergraphs and the full paper |
+| Elek–Szegedy | fixed-graph hom-density identity | graph (`k = 2`) realization | uniform hypergraphs and the full paper |
 | Hoover | graded relation-sampling representation | latent-uniform functional representation | equivalence and uniqueness |
 
 ## M0 — Scope and API decisions
@@ -45,7 +45,7 @@ mathlib.
 Gate:
 
 - the first three decision records are accepted;
-- candidate declarations for M1--M3 elaborate in scratch files; and
+- candidate declarations for M1–M3 elaborate in scratch files; and
 - no downstream issue assumes a stronger saturation theorem than the chosen
   ultrafilter hypothesis provides.
 
@@ -122,12 +122,12 @@ Fubini layers.
 Gate:
 
 - one theorem for every fixed finite simple graph compiles without `sorry`;
-- its proof uses only the public M1--M3 API; and
+- its proof uses only the public M1–M3 API; and
 - the result does not assume ordinary product measurability.
 
 ## M5 — Bounded internal functions and integration
 
-Goal: support the function calculations used in Elek--Szegedy and later Fubini proofs.
+Goal: support the function calculations used in Elek–Szegedy and later Fubini proofs.
 
 - Pointwise ultralimit of uniformly bounded internal real functions.
 - Measurability.
@@ -163,7 +163,7 @@ Gate:
 
 This is the main common-core release.
 
-## M7 — Elek--Szegedy for graphs
+## M7 — Elek–Szegedy for graphs
 
 Goal: obtain the `k = 2` correspondence with an ordinary graphon.
 
@@ -186,7 +186,7 @@ General `k` is not part of this gate.
 ## M8 — Hoover I: graded relation sampling
 
 Goal: formalize the nonstandard sampling representation, not yet the full
-Aldous--Hoover functional form.
+Aldous–Hoover functional form.
 
 - Measurable relations on a graded probability space.
 - Laws of finite samples and their consistency.
@@ -207,7 +207,7 @@ the nonstandard core.
 
 - Interface the sampled exchangeable law with the existing graphon/relational AHK
   development.
-- Compare the direct Elek--Szegedy realization with the existing graphon
+- Compare the direct Elek–Szegedy realization with the existing graphon
   representation modulo the relevant equivalence.
 - Inventory and upstream generic conditional-expectation, separable-factor, and
   measure-isomorphism lemmas as appropriate.

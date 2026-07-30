@@ -34,8 +34,18 @@ topology with continuous bounded addition, and it is already the `AddContent`
 codomain, so no conversion layer is needed at all. The M0 spike must still verify the
 constant, congruence, order-bound, and finite-additivity lemmas in `ℝ≥0∞`, and should
 keep a bounded compact subtype as the fallback if `ℝ≥0∞` arithmetic turns out to
-dominate the content proofs. Hyperreal standard part remains a later comparison
-theorem only.
+dominate the content proofs. Before acceptance the spike must establish at least:
+
+```text
+ultralimit_const
+ultralimit_congr
+ultralimit_mono
+ultralimit_add
+ultralimit_le_one
+```
+
+in the chosen codomain. Hyperreal standard part remains a later comparison theorem
+only.
 
 ## Consequences
 

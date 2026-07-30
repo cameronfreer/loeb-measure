@@ -21,10 +21,10 @@ Primary source:
 [Hoover manuscript](https://www.stat.berkeley.edu/~aldous/Research/hoover.pdf).
 
 The roadmap calls the nonstandard graded relation-sampling result **Hoover I**. The
-usual latent-uniform Aldous--Hoover representation and the full uniqueness theory are
+usual latent-uniform Aldous–Hoover representation and the full uniqueness theory are
 separate later projects.
 
-### Elek--Szegedy
+### Elek–Szegedy
 
 Elek and Szegedy construct a Loeb probability space from ultraproducts of finite
 counting spaces, define coordinate sigma-algebras, prove Total Independence, and use
@@ -33,7 +33,7 @@ measurable sets as internal modulo a sigma-ideal of null sets, and their bounded
 internal functions satisfy an ultralimit integral formula.
 
 Primary source:
-[Elek--Szegedy, *A measure-theoretic approach to the theory of dense
+[Elek–Szegedy, *A measure-theoretic approach to the theory of dense
 hypergraphs*](https://arxiv.org/pdf/0810.4062).
 
 The graph case is much smaller than the uniform-`k` development and is the first

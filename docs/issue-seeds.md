@@ -17,7 +17,7 @@ IDs are local planning identifiers and can be replaced by GitHub issue numbers.
 | E4 | Epic: internal-graph homomorphism-density identity | M4 | E3 |
 | E5 | Epic: bounded internal integration | M5 | E3 |
 | E6 | Epic: graded Loeb sections and Fubini | M6 | E1, E3, E5 |
-| E7 | Epic: Elek--Szegedy realization for graphs | M7 | E4, E6 |
+| E7 | Epic: Elek–Szegedy realization for graphs | M7 | E4, E6 |
 | E8 | Epic: Hoover graded relation-sampling representation | M8 | E6 |
 | E9 | Epic: bridge to graphon and relational AHK libraries | M9 | E7, E8 |
 | E10 | Epic: uniform hypergraphs and full structure theories | M10 | E7/E8 as applicable |
@@ -87,7 +87,7 @@ Acceptance:
 | U3 | Prove binary product equivalence | U1, U2 | Equivalence plus projection/naturality simp lemmas |
 | U4 | Prove finite dependent-product and `Fin`-power equivalences | U3 | Evaluation commutes; `n = 0` and successor examples |
 | U5 | Add coordinate reindexing and finite permutation action | U4 | Identity, composition, inverse, coordinate simp lemmas |
-| U6 | Package upstream candidates from M1 | U1--U5 | Minimal imports and mathlib-appropriate namespaces |
+| U6 | Package upstream candidates from M1 | U1–U5 | Minimal imports and mathlib-appropriate namespaces |
 
 ## M2 — internal sets and diagonalization
 
@@ -151,7 +151,7 @@ Acceptance:
 
 ## Application branches
 
-### Elek--Szegedy (`k = 2`)
+### Elek–Szegedy (`k = 2`)
 
 | ID | Suggested title | Depends on |
 | --- | --- | --- |
@@ -170,7 +170,7 @@ Acceptance:
 | H1 | Define measurable finite-arity relations on graded spaces | P1 |
 | H2 | Define finite sample laws and prove permutation invariance | H1 |
 | H3 | Relate internal relation samples to finite-dimensional ultralimits | H2, P9 |
-| H4 | Audit weak convergence, Hewitt--Savage, and reverse martingales | H3 |
+| H4 | Audit weak convergence, Hewitt–Savage, and reverse martingales | H3 |
 | H5 | Formalize Hoover's graded relation-sampling theorem | H3, H4 |
 | H6 | Scope the latent-uniform functional representation as a new epic | H5 |
 
