@@ -4,7 +4,7 @@ Status: Proposed
 
 Date: 2026-07-30
 
-Issue: not yet created
+Issue: [#3](https://github.com/cameronfreer/loeb-measure/issues/3)
 
 ## Context
 
