@@ -33,6 +33,9 @@ difficult.
 
 Keep labels orthogonal so they can be combined.
 
+Create the label set in the repository before publishing the issue forms: GitHub
+silently drops labels that do not yet exist when a form is submitted.
+
 ### Area
 
 - `area: ultraproduct`

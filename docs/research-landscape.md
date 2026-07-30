@@ -91,6 +91,10 @@ Those topics should not be dependencies of Loeb probability.
 
 ## Other theorem provers
 
+We have not located an existing Loeb-measure or Loeb-integration formalization in the
+systems surveyed below. That is a survey outcome, not a claim of nonexistence, and it
+should be restated with that hedge in any public description of the project.
+
 ### Isabelle/HOL
 
 Isabelle's official `HOL-Nonstandard_Analysis` session is the strongest mature

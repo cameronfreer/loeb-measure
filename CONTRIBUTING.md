@@ -52,6 +52,14 @@ A good foundational PR usually adds one of:
 
 Avoid combining unrelated cleanup, dependency updates, and mathematical work.
 
+## Scratch work and design branches
+
+`main` is strict: `warningAsError` is on and `sorry` is a warning, so exploratory
+skeletons do not compile there and must not land there. Test candidate signatures in
+scratch files or on a design branch; land proven definitions and theorems
+incrementally. Future theorem statements belong in
+[docs/blueprint.md](docs/blueprint.md) and issues, not in `sorry` stubs on `main`.
+
 ## Definition of done
 
 Before requesting review:

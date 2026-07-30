@@ -94,6 +94,11 @@ Required laws:
 - reindexing a finite power is functorial;
 - a permutation and its inverse induce inverse maps.
 
+`Filter.Product` provides no canonical representative selection. Everything downstream
+is defined by quotient lifting through the eliminators above, with representative
+independence proved from eventual equality; the eliminators should be usable with
+`@[elab_as_elim]`.
+
 Do not duplicate a lemma already available for `Filter.Germ`; either generalize it to
 the dependent product or reuse it through a proved equivalence.
 
@@ -131,6 +136,18 @@ end Loeb
 
 The exact coercion policy is an M2 API choice. Even if a coercion to `Set` is supplied,
 the named `carrier` must remain available for readable statements.
+
+Two recorded caveats:
+
+- Carrier injectivity/extensionality needs only nonempty fibers and holds for any
+  ultrafilter; freeness or countable incompleteness first becomes essential in the
+  Layer D diagonal lemma. Hypotheses should be split accordingly.
+- `InternalSet` as stated quantifies over *all* stagewise subsets, which is correct
+  for the initial normalized-counting model where every stagewise set is measurable.
+  General measured families will instead need internal *measurable* sets (a stagewise
+  `MeasurableSet` subtype or an equivalent constraint). The M2 issue must record this
+  as an explicit layering decision so the later generalization does not force a
+  refactor underneath the measure layer.
 
 Boolean API:
 
@@ -260,8 +277,12 @@ theorem internalAddContent_isSigmaSubadditive :
     internalAddContent U X |>.IsSigmaSubadditive
 ```
 
-The exact constructors depend on ADR-0003. The stable user-facing declarations should
-have shapes like:
+The exact constructors depend on ADR-0003, whose candidate route is: saturation makes
+a decreasing internal sequence with empty intersection eventually empty (continuity at
+`∅`), then `addContent_iUnion_eq_sum_of_tendsto_zero`,
+`isSigmaSubadditive_of_addContent_iUnion_eq_tsum`, and
+`AddContent.measureCaratheodory`. The stable user-facing declarations should have
+shapes like:
 
 ```lean
 def loebMeasurableSpace
@@ -281,7 +302,13 @@ theorem measurableSet_internal
     loebMeasure U X A.carrier = internalContent U A
 
 instance : IsProbabilityMeasure (loebMeasure U X)
+
+instance : (loebMeasure U X).IsComplete
 ```
+
+Completeness is not supplied automatically by the Carathéodory API; expect a short
+direct instance. The characterizations below are likewise substantive theorems — they
+use finite total mass and the Layer D diagonal lemma, not just the construction.
 
 Downstream working characterizations:
 
@@ -371,18 +398,26 @@ The laws need a single accepted family of equivalences between
 `Fin (m + n) → Ω` and `(Fin m → Ω) × (Fin n → Ω)`. They should not be restated with
 ad hoc equivalences in each theorem.
 
-Required section API:
+`MeasureTheory.Filtration` is the ergonomic precedent — families of measurable spaces
+as explicit data with `≤` fields and `MeasurableSet[m]` statements — but it is not
+directly reusable: a filtration carries several sigma-algebras on one carrier, while
+the graded family lives on carriers `Fin n → Ω` varying with `n`. Do not encode the
+full injection category of finite sets initially; expose canonical reindexing,
+permutation, and splitting maps with their compatibility lemmas.
+
+Required section API (`section` is a Lean keyword, so the API needs non-keyword names
+such as `sectionSet`/`sectionMeasure`):
 
 ```lean
-def section
+def sectionSet
     (s : Set (Fin (m + n) → Ω))
     (x : Fin m → Ω) :
     Set (Fin n → Ω)
 
-theorem measurableSet_section ...
+theorem measurableSet_sectionSet ...
 theorem measurable_sectionMeasure ...
 theorem lintegral_sectionMeasure ...
-theorem integral_section ...
+theorem integral_sectionSet ...
 ```
 
 The degree-`m+n` measurable-space hypothesis is the graded space's own `mspace
