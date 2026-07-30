@@ -133,7 +133,7 @@ The repository's issue forms prompt for these fields.
 
 Create issues in this order:
 
-1. M0 epic and the three initial decision spikes.
+1. M0 epic and the four initial spikes (D0.1–D0.4).
 2. M1 epic and only its first representative/map work units.
 3. M2 and M3 epics as visible future work, with their units left blocked.
 4. M4 vertical-slice epic so the first application target is visible.
