@@ -1,0 +1,69 @@
+name: Lean implementation
+description: Add a compiling definition, API seam, or theorem
+title: "[Lean] "
+labels:
+  - "kind: theorem"
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Mathematical outcome
+      description: State the capability this issue adds, not only the file to edit.
+      placeholder: "After this issue, downstream code can..."
+    validations:
+      required: true
+  - type: input
+    id: module
+    attributes:
+      label: Target module
+      placeholder: "LoebMeasure/Internal/Set.lean"
+    validations:
+      required: true
+  - type: textarea
+    id: declarations
+    attributes:
+      label: Candidate declarations
+      description: Give names and statement shapes. Mark any provisional choices.
+      render: lean
+    validations:
+      required: true
+  - type: textarea
+    id: assumptions
+    attributes:
+      label: Mathematical assumptions
+      description: List nonempty, finite, ultrafilter, freeness, measurability, and boundedness hypotheses explicitly.
+    validations:
+      required: true
+  - type: textarea
+    id: blockers
+    attributes:
+      label: Dependencies and blockers
+      description: Link blocked-by issues and applicable ADRs.
+      placeholder: "Blocked by #...; follows ADR-..."
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources and proof notes
+      description: Link the paper theorem, mathlib API, or prior formalization.
+  - type: checkboxes
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      options:
+        - label: The target declarations compile with `warningAsError`.
+          required: true
+        - label: The issue scope contains no `sorry`.
+          required: true
+        - label: Public declarations and the module have docstrings.
+          required: true
+        - label: Representative/quotient details are hidden from downstream examples.
+          required: true
+        - label: Relevant roadmap, blueprint, and decision records are updated.
+          required: true
+  - type: textarea
+    id: upstream
+    attributes:
+      label: Upstream path
+      description: If generic, name the proposed mathlib namespace/module; otherwise write “Loeb-specific.”

@@ -1,0 +1,61 @@
+name: Milestone epic
+description: Track one roadmap capability and its child issues
+title: "[Epic] "
+labels:
+  - "kind: design"
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Gate outcome
+      description: Copy or refine the durable mathematical outcome from ROADMAP.md.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: In scope
+    validations:
+      required: true
+  - type: textarea
+    id: nonscope
+    attributes:
+      label: Explicitly out of scope
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Link prerequisite epics and accepted ADRs.
+    validations:
+      required: true
+  - type: textarea
+    id: children
+    attributes:
+      label: Child issues
+      description: Use a task list and GitHub sub-issues.
+      placeholder: "- [ ] #..."
+    validations:
+      required: true
+  - type: textarea
+    id: api
+    attributes:
+      label: Public API at the gate
+      description: List declarations/examples that demonstrate completion.
+      render: lean
+    validations:
+      required: true
+  - type: checkboxes
+    id: gate
+    attributes:
+      label: Gate criteria
+      options:
+        - label: Every child issue required by the gate is closed.
+          required: true
+        - label: All milestone modules build without `sorry`.
+          required: true
+        - label: Public examples exercise the API.
+          required: true
+        - label: ROADMAP.md and docs/blueprint.md match the merged implementation.
+          required: true

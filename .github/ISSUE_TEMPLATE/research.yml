@@ -1,0 +1,57 @@
+name: Research or design spike
+description: Resolve a mathematical or mathlib API uncertainty before implementation
+title: "[Research] "
+labels:
+  - "kind: research"
+  - "difficulty: research"
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Decision to make
+      description: Phrase the question so the spike can end in a concrete choice.
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints
+      description: List target theorems, pinned mathlib APIs, and assumptions the decision must support.
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Options to compare
+      description: List concrete alternatives rather than an open-ended literature search.
+    validations:
+      required: true
+  - type: textarea
+    id: experiment
+    attributes:
+      label: Bounded experiment
+      description: Describe the scratch declarations, source audit, or toy theorem that will distinguish the options.
+    validations:
+      required: true
+  - type: textarea
+    id: blockers
+    attributes:
+      label: Downstream issues blocked
+      description: Link the epics/work units waiting on this result.
+    validations:
+      required: true
+  - type: checkboxes
+    id: done
+    attributes:
+      label: Completion criteria
+      options:
+        - label: Experiment or API audit is reproducible.
+          required: true
+        - label: Alternatives and tradeoffs are recorded.
+          required: true
+        - label: A recommendation is made.
+          required: true
+        - label: The corresponding ADR is accepted or updated.
+          required: true
+        - label: Follow-up implementation issues are created or revised.
+          required: true

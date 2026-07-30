@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Planning and issue seeds
+    url: https://github.com/cameronfreer/loeb-measure/blob/main/docs/issue-seeds.md
+    about: Check the roadmap and seed list before opening a new work unit.
