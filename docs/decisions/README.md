@@ -46,3 +46,12 @@ Initial proposed records:
 - [ADR-0001: ultrafilter hypothesis](0001-ultrafilter-hypothesis.md)
 - [ADR-0002: probability ultralimit codomain](0002-probability-ultralimit.md)
 - [ADR-0003: Loeb measure construction](0003-loeb-measure-construction.md)
+
+Anticipated records, deferred until their milestone reaches the decision point:
+
+- ADR-0004 (at M3): whether general probability-space families cost essentially more
+  than normalized finite counting spaces.
+- ADR-0005 (at M6): what `Graded.ProbabilitySpace` bundles — measurable spaces,
+  measures, or both — and its compatibility fields.
+
+These correspond to open decisions 4 and 5 in [ARCHITECTURE.md](../../ARCHITECTURE.md).

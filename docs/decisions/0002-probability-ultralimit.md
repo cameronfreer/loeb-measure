@@ -29,9 +29,13 @@ ultrafilter limits on nonempty compact spaces, while `AddContent` is valued in
 
 ## Provisional direction
 
-Prefer a compact Hausdorff bounded probability type and convert once at the
-`AddContent` boundary. The M0 spike must test continuity of every operation needed for
-finite additivity before selecting the concrete type.
+Prefer `ℝ≥0∞` directly. At the pinned revision it is a compact Hausdorff order
+topology with continuous bounded addition, and it is already the `AddContent`
+codomain, so no conversion layer is needed at all. The M0 spike must still verify the
+constant, congruence, order-bound, and finite-additivity lemmas in `ℝ≥0∞`, and should
+keep a bounded compact subtype as the fallback if `ℝ≥0∞` arithmetic turns out to
+dominate the content proofs. Hyperreal standard part remains a later comparison
+theorem only.
 
 ## Consequences
 
