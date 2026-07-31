@@ -84,16 +84,20 @@ theorem demoInternalContent_univ [∀ i, Nonempty (X i)] :
       ENNReal.div_self (by exact_mod_cast Fintype.card_ne_zero) (ENNReal.natCast_ne_top _)]
   rw [h, ultralimit_const]
 
-/-- The demonstration content is a probability value. -/
-theorem demoInternalContent_le_one [∀ i, Nonempty (X i)] (A : ∀ i, Set (X i)) :
+/-- The demonstration content is a probability value. Nonempty stages are *not*
+needed: on an empty stage every subset is empty and the ratio is `0 / 0 = 0`, not `∞`.
+Nonemptiness is genuinely required only for the normalization `demoInternalContent_univ`. -/
+theorem demoInternalContent_le_one (A : ∀ i, Set (X i)) :
     demoInternalContent U X (↑A) ≤ 1 := by
   rw [demoInternalContent_mk]
   refine ultralimit_le_one (Eventually.of_forall fun i ↦ ?_)
-  rw [ENNReal.div_le_iff (by exact_mod_cast Fintype.card_ne_zero) (ENNReal.natCast_ne_top _),
-    one_mul]
-  have hle : (A i).ncard ≤ Fintype.card (X i) := by
-    simpa [Set.ncard_univ] using Set.ncard_le_ncard (Set.subset_univ (A i)) Set.finite_univ
-  exact_mod_cast hle
+  rcases isEmpty_or_nonempty (X i) with hi | hi
+  · simp [Set.eq_empty_of_isEmpty (A i)]
+  · rw [ENNReal.div_le_iff (by exact_mod_cast Fintype.card_ne_zero) (ENNReal.natCast_ne_top _),
+      one_mul]
+    have hle : (A i).ncard ≤ Fintype.card (X i) := by
+      simpa [Set.ncard_univ] using Set.ncard_le_ncard (Set.subset_univ (A i)) Set.finite_univ
+    exact_mod_cast hle
 
 end DescentDemo
 
