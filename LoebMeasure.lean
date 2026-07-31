@@ -4,5 +4,5 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Cameron Freer
 -/
 import LoebMeasure.Basic
-import LoebMeasure.Ultralimit.Compact
+import LoebMeasure.Mathlib.Topology.Compactness.Ultralimit
 import LoebMeasure.Ultralimit.Probability
