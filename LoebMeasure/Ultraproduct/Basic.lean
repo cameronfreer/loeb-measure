@@ -151,13 +151,14 @@ example (x y : l.Product ε) (h : ∀ f g : (i : ι) → ε i,
   | _ f g => exact h f g
 
 /-- A descent through `liftOn` computes on representatives, and its well-definedness
-obligation is exactly eventual equality — the pattern every content-like definition
-follows. -/
-example : True := by
-  let card : (ι → Prop) → ℕ := fun _ ↦ 0
-  let _F : l.Product (fun _ : ι ↦ Prop) → ℕ :=
-    fun x ↦ liftOn x card fun _ _ _ ↦ rfl
-  trivial
+obligation genuinely consumes eventual equality — here discharged by `ofFun_congr`,
+the pattern every content-like definition follows. -/
+example (f : (i : ι) → ε i) :
+    liftOn (ofFun f : l.Product ε)
+      (fun g ↦ (ofFun g : l.Product ε))
+      (fun _ _ h ↦ ofFun_congr h) =
+      ofFun f := by
+  simp
 
 /-- **Genuinely dependent family**: the fibers vary with the index, so nothing here
 collapses to the constant-type `Filter.Germ` case. -/
