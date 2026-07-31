@@ -1,10 +1,11 @@
 # ADR-0003 — Loeb measure construction
 
-Status: Proposed
+Status: Accepted
 
-Date: 2026-07-30
+Date: 2026-07-30 (proposed), 2026-07-31 (accepted)
 
-Issue: [#3](https://github.com/cameronfreer/loeb-measure/issues/3)
+Issue: [#3](https://github.com/cameronfreer/loeb-measure/issues/3); experiment in
+[PR #8](https://github.com/cameronfreer/loeb-measure/pull/8)
 
 ## Context
 
@@ -31,36 +32,53 @@ Downstream work needs both:
 2. Define the internal-mod-null sigma-algebra and measure directly.
 3. Construct both and prove equality early.
 
-## Candidate mathlib route
+The PR #8 spike ran option 1's route end to end on a toy content and it passed every
+gate, so options 2 and 3 were not needed.
 
-The currently preferred implementation path at the pinned revision is:
+## Decision
 
-1. countable diagonalization makes a decreasing sequence of internal sets with empty
-   intersection *eventually empty*, giving continuity at `∅` outright;
-2. `addContent_iUnion_eq_sum_of_tendsto_zero` upgrades continuity at `∅` to countable
-   additivity on the internal set ring;
-3. `isSigmaSubadditive_of_addContent_iUnion_eq_tsum` supplies
-   `AddContent.IsSigmaSubadditive`;
-4. `AddContent.measureCaratheodory` produces the measure on the Carathéodory
-   measurable space.
+**Carathéodory-first.** The Loeb measurable space and measure are produced by
 
-Two consequences are **not** automatic and remain substantive theorems:
+```text
+countable diagonalization ⇒ a decreasing sequence of internal sets with empty
+  intersection is eventually empty, so continuity at ∅ holds outright
+    → addContent_iUnion_eq_sum_of_tendsto_zero        (countable additivity)
+    → isSigmaSubadditive_of_addContent_iUnion_eq_tsum (AddContent.IsSigmaSubadditive)
+    → AddContent.measureCaratheodory                  (measure on the Carathéodory space)
+```
 
-- completeness: a `Measure.IsComplete` instance needs a short direct proof from the
-  Carathéodory construction, it is not supplied by the API;
-- `loebMeasurable_iff_internal_mod_null` is a genuine approximation theorem using
-  finite total mass and the diagonal lemma, not a formal consequence of the
-  construction.
+The Carathéodory sigma-algebra — not the smaller `generateFrom` space — is the Loeb
+measurable space. `AddContent.measure`, the `generateFrom`-trimmed variant, is
+therefore explicitly **not** used: its `trim` targets the generated measurable space,
+whereas the project deliberately wants the full Carathéodory space.
 
-## Provisional direction
-
-Start with `AddContent.measureCaratheodory` along the route above if a toy
-construction shows that its measurable space and completion API lead cleanly to the
-Elek–Szegedy characterization. Otherwise define the paper's completion directly and
-prove its equivalence to the Carathéodory presentation.
+The internal-mod-null characterization is proved afterwards, as C7/C8, on top of this
+construction.
 
 ## Consequences
 
-This decision determines the implementation of M3 but should not alter the stable
-downstream declarations `loebMeasurableSpace`, `loebMeasure`,
-`loebMeasure_internal`, and `loebMeasurable_iff_internal_mod_null`.
+- **Completeness is available generically.** The spike proved
+  `AddContent.measureCaratheodory_isComplete` for any sigma-subadditive content on a
+  set semiring — no finiteness or probability hypotheses — using the new four-line
+  `OuterMeasure.isCaratheodory_of_measure_zero`. Since `measureCaratheodory` is
+  definitionally the induced outer measure on every set, a measure-zero set is
+  outer-measure-zero and hence Carathéodory measurable. The eventual
+  `(loebMeasure U X).IsComplete` instance must **wrap** this generic theorem rather
+  than duplicate its proof.
+- **C7/C8 remain substantive approximation work** and must not be treated as formal
+  consequences of the construction. In dependency order: carriers form an
+  `IsSetSemiring` (I3); diagonal-driven sigma-subadditivity (C5); unfolding
+  `inducedOuterMeasure`'s infimum over countable semiring covers, which consumes
+  **finite total mass** (C7); the increasing-envelope diagonal form collapsing a
+  countable internal cover to a single internal set within `ε` (I6); yielding
+  `exists_internal_symmDiff_lt` and `loebMeasurable_iff_internal_mod_null` (C8).
+  Finite mass and saturation enter at these steps and are not concealed inside
+  `measureCaratheodory`.
+- **Promotion.** The two generic completeness results
+  (`OuterMeasure.isCaratheodory_of_measure_zero`,
+  `AddContent.measureCaratheodory_isComplete`) deserve a later isolated,
+  upstream-oriented PR with minimal imports. Their final names may be bikeshedded by
+  mathlib; that does not affect this decision.
+- This decision determines the implementation of M3 but does not alter the stable
+  downstream declarations `loebMeasurableSpace`, `loebMeasure`,
+  `loebMeasure_internal`, and `loebMeasurable_iff_internal_mod_null`.
