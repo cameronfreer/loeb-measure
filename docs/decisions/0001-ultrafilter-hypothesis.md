@@ -1,10 +1,11 @@
 # ADR-0001 — Ultrafilter hypothesis
 
-Status: Proposed
+Status: Accepted
 
-Date: 2026-07-30
+Date: 2026-07-30 (proposed), 2026-07-31 (accepted)
 
-Issue: [#1](https://github.com/cameronfreer/loeb-measure/issues/1)
+Issue: [#1](https://github.com/cameronfreer/loeb-measure/issues/1); experiment in
+[PR #7](https://github.com/cameronfreer/loeb-measure/pull/7)
 
 ## Context
 
@@ -30,15 +31,45 @@ through countable incompleteness.
 4. Generalize further to arbitrary index types equipped with a suitable decreasing
    family or rank.
 
-## Provisional direction
+The PR #7 spike proved the full diagonal lemma under option 3 and refined it: the
+predicate and the lemma naturally live on `Filter`, not `Ultrafilter`.
 
-Keep M1 and the elementary part of M2 generic in a filter or ultrafilter. Test a small
-project predicate for countable incompleteness in the M0 spike, with a theorem or
-instance showing that `Filter.hyperfilter ℕ` satisfies it.
+## Decision
 
-No option is accepted until the content-free diagonal statement elaborates.
+The diagonal layer is parameterized by
+
+```lean
+Filter.CountablyIncomplete (F : Filter ι) : Prop
+-- some countable family of members of F has empty intersection
+```
+
+— option 3, refined to the `Filter` level. The content-free diagonal lemma
+(`CountablyIncomplete.exists_forall_eventually_mem`) is proved from this hypothesis
+alone plus nonempty fibers for representative selection; **no ultrafilter property is
+consumed by the diagonalization**. M1 and the elementary part of M2 stay generic in a
+filter or ultrafilter; only the diagonal layer takes the predicate.
+
+Coverage of the concrete applications: `countablyIncomplete_of_le_cofinite` shows any
+filter refining `cofinite` on a countable index type qualifies — in particular every
+nonprincipal ultrafilter on `ℕ` — and `hyperfilter_countablyIncomplete` records the
+canonical instance.
 
 ## Consequences
 
-This decision controls all saturation/diagonal assumptions and the generality of the
-measure constructor. Downstream issues remain blocked until it is accepted.
+- **Properness is separate.** `CountablyIncomplete` does not include `Filter.NeBot`;
+  the bottom filter satisfies it vacuously (and its diagonal conclusion is trivial).
+  This is harmless and gives the weakest operational diagonal hypothesis; properness
+  is supplied automatically by the eventual `Ultrafilter` in applications. Promotion
+  of the generic predicate should revisit its final name and properness convention.
+- **Where the ultrafilter genuinely enters — at M2, not the diagonal layer.** With
+  nonempty fibers, `carrier(A).Nonempty ↔ ∀ᶠ i in F, (A i).Nonempty` holds for *any*
+  filter. The ultrafilter dichotomy is needed to pass from the quotient-level
+  inequality `A ≠ InternalSet.empty` to eventual nonemptiness (quotient equality only
+  gives `A = empty ↔ ∀ᶠ i, A i = ∅`), and for carrier injectivity. Neither uses
+  countable incompleteness. The M2 issues (I2, I5, I6) must keep these hypotheses
+  separated exactly this way.
+- Downstream units I5/I6/C5 consume the named diagonal API
+  (`exists_forall_eventually_mem` and its antitone corollary) rather than re-proving
+  ad hoc diagonal arguments.
+- The predicate and diagonal lemma are mathlib upstream candidates in the `Filter`
+  namespace (tracked by the M1 packaging unit U6).

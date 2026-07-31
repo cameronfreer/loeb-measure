@@ -203,6 +203,12 @@ This statement depends on content and may live later than the underlying combina
 diagonal lemma. The M2 issue must first expose a content-free lemma from which this
 follows.
 
+Carrier-level equivalences belong to Layer I, not here: with nonempty fibers,
+`carrier(A).Nonempty ↔ ∀ᶠ i, (A i).Nonempty` holds for any filter, while passing from
+the quotient-level inequality `A ≠ InternalSet.empty` to eventual nonemptiness — and
+carrier injectivity — use the ultrafilter dichotomy and no countable incompleteness
+(ADR-0001).
+
 ## Layer L — compact probability ultralimits
 
 Module candidates:
