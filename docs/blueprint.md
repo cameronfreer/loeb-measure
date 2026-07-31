@@ -102,6 +102,37 @@ independence proved from eventual equality. The eliminators should follow the ex
 Do not duplicate a lemma already available for `Filter.Germ`; either generalize it to
 the dependent product or reuse it through a proved equivalence.
 
+### Canonical coordinate split (settled by D0.4)
+
+Plain finite powers `Fin n → Ω` use **one** canonical split, adopted from mathlib:
+
+```lean
+Fin.appendEquiv m n : (Fin m → Ω) × (Fin n → Ω) ≃ (Fin (m + n) → Ω)
+```
+
+wrapped as `Loeb.splitEquiv`. Fixed conventions:
+
+- `splitEquiv` is an opaque `def`, not an `abbrev`: a transparent alias would not
+  insulate downstream code from a change of underlying equivalence. Its wrapper simp
+  lemmas — forward in `Fin.castAdd`/`Fin.natAdd` form, and both `symm` components —
+  are the intended interface, and graded laws use only them.
+- Graded laws must not restate ad hoc equivalences; `finSumFinEquiv` remains available
+  for index-level reindexing arguments but is not the tuple-level split.
+- The permutation action `permute σ x = x ∘ σ` is a **contravariant pullback (right
+  action)**: `permute (σ * τ) = permute τ ∘ permute σ`. This is the natural tuple
+  convention and is *not* the covariant `MulAction` convention, which would precompose
+  with `σ⁻¹`. Downstream statements must not silently assume covariance; `permute_mul`
+  is deliberately not a simp lemma so that rewriting cannot pick an orientation.
+- Measurability comes in two regimes that must stay distinguished: lemmas for the
+  standard `MeasurableSpace.pi` powers use mathlib's inferred instances, whereas graded
+  statements take the measurable space at each degree as data and carry compatibility
+  as a hypothesis. The former discharge the latter.
+
+The `finitePiEquiv`/`finPowerEquiv` ultraproduct equivalences above are *separate* U4
+work; the canonical split is about plain finite powers. U4 must additionally supply
+their evaluation, naturality, and compatibility with `splitEquiv`, `reindex`, and
+`permute`, preserving the contravariance convention.
+
 ## Layer I — internal sets
 
 Module candidates:

@@ -209,6 +209,11 @@ In particular, “free ultrafilter” must not be an undocumented global convent
 ## Public API rules
 
 - Prefer `Fin n → Ω` for finite powers.
+- Use the single canonical coordinate split `Loeb.splitEquiv` (wrapping mathlib's
+  `Fin.appendEquiv`), kept opaque so downstream code depends on its wrapper simp
+  lemmas rather than on the underlying equivalence. Never introduce a competing split.
+- The permutation action on finite powers is a contravariant pullback:
+  `permute (σ * τ) = permute τ ∘ permute σ`, not the covariant `MulAction` convention.
 - Give coordinate maps and equivalences named simp lemmas.
 - Downstream proofs should not use `Quotient.sound` directly.
 - Avoid global `MeasurableSpace` instances when multiple degrees or transported
