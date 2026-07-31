@@ -3,7 +3,7 @@ Copyright (c) 2026 Cameron Freer. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Cameron Freer
 -/
-import Mathlib.MeasureTheory.OuterMeasure.OfAddContent
+import LoebMeasure.Mathlib.MeasureTheory.OuterMeasure.OfAddContent
 import Mathlib.MeasureTheory.Measure.Typeclasses.Probability
 
 /-!
@@ -16,25 +16,20 @@ sigma-subadditive AddContent on a set semiring
   → AddContent.measureCaratheodory
 ```
 
-at the pinned mathlib revision, prove the completeness that the API does not supply,
-and inventory what remains substantive for the internal-mod-null characterization.
+at the pinned mathlib revision and inventory what remains substantive for the
+internal-mod-null characterization.
 
-## Generic results
-
-* `MeasureTheory.OuterMeasure.isCaratheodory_of_measure_zero`: null sets of any outer
-  measure are Carathéodory measurable.
-* `MeasureTheory.AddContent.measureCaratheodory_isComplete`: the measure produced by
-  `AddContent.measureCaratheodory` is complete. This is the "short direct instance"
-  predicted by ADR-0003 — it is generic, not toy-specific, because
-  `measureCaratheodory` agrees definitionally with the induced outer measure on
-  *every* set.
+The generic completeness results this spike produced are **not** here: they concern
+only mathlib objects and live under `LoebMeasure/Mathlib/MeasureTheory/OuterMeasure/`
+as independently upstreamable modules. This file keeps only the spike fixtures and the
+inventory.
 
 ## Toy construction
 
 A Dirac content at `0` on the full powerset of `ℕ`, run through the route end to end:
-`AddContent` fields, `IsSetSemiring`, `IsSigmaSubadditive`, `measureCaratheodory`,
-the extension property (`toyMeasure_apply`), a probability-measure instance, and the
-completeness instance via the generic theorem.
+`AddContent` fields, `IsSetSemiring`, `IsSigmaSubadditive`, `measureCaratheodory`, the
+extension property (`toyMeasure_apply`), a probability-measure instance, and the
+completeness instance obtained by *wrapping* the generic theorem.
 
 ## Inventory: what remains substantive for internal-mod-null (C7/C8)
 
@@ -60,34 +55,11 @@ Steps 3–5 are genuine approximation theorems consuming saturation and finite m
 they are not formal consequences of the Carathéodory construction. This matches the
 boundary drawn in ADR-0003.
 
-Declaration names are provisional until ADR-0003 is accepted.
+Declaration names are provisional until the M3 units land.
 -/
 
 open MeasureTheory Set
 open scoped ENNReal
-
-namespace MeasureTheory
-
-/-- Null sets of an outer measure are Carathéodory measurable. -/
-theorem OuterMeasure.isCaratheodory_of_measure_zero {α : Type*} (m : OuterMeasure α)
-    {s : Set α} (h : m s = 0) : m.IsCaratheodory s := by
-  rw [OuterMeasure.isCaratheodory_iff_le']
-  intro t
-  have h1 : m (t ∩ s) = 0 := le_antisymm ((m.mono inter_subset_right).trans h.le) zero_le
-  rw [h1, zero_add]
-  exact m.mono sdiff_subset
-
-/-- The measure produced by `AddContent.measureCaratheodory` is complete: its
-measurable space is the Carathéodory sigma-algebra of the induced outer measure, its
-values agree with that outer measure on every set, and outer-measure-null sets are
-Carathéodory measurable. Completeness is not part of the mathlib API; this is the
-short direct proof predicted by ADR-0003. -/
-theorem AddContent.measureCaratheodory_isComplete {α : Type*} {C : Set (Set α)}
-    (m : AddContent ℝ≥0∞ C) (hC : IsSetSemiring C) (hsub : m.IsSigmaSubadditive) :
-    (m.measureCaratheodory hC hsub).IsComplete :=
-  ⟨fun _ hs ↦ OuterMeasure.isCaratheodory_of_measure_zero _ hs⟩
-
-end MeasureTheory
 
 namespace Loeb
 
@@ -143,8 +115,9 @@ theorem toyMeasure_apply (s : Set ℕ) : toyMeasure s = s.indicator 1 0 :=
 instance : IsProbabilityMeasure toyMeasure :=
   ⟨by rw [toyMeasure_apply]; simp⟩
 
-/-- Completeness of the toy measure, via the generic theorem — the shape of the
-eventual `(loebMeasure U X).IsComplete` instance. -/
+/-- Completeness of the toy measure, obtained by wrapping the generic theorem — the
+shape the eventual `(loebMeasure U X).IsComplete` instance must take: wrap, never
+duplicate the proof. -/
 instance : toyMeasure.IsComplete :=
   AddContent.measureCaratheodory_isComplete _ _ _
 
