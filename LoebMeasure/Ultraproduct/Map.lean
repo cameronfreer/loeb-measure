@@ -23,7 +23,10 @@ reindexings are all `Filter.Product.map` of something.
   representatives.
 * `Filter.Product.map_id`, `map_comp`, `map_map`: functoriality.
 * `Filter.Product.map_congr`: `map` depends only on the eventual behaviour of the
-  stagewise family — the shape later a.e.-style hypotheses take.
+  stagewise family.
+* `Filter.Product.map_congr_apply`: the strictly sharper pointwise form — eventual
+  agreement *at the given point* already suffices. This, rather than `map_congr`, is
+  the interface later a.e.-style hypotheses will meet.
 
 Everything is generic in `l : Filter ι`: no `Nonempty` fiber, ultrafilter, or
 countable-incompleteness hypothesis, per ADR-0001.
