@@ -7,3 +7,4 @@ import LoebMeasure.Basic
 import LoebMeasure.Ultraproduct.Basic
 import LoebMeasure.Ultraproduct.Map
 import LoebMeasure.Ultraproduct.Prod
+import LoebMeasure.Ultraproduct.FinitePower
