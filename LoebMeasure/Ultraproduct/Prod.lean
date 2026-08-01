@@ -45,8 +45,9 @@ variable {ι : Type*} {l : Filter ι} {X : ι → Type*} {Y : ι → Type*}
   {Z : ι → Type*} {W : ι → Type*}
 
 /-- Combine two filter-product elements into a product of the stagewise pairs. This is
-the direction that must merge representatives; well-definedness is the conjunction of
-two eventual equalities. -/
+the direction that must merge representatives: `liftOn` is nested, so the two
+representative changes are discharged sequentially rather than through a single
+combined eventual equality. -/
 def mkPair (x : l.Product X) (y : l.Product Y) : l.Product fun i ↦ X i × Y i := by
   refine liftOn x (fun f ↦ liftOn y (fun g ↦ ofFun fun i ↦ (f i, g i)) ?_) ?_
   · exact fun _ _ h ↦ ofFun_congr (h.mono fun i hi ↦ by rw [hi])
@@ -124,7 +125,8 @@ theorem map_mkPair (f : (i : ι) → X i → Z i) (g : (i : ι) → Y i → W i)
 
 /-- Naturality in equivalence form: transporting a pair through `prodEquiv.symm`
 commutes with stagewise maps of each factor. This is the version downstream code should
-use — it never mentions `mkPair`, so the rebuilding details stay private. -/
+use — it never mentions `mkPair`, so the rebuilding details stay hidden behind the
+equivalence API. -/
 @[simp]
 theorem map_prodEquiv_symm (f : (i : ι) → X i → Z i) (g : (i : ι) → Y i → W i)
     (x : l.Product X) (y : l.Product Y) :
@@ -154,7 +156,7 @@ example (x : l.Product X) (y : l.Product Y) :
   simp
 
 /-- Naturality is usable without ever naming `mkPair`: the rebuilding details stay
-private to this module. -/
+hidden behind the equivalence API. -/
 example (f : (i : ι) → X i → Z i) (g : (i : ι) → Y i → W i)
     (x : l.Product X) (y : l.Product Y) :
     map (fun i (p : X i × Y i) ↦ (f i p.1, g i p.2))
