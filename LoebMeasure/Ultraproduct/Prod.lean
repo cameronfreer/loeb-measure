@@ -15,10 +15,11 @@ l.Product (fun i ↦ X i × Y i)  ≃  l.Product X × l.Product Y
 ```
 
 This is the first equivalence of Layer U and the warm-up for the finite-power case: the
-inverse combines *two* representatives, and its well-definedness obligation is an
-intersection of two eventual-equality sets, handled by `Filter.Eventually.and`. No
-finiteness hypothesis is needed here; that first appears when the intersection ranges
-over an index type.
+inverse must combine *two* representatives. Here that is done by nesting `liftOn`, so
+the two representative changes are discharged one after another and no finiteness is
+involved. U4 is the genuinely harder case, where the representatives are indexed by a
+type and their eventual-equality sets must be intersected — which is where `Finite`
+becomes necessary.
 
 Both directions are built from the U1 eliminators, so `Quotient.mk`, `Quotient.sound`,
 `Quotient.liftOn`, and `Filter.productSetoid` appear nowhere in this file. The
@@ -62,10 +63,12 @@ theorem mkPair_ofFun (f : (i : ι) → X i) (g : (i : ι) → Y i) :
 
 Simp discipline: the normal form computes on *representatives* (`prodEquiv_ofFun`,
 `prodEquiv_symm_ofFun`), and round-trips are left to the generic
-`Equiv.symm_apply_apply`/`apply_symm_apply`. Lemmas unfolding `prodEquiv` or its
-inverse on an arbitrary element — `fst_prodEquiv`, `snd_prodEquiv`,
-`prodEquiv_symm_apply` — are deliberately *not* `simp`, since they would pre-empt those
-and leave round-trip goals stuck. -/
+`Equiv.symm_apply_apply`/`apply_symm_apply`. A lemma rewriting `prodEquiv` or its
+inverse *as a whole* on an arbitrary element — `prodEquiv_symm_apply`, or the
+`@[simps! apply]`-generated form — must therefore not be `simp`: it pre-empts those and
+leaves round-trip goals stuck. The projection lemmas `fst_prodEquiv`/`snd_prodEquiv`
+are *not* affected, since they rewrite a component rather than the equivalence itself,
+and are marked `simp`. -/
 def prodEquiv : (l.Product fun i ↦ X i × Y i) ≃ l.Product X × l.Product Y where
   toFun x := (map (fun _ ↦ Prod.fst) x, map (fun _ ↦ Prod.snd) x)
   invFun p := mkPair p.1 p.2
@@ -96,24 +99,39 @@ theorem prodEquiv_symm_ofFun (f : (i : ι) → X i) (g : (i : ι) → Y i) :
       = ofFun fun i ↦ (f i, g i) :=
   rfl
 
-/-- The first component is the first coordinate projection, as a `map`. -/
+/-- The first component is the first coordinate projection, as a `map`. Safe as `simp`:
+it rewrites a projection of the equivalence, not the equivalence itself, so the generic
+round-trip lemmas are unaffected. -/
+@[simp]
 theorem fst_prodEquiv (x : l.Product fun i ↦ X i × Y i) :
     (prodEquiv x).1 = map (fun _ ↦ Prod.fst) x :=
   rfl
 
-/-- The second component is the second coordinate projection, as a `map`. -/
+/-- The second component is the second coordinate projection, as a `map`. Safe as
+`simp`, for the same reason as `fst_prodEquiv`. -/
+@[simp]
 theorem snd_prodEquiv (x : l.Product fun i ↦ X i × Y i) :
     (prodEquiv x).2 = map (fun _ ↦ Prod.snd) x :=
   rfl
 
-/-- Naturality: transporting a pair through the inverse commutes with stagewise maps of
-each factor. -/
+/-- Naturality for the merging map: it commutes with stagewise maps of each factor. -/
 theorem map_mkPair (f : (i : ι) → X i → Z i) (g : (i : ι) → Y i → W i)
     (x : l.Product X) (y : l.Product Y) :
     map (fun i (p : X i × Y i) ↦ (f i p.1, g i p.2)) (mkPair x y)
       = mkPair (map f x) (map g y) := by
   induction x, y using Filter.Product.inductionOn₂ with
   | _ a b => simp
+
+/-- Naturality in equivalence form: transporting a pair through `prodEquiv.symm`
+commutes with stagewise maps of each factor. This is the version downstream code should
+use — it never mentions `mkPair`, so the rebuilding details stay private. -/
+@[simp]
+theorem map_prodEquiv_symm (f : (i : ι) → X i → Z i) (g : (i : ι) → Y i → W i)
+    (x : l.Product X) (y : l.Product Y) :
+    map (fun i (p : X i × Y i) ↦ (f i p.1, g i p.2))
+        ((prodEquiv (l := l) (X := X) (Y := Y)).symm (x, y))
+      = (prodEquiv (l := l) (X := Z) (Y := W)).symm (map f x, map g y) := by
+  simpa only [prodEquiv_symm_apply] using map_mkPair f g x y
 
 /-! ### API tests -/
 
@@ -133,6 +151,15 @@ example (x : l.Product fun i ↦ X i × Y i) : prodEquiv.symm (prodEquiv x) = x 
 
 example (x : l.Product X) (y : l.Product Y) :
     prodEquiv (X := X) (Y := Y) (prodEquiv.symm (x, y)) = (x, y) := by
+  simp
+
+/-- Naturality is usable without ever naming `mkPair`: the rebuilding details stay
+private to this module. -/
+example (f : (i : ι) → X i → Z i) (g : (i : ι) → Y i → W i)
+    (x : l.Product X) (y : l.Product Y) :
+    map (fun i (p : X i × Y i) ↦ (f i p.1, g i p.2))
+        ((prodEquiv (l := l) (X := X) (Y := Y)).symm (x, y))
+      = (prodEquiv (l := l) (X := Z) (Y := W)).symm (map f x, map g y) := by
   simp
 
 /-- **Genuinely dependent families**, with both fibers varying with the index. -/
