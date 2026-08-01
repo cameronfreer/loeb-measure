@@ -52,11 +52,18 @@ here needs to enumerate `κ`.
 * `Filter.Product.finitePiEquiv`: the equivalence, for `[Finite κ]`.
 * `Filter.Product.finPowerEquiv`: the `κ := Fin k` specialization, *definitionally* so.
 * `Filter.Product.finitePiEquiv_apply`, `finitePiEquiv_symm_ofFun`: computation rules.
+* `Filter.Product.eval_finitePiEquiv_symm`, `eval_finPowerEquiv_symm`: the
+  inverse-facing evaluation rules — the coordinates of an assembled family are the
+  family. These are what make downstream goals about `(…).symm F` progress.
 * `Filter.Product.map_finitePiEquiv_symm`: naturality against `Filter.Product.map`.
 
 Compatibility of these equivalences with coordinate reindexing and with permutation
 actions is deliberately **not** here: those are U5, and are derived from the evaluation
 and naturality laws below. This module does not depend on U5.
+
+Compatibility with the canonical coordinate split is likewise absent: the `splitEquiv`
+wrapper around `Fin.appendEquiv` fixed by the D0.4 audit has not yet reached `main`,
+so split compatibility follows whenever that wrapper is promoted.
 
 Everything is generic in `l : Filter ι`: no ultrafilter and no countable-incompleteness
 hypothesis, per ADR-0001.
@@ -84,8 +91,13 @@ This is the only place in the file where finiteness is consumed. -/
 
 /-- Pointwise eventual statements over a **finite** index type can be gathered into a
 single eventual statement. This is the one step requiring `[Finite κ]`: a filter is
-closed under finite intersections only. -/
-theorem eventually_forall_of_forall [Finite κ] {p : κ → ι → Prop}
+closed under finite intersections only.
+
+`private`, and deliberately so: it is just one direction of the existing
+`Filter.eventually_all`, carries no filter-product content, and does not belong in the
+`Filter.Product` namespace as public API. It exists only to give the finiteness step a
+single auditable name. -/
+private theorem eventually_forall_of_forall [Finite κ] {p : κ → ι → Prop}
     (h : ∀ a, ∀ᶠ i in l, p a i) : ∀ᶠ i in l, ∀ a, p a i :=
   Filter.eventually_all.2 h
 
@@ -181,6 +193,20 @@ theorem finitePiEquiv_symm_ofFun [Finite κ] (f : (i : ι) → κ → X i) :
   rw [finitePiEquiv_symm_apply]
   exact finitePiMk_ofFun f
 
+/-- Evaluating a coordinate of the inverse recovers that coordinate. Safe as `simp` in
+the U3 sense: it rewrites a coordinate, not the equivalence itself, so round-trip goals
+are unaffected. -/
+@[simp]
+theorem eval_finitePiEquiv_symm [Finite κ] (F : κ → l.Product X) (a : κ) :
+    eval a ((finitePiEquiv (l := l) (X := X) κ).symm F) = F a := by
+  rw [finitePiEquiv_symm_apply, eval_finitePiMk]
+
+/-- The `Fin`-power form of `eval_finitePiEquiv_symm`. -/
+@[simp]
+theorem eval_finPowerEquiv_symm (k : ℕ) (F : Fin k → l.Product X) (j : Fin k) :
+    eval j ((finPowerEquiv (l := l) (X := X) k).symm F) = F j := by
+  rw [finPowerEquiv_symm_apply, eval_finitePiMk]
+
 /-! ### Naturality
 
 The generic laws from which U5 will derive reindexing and permutation compatibility.
@@ -205,6 +231,7 @@ theorem map_finitePiMk [Finite κ] (f : (i : ι) → X i → Y i) (F : κ → l.
 /-- Naturality in equivalence form, the interface downstream code should use: it never
 mentions `finitePiMk`, so the representative choice stays hidden behind the equivalence
 API. -/
+@[simp]
 theorem map_finitePiEquiv_symm [Finite κ] (f : (i : ι) → X i → Y i)
     (F : κ → l.Product X) :
     map (fun i (g : κ → X i) ↦ fun b ↦ f i (g b))
@@ -219,9 +246,9 @@ theorem map_finitePiEquiv_symm [Finite κ] (f : (i : ι) → X i → Y i)
 and the equivalence is trivially determined. -/
 @[simp]
 theorem finPowerEquiv_zero (x : l.Product fun i ↦ Fin 0 → X i) :
-    finPowerEquiv (l := l) (X := X) 0 x = fun j ↦ absurd j.isLt (Nat.not_lt_zero _) := by
+    finPowerEquiv (l := l) (X := X) 0 x = Fin.elim0 := by
   funext j
-  exact absurd j.isLt (Nat.not_lt_zero _)
+  exact j.elim0
 
 /-- Degree one: the single coordinate is evaluation at `0`. -/
 theorem finPowerEquiv_one (x : l.Product fun i ↦ Fin 1 → X i) :
@@ -240,6 +267,14 @@ example (f : (i : ι) → κ → X i) (a : κ) :
 example [Finite κ] (f : (i : ι) → κ → X i) :
     (finitePiEquiv (l := l) (X := X) κ).symm (fun a ↦ ofFun fun i ↦ f i a) = ofFun f := by
   simp
+
+/-- The inverse-facing evaluation rules: coordinates of an assembled family are the
+family, by `simp`. These are the goals downstream code actually meets. -/
+example [Finite κ] (F : κ → l.Product X) (a : κ) :
+    eval a ((finitePiEquiv (l := l) (X := X) κ).symm F) = F a := by simp
+
+example (k : ℕ) (F : Fin k → l.Product X) (j : Fin k) :
+    eval j ((finPowerEquiv (l := l) (X := X) k).symm F) = F j := by simp
 
 /-- **Round-trips close through the generic `Equiv` simp lemmas**, on arbitrary
 elements, as the U3 discipline requires. -/
@@ -275,8 +310,8 @@ example {ι' : Type 2} {l' : Filter ι'} {X' : ι' → Type 5} {κ' : Type 7} [F
 example [Finite κ] (f : (i : ι) → X i → Y i) (F : κ → l.Product X) :
     map (fun i (g : κ → X i) ↦ fun b ↦ f i (g b))
         ((finitePiEquiv (l := l) (X := X) κ).symm F)
-      = (finitePiEquiv (l := l) (X := Y) κ).symm fun a ↦ map f (F a) :=
-  map_finitePiEquiv_symm f F
+      = (finitePiEquiv (l := l) (X := Y) κ).symm fun a ↦ map f (F a) := by
+  simp
 
 end Tests
 
