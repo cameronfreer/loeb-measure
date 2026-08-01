@@ -13,9 +13,10 @@ import Mathlib.Logic.Equiv.Basic
 Reindexing the coordinates of a filter product of function types, and the permutation
 action as its special case.
 
-Both are `Filter.Product.map`s, so they need no finiteness, and everything about them
-is derived from the evaluation and naturality laws of
-`LoebMeasure/Ultraproduct/FinitePower.lean` rather than from fresh quotient arguments.
+Both are `Filter.Product.map`s, so they need no finiteness. The algebraic reindexing
+laws derive from U2's functor laws, while compatibility with the finite-power
+equivalences derives from U4's evaluation API. No fresh quotient arguments are needed.
+
 The single law that drives the file is
 
 ```
