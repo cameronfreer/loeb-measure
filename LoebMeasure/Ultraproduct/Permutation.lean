@@ -22,11 +22,15 @@ The single law that drives the file is
 eval a (reindex σ x) = eval (σ a) x
 ```
 
-whose proof is a single representative elimination — both sides are the same
-coordinatewise `map`, but at different universe instantiations of `eval`, so `rfl`
-alone does not typecheck. Compatibility with `finitePiEquiv` then follows from that
-plus `finitePiEquiv_apply`; `[Finite _]` appears only in statements that mention the
-equivalence.
+which is proved from U2's functor laws, not by quotient induction: the left-hand side
+is a *nested* pair of `map`s and the right-hand side a single one, so `rfl` does not
+apply — the obstruction is nesting, not the coordinate types, and it remains even when
+`κ' = κ`. `map_map` closes the gap. Compatibility with `finitePiEquiv` then follows
+from that plus `finitePiEquiv_apply`; `[Finite _]` appears only in statements that
+mention the equivalence.
+
+Nothing in this file performs representative elimination: the abstraction boundary
+established by U1/U2 is genuinely sufficient here.
 
 ## The permutation action is contravariant
 
@@ -47,7 +51,9 @@ lemma, so that rewriting cannot silently pick an orientation.
 * `Filter.Product.finitePiEquiv_reindex`: reindexing corresponds to precomposition of
   the transported family.
 * `Filter.Product.permute` with `eval_permute`, `permute_one`, `permute_mul`,
-  `permute_permute_symm`.
+  `permute_permute_symm`, and `permute_zero`.
+* `Filter.Product.finitePiEquiv_permute`, and the graded-facing `Fin` specializations
+  `finPowerEquiv_reindex` and `finPowerEquiv_permute`.
 
 Everything is generic in `l : Filter ι`: no ultrafilter and no countable-incompleteness
 hypothesis, per ADR-0001.
@@ -76,19 +82,17 @@ derived from this rather than from a fresh quotient argument. -/
 @[simp]
 theorem eval_reindex (σ : κ' → κ) (a : κ') (x : l.Product fun i ↦ κ → X i) :
     eval a (reindex σ x) = eval (σ a) x := by
-  induction x using Filter.Product.inductionOn with
-  | _ f => rfl
+  simp only [eval, reindex, map_map, Function.comp_def]
 
 @[simp]
 theorem reindex_id (x : l.Product fun i ↦ κ → X i) : reindex id x = x := by
-  induction x using Filter.Product.inductionOn with
-  | _ f => rfl
+  change map (fun _ : ι ↦ id) x = x
+  exact map_id_apply x
 
 /-- Reindexing is contravariantly functorial. -/
 theorem reindex_comp (σ : κ' → κ) (τ : κ'' → κ') (x : l.Product fun i ↦ κ → X i) :
     reindex τ (reindex σ x) = reindex (σ ∘ τ) x := by
-  induction x using Filter.Product.inductionOn with
-  | _ f => rfl
+  simp only [reindex, map_map, Function.comp_def]
 
 /-- Compatibility with the finite-product equivalence: reindexing corresponds to
 precomposing the transported family. Derived from `eval_reindex` and
@@ -129,8 +133,8 @@ theorem permute_one (x : l.Product fun i ↦ κ → X i) :
 so that rewriting cannot silently pick an orientation. -/
 theorem permute_mul (σ τ : Equiv.Perm κ) (x : l.Product fun i ↦ κ → X i) :
     permute (σ * τ) x = permute τ (permute σ x) := by
-  induction x using Filter.Product.inductionOn with
-  | _ f => rfl
+  simpa only [permute, Equiv.Perm.coe_mul] using
+    (reindex_comp (l := l) (X := X) (σ : κ → κ) (τ : κ → κ) x).symm
 
 @[simp]
 theorem permute_permute_symm (σ : Equiv.Perm κ) (x : l.Product fun i ↦ κ → X i) :
@@ -148,6 +152,32 @@ theorem finitePiEquiv_permute [Finite κ] (σ : Equiv.Perm κ)
     finitePiEquiv (l := l) (X := X) κ (permute σ x)
       = fun a ↦ finitePiEquiv (l := l) (X := X) κ x (σ a) :=
   finitePiEquiv_reindex σ x
+
+/-! ### `Fin` specializations
+
+`finPowerEquiv` is an opaque `def`, so the generic theorems above do not by themselves
+give the graded-facing API; these state it directly. Both are plain theorems rather than
+`simp` lemmas, since they rewrite the whole equivalence. -/
+
+/-- The `Fin`-power form of `finitePiEquiv_reindex`. -/
+theorem finPowerEquiv_reindex {k k' : ℕ} (σ : Fin k' → Fin k)
+    (x : l.Product fun i ↦ Fin k → X i) :
+    finPowerEquiv (l := l) (X := X) k' (reindex σ x)
+      = fun a ↦ finPowerEquiv (l := l) (X := X) k x (σ a) := by
+  simpa only [finPowerEquiv_eq] using finitePiEquiv_reindex (l := l) (X := X) σ x
+
+/-- The `Fin`-power form of `finitePiEquiv_permute`. -/
+theorem finPowerEquiv_permute {k : ℕ} (σ : Equiv.Perm (Fin k))
+    (x : l.Product fun i ↦ Fin k → X i) :
+    finPowerEquiv (l := l) (X := X) k (permute σ x)
+      = fun a ↦ finPowerEquiv (l := l) (X := X) k x (σ a) := by
+  simpa only [finPowerEquiv_eq] using finitePiEquiv_permute (l := l) (X := X) σ x
+
+/-- Degree zero is painless: every permutation of `Fin 0` acts trivially. -/
+@[simp]
+theorem permute_zero (σ : Equiv.Perm (Fin 0)) (x : l.Product fun i ↦ Fin 0 → X i) :
+    permute σ x = x := by
+  rw [Subsingleton.elim σ 1, permute_one]
 
 /-! ### API tests -/
 
@@ -178,6 +208,21 @@ example [Finite κ] [Finite κ'] (σ : κ' → κ) (x : l.Product fun i ↦ κ �
     finitePiEquiv (l := l) (X := X) κ' (reindex σ x) a
       = finitePiEquiv (l := l) (X := X) κ x (σ a) := by
   simp
+
+/-- The `Fin` specializations, which the graded layer will use directly. -/
+example {k k' : ℕ} (σ : Fin k' → Fin k) (x : l.Product fun i ↦ Fin k → X i) (a : Fin k') :
+    finPowerEquiv (l := l) (X := X) k' (reindex σ x) a
+      = finPowerEquiv (l := l) (X := X) k x (σ a) := by
+  rw [finPowerEquiv_reindex]
+
+example {k : ℕ} (σ : Equiv.Perm (Fin k)) (x : l.Product fun i ↦ Fin k → X i) (a : Fin k) :
+    finPowerEquiv (l := l) (X := X) k (permute σ x) a
+      = finPowerEquiv (l := l) (X := X) k x (σ a) := by
+  rw [finPowerEquiv_permute]
+
+/-- Degree zero: every permutation acts trivially, by `simp`. -/
+example (σ : Equiv.Perm (Fin 0)) (x : l.Product fun i ↦ Fin 0 → X i) :
+    permute σ x = x := by simp
 
 /-- **A genuine permutation example**: the swap on `Fin 3` exchanges the corresponding
 coordinates of a `Fin 3`-power. -/
