@@ -163,9 +163,14 @@ The inverse-facing companions of `eval_reindex`: reindexing a family that was as
 from coordinates is the family precomposed with the reindexing. Safe as `simp` — they
 rewrite an operation *surrounding* the inverse, not the equivalence itself. -/
 
-/-- Reindexing an assembled family precomposes it. -/
+/-- Reindexing an assembled family precomposes it.
+
+Only `[Finite κ']` is needed: the proof injects through the *target* equivalence, and
+the source coordinate type is never intersected over. `reindex_finitePiEquiv_symm`
+below does need `[Finite κ]` as well, because its statement mentions the source
+equivalence. -/
 @[simp]
-theorem reindex_finitePiMk [Finite κ] [Finite κ'] (σ : κ' → κ) (F : κ → l.Product X) :
+theorem reindex_finitePiMk [Finite κ'] (σ : κ' → κ) (F : κ → l.Product X) :
     reindex σ (finitePiMk F) = finitePiMk (F ∘ σ) := by
   refine (finitePiEquiv (l := l) (X := X) κ').injective (funext fun a ↦ ?_)
   rw [finitePiEquiv_apply, finitePiEquiv_apply, eval_reindex, eval_finitePiMk,
