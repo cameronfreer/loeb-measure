@@ -1,10 +1,11 @@
 # Issue seeds
 
-These are seed titles and acceptance summaries, not a request to open every issue
-immediately. Create the M0 issues first, then open downstream units when their
-assumptions are stable.
+These are seed titles and acceptance summaries for work that has **not yet been
+opened** as issues — a planning reservoir, not a live backlog. The live backlog is the
+GitHub issue tracker; entries here are removed as they become real issues, and seeds
+whose milestone has already been worked may be out of date.
 
-IDs are local planning identifiers and can be replaced by GitHub issue numbers.
+IDs are local planning identifiers, replaced by GitHub issue numbers once opened.
 
 ## Epics
 

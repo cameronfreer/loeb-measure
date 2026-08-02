@@ -41,11 +41,14 @@ State the selected option and its exact scope.
 Record benefits, costs, follow-up issues, and migration risks.
 ```
 
-Initial proposed records:
+Accepted records:
 
-- [ADR-0001: ultrafilter hypothesis](0001-ultrafilter-hypothesis.md)
-- [ADR-0002: probability ultralimit codomain](0002-probability-ultralimit.md)
-- [ADR-0003: Loeb measure construction](0003-loeb-measure-construction.md)
+- [ADR-0001: ultrafilter hypothesis](0001-ultrafilter-hypothesis.md) — countable
+  incompleteness as a predicate on `Filter`.
+- [ADR-0002: probability ultralimit codomain](0002-probability-ultralimit.md) — `ℝ≥0∞`
+  directly.
+- [ADR-0003: Loeb measure construction](0003-loeb-measure-construction.md) —
+  Carathéodory-first.
 
 Anticipated records, deliberately not created yet so unstable work is not seeded
 prematurely:
