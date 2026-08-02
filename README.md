@@ -68,6 +68,15 @@ end-to-end application is the homomorphism-density identity for an internal grap
 which exercises the ultraproduct, internal-set, finite-power, and Loeb-measure APIs
 before the much harder Fubini and realization work.
 
+## Trust
+
+CI builds the public library against the pinned Lean/mathlib environment with warnings
+treated as errors, which also rejects `sorry`. It additionally runs an axiom audit:
+every **audited boundary declaration** — selected public entry points from each module,
+listed in `scripts/AxiomAudit.lean` — must depend only on `propext`, `Classical.choice`, and
+`Quot.sound`, transitively. That is a boundary audit, not an enumeration of every
+declaration in the library.
+
 ## Building
 
 Lean and mathlib versions are pinned by `lean-toolchain` and `lake-manifest.json`, so
