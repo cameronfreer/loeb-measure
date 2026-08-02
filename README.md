@@ -13,9 +13,12 @@ universal star map, automatic transfer, or hyperreal calculus.
 
 ## Status
 
-This project is under active development. It currently provides a reusable API over
-mathlib's dependent filter product. The Loeb measure construction and its applications
-are still in progress.
+This project is under active development. The Loeb measure construction and its
+applications are still in progress.
+
+| Layer | Available now | Next boundary |
+| --- | --- | --- |
+| Dependent ultraproducts | Representatives and eliminators; coordinatewise maps; binary and finite-power equivalences; reindexing and permutations | Internal sets, carriers, and diagonalization |
 
 The [roadmap](ROADMAP.md) describes the capability sequence; GitHub milestones and
 issues are the live development record.

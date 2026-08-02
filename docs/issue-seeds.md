@@ -1,11 +1,10 @@
 # Issue seeds
 
-These are seed titles and acceptance summaries for work that has **not yet been
-opened** as issues — a planning reservoir, not a live backlog. The live backlog is the
-GitHub issue tracker; entries here are removed as they become real issues, and seeds
-whose milestone has already been worked may be out of date.
+This records the original work-unit decomposition. It is **not** updated as issues open
+or close; GitHub is authoritative. Revalidate any remaining seed before opening it —
+assumptions may have changed since it was written.
 
-IDs are local planning identifiers, replaced by GitHub issue numbers once opened.
+IDs are local planning identifiers, superseded by GitHub issue numbers once opened.
 
 ## Epics
 

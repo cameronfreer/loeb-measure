@@ -18,8 +18,16 @@ at a time:
 
 - **Status lives on GitHub, not in files.** Milestones and issues are the live record.
   Prose in the repository should describe capabilities and invariants, not progress.
-- **The API reference is the module docstrings.** Lists of declarations or files kept
-  elsewhere go stale independently of the code; docstrings cannot.
+- **The API reference is the module docstrings.** Not because docstrings cannot drift —
+  review has caught them drifting — but because they are reviewed alongside the
+  declarations they describe, so they drift far less than a duplicated inventory kept
+  somewhere else.
+
+## What does not belong in the README
+
+No exact counts, exhaustive file trees, per-merge history, duplicated version pins, or
+long proof narratives. Each of those has to be maintained by hand and drifts silently;
+each has a better home in this map.
 
 ## The documents
 

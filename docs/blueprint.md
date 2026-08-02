@@ -4,10 +4,10 @@ This is a declaration-level planning artifact for layers **not yet implemented**
 not a second specification: compiled Lean declarations and accepted decision records
 take precedence, and where code exists it supersedes what is written here.
 
-Layer U (the dependent ultraproduct API) is implemented; its module docstrings are the
-reference, and the sketches below are retained only for the parts that have not landed.
-Everything from Layer I onward is genuinely provisional — names, hypotheses, and
-universe parameters may all change when the corresponding unit is written.
+The rule is uniform and needs no updating: **a section here is provisional exactly when
+it has no corresponding compiled module**, and where a module exists its docstrings are
+the reference. Names, hypotheses, and universe parameters in an unimplemented section
+may all change when the corresponding unit is written.
 
 ## Dependency DAG
 

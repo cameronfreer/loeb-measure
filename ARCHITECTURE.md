@@ -192,18 +192,14 @@ In particular, “free ultrafilter” must not be an undocumented global convent
 ## Decisions
 
 Choices whose consequences span milestones are recorded as decision records rather than
-buried in an implementation PR. Accepted:
+buried in an implementation PR. The accepted decisions are already incorporated above as
+invariants; [docs/decisions/README.md](docs/decisions/README.md) owns their status list.
 
-1. the hypothesis expressing freeness/countable incompleteness (ADR-0001);
-2. the codomain for probability ultralimits (ADR-0002);
-3. the `AddContent`/Carathéodory construction and its relation to the Elek–Szegedy
-   null-completion definition (ADR-0003).
+Two decisions are deliberately deferred, with their activation triggers:
 
-Deliberately deferred until their milestone reaches the decision point:
-
-4. whether general probability spaces cost essentially more than finite counting spaces
-   — activate before M3;
-5. what `Graded.ProbabilitySpace` bundles — measurable spaces, measures, or both with
-   explicit compatibility proofs — activate before M6.
+- whether general probability spaces cost essentially more than finite counting spaces
+  — activate before M3;
+- what `Graded.ProbabilitySpace` bundles — measurable spaces, measures, or both with
+  explicit compatibility proofs — activate before M6.
 
 See [docs/decisions/README.md](docs/decisions/README.md).
