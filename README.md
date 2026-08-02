@@ -10,8 +10,12 @@ first goal is a reusable library for dependent ultraproducts, internal sets and 
 functions, Loeb measure and integration, and the **graded** finite-power/Fubini theory
 needed by Hoover and Elek–Szegedy.
 
-The repository is currently a scaffold: the build, root import spine, and CI are wired
-up, but the mathematical content has not landed yet.
+**Status.** The M0 design spikes are complete and their three decision records are
+accepted. Milestone M1 — an ergonomic API over mathlib's dependent filter product — is
+implemented: representatives and eliminators, coordinatewise maps, the binary product
+equivalence, the finite dependent-product and `Fin`-power equivalences, and coordinate
+reindexing with the permutation action. Internal sets, content, and Loeb measure (M2
+and M3) have not landed yet.
 
 ## Scope
 
@@ -67,21 +71,29 @@ lake build
 ## Layout
 
 ```
-LoebMeasure.lean         root import spine
-LoebMeasure/Basic.lean   temporary scaffold
-docs/                    design, tracking, and research guides
+LoebMeasure.lean                           root import spine
+LoebMeasure/Basic.lean                     the project-facing `Loeb` surface
+LoebMeasure/Ultraproduct/Basic.lean        representatives, eliminators, liftOn
+LoebMeasure/Ultraproduct/Map.lean          coordinatewise maps and functor laws
+LoebMeasure/Ultraproduct/Prod.lean         the binary product equivalence
+LoebMeasure/Ultraproduct/FinitePower.lean  finite dependent-product / `Fin`-power equivalences
+LoebMeasure/Ultraproduct/Permutation.lean  coordinate reindexing and the permutation action
+docs/                                      design, tracking, and research guides
 ```
 
-Declarations live principally in the `Loeb` namespace:
+Project-facing declarations live in the `Loeb` namespace:
 
 ```lean
 import LoebMeasure
 
 open Loeb
+
+#check Ultraproduct   -- an ultrafilter-indexed dependent filter product
 ```
 
 Generic extensions of existing mathlib objects instead use their natural mathlib
-namespace, for example `Filter.Product`.
+namespace: the whole M1 layer is stated for `Filter.Product` and applies to
+`Loeb.Ultraproduct` without restatement, which is what keeps it upstreamable.
 
 ## License
 
