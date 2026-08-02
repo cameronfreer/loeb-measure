@@ -8,18 +8,17 @@ limits, in Lean 4 / [mathlib](https://github.com/leanprover-community/mathlib4).
 The project is deliberately narrower than a general nonstandard-analysis framework. Its
 goal is a reusable library for dependent ultraproducts, internal sets and bounded
 functions, Loeb measure and integration, and the **graded** finite-power/Fubini theory
-needed by Hoover and Elek–Szegedy. A universal star map, automatic transfer, and
-hyperreal calculus are not dependencies.
+needed by Hoover and Elek–Szegedy. The core Loeb construction does not require a
+universal star map, automatic transfer, or hyperreal calculus.
 
-## Where the project is
+## Status
 
-A reusable API over mathlib's dependent filter product is in place under
-`LoebMeasure/Ultraproduct/`; the foundational design decisions behind it are settled and
-recorded in [`docs/decisions/`](docs/decisions). Loeb measure itself is not built yet.
+This project is under active development. It currently provides a reusable API over
+mathlib's dependent filter product. The Loeb measure construction and its applications
+are still in progress.
 
-The current milestone, its gate, and everything still to come are in the
-[roadmap](ROADMAP.md); open work is on the issue tracker. This section is deliberately
-coarse so that it stays true — treat the roadmap and the issues as the live record.
+The [roadmap](ROADMAP.md) describes the capability sequence; GitHub milestones and
+issues are the live development record.
 
 ## Using it
 
@@ -68,24 +67,24 @@ before the much harder Fubini and realization work.
 
 ## Building
 
-The project pins Lean `v4.32.2` and the mathlib revision at that tag
-(`905b95818eb32af7874a58b427f50c1711a5e96c`), so it builds against exactly one mathlib.
+Lean and mathlib versions are pinned by `lean-toolchain` and `lake-manifest.json`, so
+the project builds against exactly one mathlib.
 
 ```bash
 lake exe cache get   # mathlib build cache
 lake build
 ```
 
-## Project guides
+## Further reading
 
-- [Roadmap](ROADMAP.md) — milestone gates and the two application branches.
-- [Architecture](ARCHITECTURE.md) — stable naming, namespace, and dependency rules.
-- [Decisions](docs/decisions) — accepted records for the foundational choices.
-- [Declaration blueprint](docs/blueprint.md) — planned Lean API and its dependency DAG.
+- [Roadmap](ROADMAP.md) — the capability sequence and its mathematical gates.
+- [Architecture](ARCHITECTURE.md) and the [decision records](docs/decisions) — stable
+  invariants, and why the foundational choices were made.
+- [Research landscape](docs/research-landscape.md) — what exists in Lean and other
+  provers, and the primary sources.
 - [Contributing](CONTRIBUTING.md) — proof and review workflow.
-- [Tracking guide](docs/tracking.md) — milestones, labels, and what "done" means.
-- [Issue seeds](docs/issue-seeds.md) — epics and work units not yet opened.
-- [Research landscape](docs/research-landscape.md) — prover/library survey and sources.
+
+A full map of the project's documentation is in [docs/README.md](docs/README.md).
 
 ## License
 
