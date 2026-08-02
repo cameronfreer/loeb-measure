@@ -52,5 +52,7 @@ at a time:
 
 ### Upstreaming
 
-- [`LoebMeasure/Mathlib/README.md`](../LoebMeasure/Mathlib/README.md) — the mirror-path
-  convention for material intended for mathlib.
+Generic material intended for mathlib is kept under a `LoebMeasure/Mathlib/` mirror
+directory whose paths match the proposed upstream module, with its own README recording
+the convention. That directory currently exists only on the M0 spike branches; it
+reaches `main` when the first upstream-shaped material is promoted.
