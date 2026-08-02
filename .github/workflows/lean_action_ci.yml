@@ -15,5 +15,13 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # Builds the `LoebMeasure` default target (strict — `warningAsError` is on).
+      # Builds the `LoebMeasure` default target (strict — `warningAsError` is on, so
+      # `sorry` is rejected here: `declaration uses 'sorry'` is a warning).
       - uses: leanprover/lean-action@v1
+
+      # Axiom hygiene: every audited boundary declaration must depend only on
+      # `propext`, `Classical.choice`, and `Quot.sound`, transitively. The same file
+      # exercises the documented root surface (`import LoebMeasure; open Loeb;
+      # Ultraproduct`), so a regression in the facade fails CI rather than a reader.
+      - name: Verify axiom hygiene and the root surface
+        run: lake env lean scripts/AxiomAudit.lean
