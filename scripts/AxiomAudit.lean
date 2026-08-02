@@ -26,10 +26,14 @@ Run in CI by `lake env lean scripts/AxiomAudit.lean`. Two jobs:
 
 ## Scope
 
-This audits the **named public boundary declarations** listed below: the entry point of
-each module, chosen so that the transitive closure covers the substance of the library.
-It is deliberately *not* a whole-library enumeration, and the README says so. Adding a
-module means adding its boundary declarations here.
+This audits the **named public boundary declarations** listed below: selected public
+entry points from each module, chosen so that the transitive closure covers the
+substance of the library. It is deliberately *not* a whole-library enumeration, and the
+README says so.
+
+Changing a public module or capability obliges you to revisit this list — keeping it
+representative is a semantic judgement that no automated check can make, so it is a
+reviewer checklist item in `CONTRIBUTING.md` and the pull-request template.
 -/
 
 open Lean Elab Command

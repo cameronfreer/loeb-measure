@@ -66,12 +66,16 @@ Before requesting review:
 
 ```bash
 lake build
+lake env lean scripts/AxiomAudit.lean
 ```
 
 and confirm:
 
 - no `sorry` in the PR scope;
 - no new nonstandard axioms;
+- if a public module or capability changed, `scripts/AxiomAudit.lean` has been
+  reviewed and updated — its list of audited boundary declarations must keep covering
+  the substance of the library, which no automated check can verify;
 - no linter warnings (warnings are errors in this package);
 - public declarations have docstrings;
 - tests/examples use the public API rather than unfolding quotients;

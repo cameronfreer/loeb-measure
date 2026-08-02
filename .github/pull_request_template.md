@@ -15,6 +15,7 @@ Closes #
 - [ ] `lake build`
 - [ ] No `sorry` in scope
 - [ ] No new nonstandard axioms
+- [ ] If a public module or capability changed, `scripts/AxiomAudit.lean` reviewed and updated
 - [ ] Public declarations and modules have docstrings
 - [ ] Examples use the public API rather than quotient unfolding
 - [ ] Roadmap/blueprint/decision records updated if assumptions or dependencies changed
