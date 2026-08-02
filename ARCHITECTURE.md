@@ -75,12 +75,13 @@ This separation keeps:
 - Boolean operations computational on internal data; and
 - downstream measure theory phrased in ordinary `Set` and `MeasurableSet` language.
 
-### Probability ultralimits are bounded topological limits
+### Probability ultralimits are bounded topological limits in `ℝ≥0∞`
 
-Stagewise probabilities lie in a compact bounded range. The foundational definition
-should use an ultrafilter limit in that range, rather than detouring through hyperreals
-and standard part. The precise codomain is an M0 decision because it affects continuity
-and coercion proofs.
+Stagewise probabilities are combined by an ultrafilter limit, never by a detour through
+hyperreals and standard part. The codomain is `ℝ≥0∞` directly: it is compact Hausdorff
+with continuous addition and is already the `AddContent` codomain, so no conversion
+layer appears in the content pipeline (ADR-0002). Nonemptiness of the stage spaces is
+required for probability *normalization*, not for boundedness.
 
 ### The first concrete model is normalized finite counting measure
 
@@ -99,58 +100,22 @@ under `Loeb`.
 Potential upstream declarations should be isolated in modules whose dependency set is
 acceptable to mathlib.
 
-## Planned module tree
+## Module layers
+
+Modules are grouped into dependency layers under `LoebMeasure/`. The layers, not the
+individual files, are the architectural commitment; a file inventory would age with
+every merge, so the module docstrings are the reference for what exists.
 
 ```text
-LoebMeasure.lean
-
-LoebMeasure/
-  Ultraproduct/
-    Basic.lean
-    Map.lean
-    FinitePower.lean
-    Permutation.lean
-
-  Internal/
-    Set.lean
-    Function.lean
-    Relation.lean
-    Diagonal.lean
-
-  Ultralimit/
-    Compact.lean
-    Probability.lean
-
-  Measure/
-    Content.lean
-    Construction.lean
-    Approximation.lean
-    Completion.lean
-
-  Integral/
-    Bounded.lean
-    InternalFunction.lean
-
-  Graded/
-    Basic.lean
-    Power.lean
-    Section.lean
-    Fubini.lean
-    CoordinateSigma.lean
-
-  Exchangeability/
-    Sampling.lean
-    Hoover.lean
-
-  GraphLimit/
-    InternalGraph.lean
-    HomDensity.lean
-    GraphonRealization.lean
-
-  Hypergraph/
-    CoordinateSigma.lean
-    TotalIndependence.lean
-    ElekSzegedy.lean
+Ultraproduct/   the generic dependent filter-product API
+Internal/       internal sets, functions, relations, and diagonalization
+Ultralimit/     compact ultralimits and probability values
+Measure/        internal content, Loeb measure, approximation, completion
+Integral/       bounded internal functions and their integrals
+Graded/         graded finite powers, sections, and Fubini
+GraphLimit/     internal graphs, homomorphism densities, graphon realization
+Exchangeability/  relation sampling and the Hoover representation
+Hypergraph/     coordinate systems, total independence, Elek–Szegedy
 ```
 
 Directories are dependency layers, not mandatory namespace components. For example:
@@ -224,18 +189,17 @@ In particular, “free ultrafilter” must not be an undocumented global convent
   do not repeatedly split it.
 - Root imports expose only completed, documented modules.
 
-## Open decisions
+## Decisions
 
-The following decisions are intentionally not hidden inside the first implementation
-PR:
+Choices whose consequences span milestones are recorded as decision records rather than
+buried in an implementation PR. The accepted decisions are already incorporated above as
+invariants; [docs/decisions/README.md](docs/decisions/README.md) owns their status list.
 
-1. the exact property expressing freeness/countable incompleteness;
-2. the compact codomain for probability ultralimits;
-3. the precise `AddContent`/Carathéodory construction and its relation to the
-   Elek–Szegedy null-completion definition;
-4. whether general probability spaces cost essentially more than finite counting
-   spaces at M3; and
-5. whether `Graded.ProbabilitySpace` bundles measurable spaces, measures, or both with
-   explicit compatibility proofs.
+Two decisions are deliberately deferred, with their activation triggers:
+
+- whether general probability spaces cost essentially more than finite counting spaces
+  — activate before M3;
+- what `Graded.ProbabilitySpace` bundles — measurable spaces, measures, or both with
+  explicit compatibility proofs — activate before M6.
 
 See [docs/decisions/README.md](docs/decisions/README.md).

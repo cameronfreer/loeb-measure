@@ -6,16 +6,43 @@ Loeb measure, ultraproduct probability, and applications to exchangeability and 
 limits, in Lean 4 / [mathlib](https://github.com/leanprover-community/mathlib4).
 
 The project is deliberately narrower than a general nonstandard-analysis framework. Its
-first goal is a reusable library for dependent ultraproducts, internal sets and bounded
+goal is a reusable library for dependent ultraproducts, internal sets and bounded
 functions, Loeb measure and integration, and the **graded** finite-power/Fubini theory
-needed by Hoover and Elek–Szegedy.
+needed by Hoover and Elek–Szegedy. The core Loeb construction does not require a
+universal star map, automatic transfer, or hyperreal calculus.
 
-The repository is currently a scaffold: the build, root import spine, and CI are wired
-up, but the mathematical content has not landed yet.
+## Status
 
-## Scope
+This project is under active development. The Loeb measure construction and its
+applications are still in progress.
 
-The common critical path is:
+| Layer | Available now | Next boundary |
+| --- | --- | --- |
+| Dependent ultraproducts | Representatives and eliminators; coordinatewise maps; binary and finite-power equivalences; reindexing and permutations | Internal sets, carriers, and diagonalization |
+
+The [roadmap](ROADMAP.md) describes the capability sequence; GitHub milestones and
+issues are the live development record.
+
+## Using it
+
+```lean
+import LoebMeasure
+
+open Loeb
+
+#check Ultraproduct   -- an ultrafilter-indexed dependent filter product
+```
+
+Project-specific declarations live in the `Loeb` namespace. Generic results instead use
+the natural mathlib namespace they belong to — the ultraproduct API is stated for
+`Filter.Product` and applies to `Loeb.Ultraproduct` without restatement. That split is
+what keeps the generic half upstreamable, and it is a rule rather than an accident: see
+[ARCHITECTURE](ARCHITECTURE.md).
+
+Each module's docstring states its own contents and conventions; that is the reference
+for what exists, in preference to any list kept here.
+
+## The mathematical plan
 
 ```text
 dependent ultraproduct API
@@ -34,54 +61,33 @@ graded finite powers, sections, and Fubini
         └── Elek–Szegedy coordinate factors and graphon realization
 ```
 
-The finite-power spaces are graded: the Loeb measurable space on an ultraproduct
-of finite powers is not replaced by the generally smaller ordinary product
-measurable space. A universal star map, automatic transfer, hyperreal calculus, and
-the full structure/uniqueness theories of either target are not initial dependencies.
-
-The first end-to-end application will be the homomorphism-density identity for an
-internal graph. It gives an early test of the ultraproduct, internal-set, finite-power,
-and Loeb-measure APIs before the much harder Fubini and realization work.
-
-## Project guides
-
-- [Roadmap](ROADMAP.md) gives milestone gates and the two application branches.
-- [Architecture](ARCHITECTURE.md) records stable naming and dependency rules.
-- [Declaration blueprint](docs/blueprint.md) sketches the initial Lean API and its DAG.
-- [Issue seeds](docs/issue-seeds.md) lists ready-to-create epics and work units.
-- [Tracking guide](docs/tracking.md) defines milestones, labels, and “done.”
-- [Research landscape](docs/research-landscape.md) records the current prover/library
-  survey and primary references.
-- [Contributing](CONTRIBUTING.md) describes the proof and review workflow.
+Two commitments shape everything below that line. The finite-power spaces are
+**graded**: the Loeb measurable space on an ultraproduct of finite powers is not
+replaced by the generally smaller ordinary product measurable space. And the first
+end-to-end application is the homomorphism-density identity for an internal graph,
+which exercises the ultraproduct, internal-set, finite-power, and Loeb-measure APIs
+before the much harder Fubini and realization work.
 
 ## Building
 
-The project pins Lean `v4.32.2` and the mathlib revision at that tag
-(`905b95818eb32af7874a58b427f50c1711a5e96c`), so it builds against exactly one mathlib.
+Lean and mathlib versions are pinned by `lean-toolchain` and `lake-manifest.json`, so
+the project builds against exactly one mathlib.
 
 ```bash
 lake exe cache get   # mathlib build cache
 lake build
 ```
 
-## Layout
+## Further reading
 
-```
-LoebMeasure.lean         root import spine
-LoebMeasure/Basic.lean   temporary scaffold
-docs/                    design, tracking, and research guides
-```
+- [Roadmap](ROADMAP.md) — the capability sequence and its mathematical gates.
+- [Architecture](ARCHITECTURE.md) and the [decision records](docs/decisions) — stable
+  invariants, and why the foundational choices were made.
+- [Research landscape](docs/research-landscape.md) — what exists in Lean and other
+  provers, and the primary sources.
+- [Contributing](CONTRIBUTING.md) — proof and review workflow.
 
-Declarations live principally in the `Loeb` namespace:
-
-```lean
-import LoebMeasure
-
-open Loeb
-```
-
-Generic extensions of existing mathlib objects instead use their natural mathlib
-namespace, for example `Filter.Product`.
+A full map of the project's documentation is in [docs/README.md](docs/README.md).
 
 ## License
 

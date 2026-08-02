@@ -1,10 +1,10 @@
 # Issue seeds
 
-These are seed titles and acceptance summaries, not a request to open every issue
-immediately. Create the M0 issues first, then open downstream units when their
-assumptions are stable.
+This records the original work-unit decomposition. It is **not** updated as issues open
+or close; GitHub is authoritative. Revalidate any remaining seed before opening it —
+assumptions may have changed since it was written.
 
-IDs are local planning identifiers and can be replaced by GitHub issue numbers.
+IDs are local planning identifiers, superseded by GitHub issue numbers once opened.
 
 ## Epics
 

@@ -1,9 +1,13 @@
 # Declaration blueprint
 
-This is a declaration-level planning artifact for the common foundation. It is not a
-second specification: compiled Lean declarations and accepted decision records take
-precedence. Names and universe parameters below are provisional until their M0/M1
-spikes elaborate against the pinned mathlib revision.
+This is a declaration-level planning artifact for layers **not yet implemented**. It is
+not a second specification: compiled Lean declarations and accepted decision records
+take precedence, and where code exists it supersedes what is written here.
+
+The rule is uniform and needs no updating: **a section here is provisional exactly when
+it has no corresponding compiled module**, and where a module exists its docstrings are
+the reference. Names, hypotheses, and universe parameters in an unimplemented section
+may all change when the corresponding unit is written.
 
 ## Dependency DAG
 

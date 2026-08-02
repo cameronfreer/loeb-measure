@@ -129,9 +129,13 @@ Each work unit should state:
 
 The repository's issue forms prompt for these fields.
 
-## Suggested initial issue creation
+## Initial issue creation (historical)
 
-Create issues in this order:
+This section records how the backlog was first populated; it is kept for context and is
+not a live instruction. The ordering principle it embodies — open an epic plus only the
+work units whose assumptions are stable — remains in force.
+
+Issues were created in this order:
 
 1. M0 epic and the four initial spikes (D0.1–D0.4).
 2. M1 epic and only its first representative/map work units.
