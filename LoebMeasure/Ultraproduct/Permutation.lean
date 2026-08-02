@@ -55,6 +55,9 @@ lemma, so that rewriting cannot silently pick an orientation.
   `permute_permute_symm`, and `permute_zero`.
 * `Filter.Product.finitePiEquiv_permute`, and the graded-facing `Fin` specializations
   `finPowerEquiv_reindex` and `finPowerEquiv_permute`.
+* Inverse-facing companions — `reindex_finitePiEquiv_symm`,
+  `permute_finitePiEquiv_symm`, and their `Fin` forms — so that goals about reindexing
+  an *assembled* family make progress, not only goals about evaluating one.
 
 Everything is generic in `l : Filter ι`: no ultrafilter and no countable-incompleteness
 hypothesis, per ADR-0001.
@@ -154,6 +157,35 @@ theorem finitePiEquiv_permute [Finite κ] (σ : Equiv.Perm κ)
       = fun a ↦ finitePiEquiv (l := l) (X := X) κ x (σ a) :=
   finitePiEquiv_reindex σ x
 
+/-! ### Reindexing an assembled family
+
+The inverse-facing companions of `eval_reindex`: reindexing a family that was assembled
+from coordinates is the family precomposed with the reindexing. Safe as `simp` — they
+rewrite an operation *surrounding* the inverse, not the equivalence itself. -/
+
+/-- Reindexing an assembled family precomposes it. -/
+@[simp]
+theorem reindex_finitePiMk [Finite κ] [Finite κ'] (σ : κ' → κ) (F : κ → l.Product X) :
+    reindex σ (finitePiMk F) = finitePiMk (F ∘ σ) := by
+  refine (finitePiEquiv (l := l) (X := X) κ').injective (funext fun a ↦ ?_)
+  rw [finitePiEquiv_apply, finitePiEquiv_apply, eval_reindex, eval_finitePiMk,
+    eval_finitePiMk, Function.comp_apply]
+
+/-- Reindexing through the inverse of the finite-product equivalence. -/
+@[simp]
+theorem reindex_finitePiEquiv_symm [Finite κ] [Finite κ'] (σ : κ' → κ)
+    (F : κ → l.Product X) :
+    reindex σ ((finitePiEquiv (l := l) (X := X) κ).symm F)
+      = (finitePiEquiv (l := l) (X := X) κ').symm (F ∘ σ) := by
+  rw [finitePiEquiv_symm_apply, finitePiEquiv_symm_apply, reindex_finitePiMk]
+
+/-- The permutation form: permuting an assembled family precomposes it. -/
+@[simp]
+theorem permute_finitePiEquiv_symm [Finite κ] (σ : Equiv.Perm κ) (F : κ → l.Product X) :
+    permute σ ((finitePiEquiv (l := l) (X := X) κ).symm F)
+      = (finitePiEquiv (l := l) (X := X) κ).symm (F ∘ σ) :=
+  reindex_finitePiEquiv_symm (σ : κ → κ) F
+
 /-! ### `Fin` specializations
 
 `finPowerEquiv` is an opaque `def`, so the generic theorems above do not by themselves
@@ -173,6 +205,27 @@ theorem finPowerEquiv_permute {k : ℕ} (σ : Equiv.Perm (Fin k))
     finPowerEquiv (l := l) (X := X) k (permute σ x)
       = fun a ↦ finPowerEquiv (l := l) (X := X) k x (σ a) := by
   simpa only [finPowerEquiv_eq] using finitePiEquiv_permute (l := l) (X := X) σ x
+
+/-- The `Fin`-power form of `reindex_finitePiEquiv_symm`. Safe as `simp` for the same
+reason as the generic form — it rewrites an operation surrounding the inverse — and it
+is *needed* separately because `finPowerEquiv` is opaque, so the generic lemma does not
+match. -/
+@[simp]
+theorem reindex_finPowerEquiv_symm {k k' : ℕ} (σ : Fin k' → Fin k)
+    (F : Fin k → l.Product X) :
+    reindex σ ((finPowerEquiv (l := l) (X := X) k).symm F)
+      = (finPowerEquiv (l := l) (X := X) k').symm (F ∘ σ) := by
+  simpa only [finPowerEquiv_eq] using
+    reindex_finitePiEquiv_symm (l := l) (X := X) σ F
+
+/-- The `Fin`-power form of `permute_finitePiEquiv_symm`. -/
+@[simp]
+theorem permute_finPowerEquiv_symm {k : ℕ} (σ : Equiv.Perm (Fin k))
+    (F : Fin k → l.Product X) :
+    permute σ ((finPowerEquiv (l := l) (X := X) k).symm F)
+      = (finPowerEquiv (l := l) (X := X) k).symm (F ∘ σ) := by
+  simpa only [finPowerEquiv_eq] using
+    permute_finitePiEquiv_symm (l := l) (X := X) σ F
 
 /-- Degree zero is painless: every permutation of `Fin 0` acts trivially. -/
 @[simp]
@@ -220,6 +273,18 @@ example {k : ℕ} (σ : Equiv.Perm (Fin k)) (x : l.Product fun i ↦ Fin k → X
     finPowerEquiv (l := l) (X := X) k (permute σ x) a
       = finPowerEquiv (l := l) (X := X) k x (σ a) := by
   rw [finPowerEquiv_permute]
+
+/-- Reindexing an assembled family precomposes it — the inverse-facing direction,
+by `simp`. -/
+example [Finite κ] [Finite κ'] (σ : κ' → κ) (F : κ → l.Product X) :
+    reindex σ ((finitePiEquiv (l := l) (X := X) κ).symm F)
+      = (finitePiEquiv (l := l) (X := X) κ').symm (F ∘ σ) := by
+  simp
+
+example {k : ℕ} (σ : Equiv.Perm (Fin k)) (F : Fin k → l.Product X) :
+    permute σ ((finPowerEquiv (l := l) (X := X) k).symm F)
+      = (finPowerEquiv (l := l) (X := X) k).symm (F ∘ σ) := by
+  simp
 
 /-- Degree zero: every permutation acts trivially, by `simp`. -/
 example (σ : Equiv.Perm (Fin 0)) (x : l.Product fun i ↦ Fin 0 → X i) :
