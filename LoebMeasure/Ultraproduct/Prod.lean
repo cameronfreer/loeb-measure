@@ -32,6 +32,8 @@ so downstream code never sees how a pair was rebuilt.
   `prodEquiv_symm_ofFun` computing both directions on representatives.
 * `Filter.Product.fst_prodEquiv`, `snd_prodEquiv`: the components are the coordinate
   projections expressed as `map`.
+* `Filter.Product.map_fst_prodEquiv_symm`, `map_snd_prodEquiv_symm`: the inverse-facing
+  direction — projecting a factor back out of a merged pair.
 * `Filter.Product.map_prodEquiv_symm`: transporting a pair through the inverse
   commutes with stagewise maps of each factor.
 
@@ -115,6 +117,34 @@ theorem snd_prodEquiv (x : l.Product fun i ↦ X i × Y i) :
     (prodEquiv x).2 = map (fun _ ↦ Prod.snd) x :=
   rfl
 
+/-- Projecting the first factor out of a merged pair. Safe as `simp`: it rewrites a
+`map` *surrounding* the inverse, not the equivalence itself, so the generic round-trip
+lemmas are unaffected. -/
+@[simp]
+theorem map_fst_mkPair (x : l.Product X) (y : l.Product Y) :
+    map (fun _ ↦ Prod.fst) (mkPair x y) = x := by
+  induction x, y using Filter.Product.inductionOn₂ with
+  | _ a b => rfl
+
+/-- Projecting the second factor out of a merged pair. -/
+@[simp]
+theorem map_snd_mkPair (x : l.Product X) (y : l.Product Y) :
+    map (fun _ ↦ Prod.snd) (mkPair x y) = y := by
+  induction x, y using Filter.Product.inductionOn₂ with
+  | _ a b => rfl
+
+/-- Projecting the first factor back out of `prodEquiv.symm`. -/
+@[simp]
+theorem map_fst_prodEquiv_symm (p : l.Product X × l.Product Y) :
+    map (fun _ ↦ Prod.fst) ((prodEquiv (l := l) (X := X) (Y := Y)).symm p) = p.1 := by
+  rw [prodEquiv_symm_apply, map_fst_mkPair]
+
+/-- Projecting the second factor back out of `prodEquiv.symm`. -/
+@[simp]
+theorem map_snd_prodEquiv_symm (p : l.Product X × l.Product Y) :
+    map (fun _ ↦ Prod.snd) ((prodEquiv (l := l) (X := X) (Y := Y)).symm p) = p.2 := by
+  rw [prodEquiv_symm_apply, map_snd_mkPair]
+
 /-- Naturality for the merging map: it commutes with stagewise maps of each factor. -/
 theorem map_mkPair (f : (i : ι) → X i → Z i) (g : (i : ι) → Y i → W i)
     (x : l.Product X) (y : l.Product Y) :
@@ -162,6 +192,16 @@ example (f : (i : ι) → X i → Z i) (g : (i : ι) → Y i → W i)
     map (fun i (p : X i × Y i) ↦ (f i p.1, g i p.2))
         ((prodEquiv (l := l) (X := X) (Y := Y)).symm (x, y))
       = (prodEquiv (l := l) (X := Z) (Y := W)).symm (map f x, map g y) := by
+  simp
+
+/-- Projecting a factor back out of the inverse, by `simp` — the inverse-facing
+direction of the projection API. -/
+example (x : l.Product X) (y : l.Product Y) :
+    map (fun _ ↦ Prod.fst) ((prodEquiv (l := l) (X := X) (Y := Y)).symm (x, y)) = x := by
+  simp
+
+example (x : l.Product X) (y : l.Product Y) :
+    map (fun _ ↦ Prod.snd) ((prodEquiv (l := l) (X := X) (Y := Y)).symm (x, y)) = y := by
   simp
 
 /-- **Genuinely dependent families**, with both fibers varying with the index. -/
