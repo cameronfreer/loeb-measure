@@ -57,9 +57,76 @@ here needs to enumerate `κ`.
   family. These are what make downstream goals about `(…).symm F` progress.
 * `Filter.Product.map_finitePiEquiv_symm`: naturality against `Filter.Product.map`.
 
+The full generic ↔ `Fin` correspondence is tabulated below.
+
+## The specialization table
+
+`finPowerEquiv` is an opaque `def`, so a generic `finitePiEquiv` lemma does **not**
+match a `Fin`-power goal. The obligation is therefore precisely:
+
+> every generic law **whose statement mentions `finitePiEquiv`** needs an explicit
+> `finPowerEquiv` counterpart.
+
+Equivalence-free laws — `eval_finitePiMk`, `finitePiMk_ofFun`, `map_finitePiMk`, and
+the algebraic reindexing laws — need no counterpart and stay outside the matrix. Two
+omissions were already found the slow way, so the obligation is recorded here rather
+than rediscovered lemma by lemma.
+
+The table is organized by **direction**, because the recurring omission has each time
+been an inverse-facing rule — a goal about an object *assembled* through `.symm`, as
+opposed to one being taken apart.
+
+Each entry lists the generic law, its `Fin` counterpart, and whether it is `simp`.
+A dash means the generic law already covers the `Fin` case, because its statement does
+not mention the equivalence.
+
+```text
+whole equivalence
+  forward   finitePiEquiv_apply         finPowerEquiv_apply           simp
+  inverse   finitePiEquiv_symm_apply    finPowerEquiv_symm_apply      NOT simp
+
+representatives
+  forward   eval_ofFun                  —                             simp
+  inverse   finitePiEquiv_symm_ofFun    finPowerEquiv_symm_ofFun      simp
+
+evaluation of an inverse
+  inverse   eval_finitePiEquiv_symm     eval_finPowerEquiv_symm       simp
+
+stagewise map
+  forward   eval_map                    —                             simp
+  inverse   map_finitePiEquiv_symm      map_finPowerEquiv_symm        simp
+
+reindexing (U5)
+  forward   finitePiEquiv_reindex       finPowerEquiv_reindex         NOT simp
+  inverse   reindex_finitePiEquiv_symm  reindex_finPowerEquiv_symm    simp
+
+permutation (U5)
+  forward   finitePiEquiv_permute       finPowerEquiv_permute         NOT simp
+  inverse   permute_finitePiEquiv_symm  permute_finPowerEquiv_symm    simp
+
+degree (Fin-only, no generic form)
+  degree zero                            finPowerEquiv_zero            simp
+  degree one                             finPowerEquiv_one             NOT simp
+  permutation zero                       permute_zero                  simp
+```
+
+The simp column follows four rules, which together govern the whole layer:
+
+* `*_apply` forward rules **are** safe: they reduce a *coordinate* of a transported
+  family, not the equivalence value itself, so nothing is pre-empted.
+* `*_symm_apply` rules are **not** safe: they reveal the implementation
+  (`finitePiMk`) of the inverse on an arbitrary element, pre-empting
+  `Equiv.symm_apply_apply`/`apply_symm_apply` and leaving round-trip goals stuck.
+* Forward reindexing and permutation laws stay plain: they rewrite an entire
+  transported family and thereby commit to an orientation.
+* Operations *surrounding* a `.symm` — evaluation, `map`, `reindex`, `permute` applied
+  to an assembled family — are safe, and are exactly the inverse-facing rules whose
+  absence caused every omission found so far.
+
 Compatibility of these equivalences with coordinate reindexing and with permutation
-actions is deliberately **not** here: those are U5, and are derived from the evaluation
-and naturality laws below. This module does not depend on U5.
+actions is deliberately **not** in this module: those are U5, and are derived from the
+evaluation and naturality laws below. This module does not depend on U5; the U5 rows
+appear in the table only so the obligation is visible in one place.
 
 Compatibility with the canonical coordinate split is likewise absent: the `splitEquiv`
 wrapper around `Fin.appendEquiv` fixed by the D0.4 audit has not yet reached `main`,
@@ -207,6 +274,14 @@ theorem eval_finPowerEquiv_symm (k : ℕ) (F : Fin k → l.Product X) (j : Fin k
     eval j ((finPowerEquiv (l := l) (X := X) k).symm F) = F j := by
   rw [finPowerEquiv_symm_apply, eval_finitePiMk]
 
+/-- The `Fin`-power form of `finitePiEquiv_symm_ofFun`. -/
+@[simp]
+theorem finPowerEquiv_symm_ofFun (k : ℕ) (f : (i : ι) → Fin k → X i) :
+    (finPowerEquiv (l := l) (X := X) k).symm
+        (fun a ↦ (ofFun fun i ↦ f i a : l.Product X))
+      = ofFun f := by
+  simpa only [finPowerEquiv_eq] using finitePiEquiv_symm_ofFun (l := l) (X := X) f
+
 /-! ### Naturality
 
 The generic laws from which U5 will derive reindexing and permutation compatibility.
@@ -239,6 +314,15 @@ theorem map_finitePiEquiv_symm [Finite κ] (f : (i : ι) → X i → Y i)
       = (finitePiEquiv (l := l) (X := Y) κ).symm fun a ↦ map f (F a) := by
   rw [finitePiEquiv_symm_apply, finitePiEquiv_symm_apply]
   exact map_finitePiMk f F
+
+/-- The `Fin`-power form of `map_finitePiEquiv_symm`. -/
+@[simp]
+theorem map_finPowerEquiv_symm (k : ℕ) (f : (i : ι) → X i → Y i)
+    (F : Fin k → l.Product X) :
+    map (fun i (g : Fin k → X i) ↦ fun b ↦ f i (g b))
+        ((finPowerEquiv (l := l) (X := X) k).symm F)
+      = (finPowerEquiv (l := l) (X := Y) k).symm fun a ↦ map f (F a) := by
+  simpa only [finPowerEquiv_eq] using map_finitePiEquiv_symm (l := l) (X := X) f F
 
 /-! ### Degree zero and one -/
 
@@ -283,6 +367,18 @@ example [Finite κ] (x : l.Product fun i ↦ κ → X i) :
 
 example [Finite κ] (F : κ → l.Product X) :
     finitePiEquiv (l := l) (X := X) κ ((finitePiEquiv κ).symm F) = F := by simp
+
+/-- The two `Fin` forms filled in by the specialization table, by `simp`. -/
+example (k : ℕ) (f : (i : ι) → Fin k → X i) :
+    (finPowerEquiv (l := l) (X := X) k).symm
+        (fun a ↦ (ofFun fun i ↦ f i a : l.Product X)) = ofFun f := by
+  simp
+
+example (k : ℕ) (f : (i : ι) → X i → Y i) (F : Fin k → l.Product X) :
+    map (fun i (g : Fin k → X i) ↦ fun b ↦ f i (g b))
+        ((finPowerEquiv (l := l) (X := X) k).symm F)
+      = (finPowerEquiv (l := l) (X := Y) k).symm fun a ↦ map f (F a) := by
+  simp
 
 /-- The `Fin`-power case is the specialization, by `rfl`. -/
 example (k : ℕ) :

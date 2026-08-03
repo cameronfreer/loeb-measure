@@ -95,6 +95,8 @@ assert_standard_axioms Filter.Product.map_snd_prodEquiv_symm
 assert_standard_axioms Filter.Product.finitePiEquiv
 assert_standard_axioms Filter.Product.finPowerEquiv
 assert_standard_axioms Filter.Product.map_finitePiEquiv_symm
+assert_standard_axioms Filter.Product.finPowerEquiv_symm_ofFun
+assert_standard_axioms Filter.Product.map_finPowerEquiv_symm
 
 -- Coordinate layer
 assert_standard_axioms Filter.Product.eval
