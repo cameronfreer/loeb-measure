@@ -62,10 +62,15 @@ The full generic ↔ `Fin` correspondence is tabulated below.
 ## The specialization table
 
 `finPowerEquiv` is an opaque `def`, so a generic `finitePiEquiv` lemma does **not**
-match a `Fin`-power goal: every generic law needs an explicit `Fin` counterpart. Two
-omissions have already been found the slow way, so the obligation is recorded as a
-table rather than rediscovered lemma by lemma. Adding a generic law means adding its
-row *and* filling every cell.
+match a `Fin`-power goal. The obligation is therefore precisely:
+
+> every generic law **whose statement mentions `finitePiEquiv`** needs an explicit
+> `finPowerEquiv` counterpart.
+
+Equivalence-free laws — `eval_finitePiMk`, `finitePiMk_ofFun`, `map_finitePiMk`, and
+the algebraic reindexing laws — need no counterpart and stay outside the matrix. Two
+omissions were already found the slow way, so the obligation is recorded here rather
+than rediscovered lemma by lemma.
 
 The table is organized by **direction**, because the recurring omission has each time
 been an inverse-facing rule — a goal about an object *assembled* through `.symm`, as
@@ -84,8 +89,7 @@ representatives
   forward   eval_ofFun                  —                             simp
   inverse   finitePiEquiv_symm_ofFun    finPowerEquiv_symm_ofFun      simp
 
-evaluation
-  forward   eval_ofFun                  finPowerEquiv_apply           simp
+evaluation of an inverse
   inverse   eval_finitePiEquiv_symm     eval_finPowerEquiv_symm       simp
 
 stagewise map
@@ -100,16 +104,24 @@ permutation (U5)
   forward   finitePiEquiv_permute       finPowerEquiv_permute         NOT simp
   inverse   permute_finitePiEquiv_symm  permute_finPowerEquiv_symm    simp
 
-degree zero/one          finPowerEquiv_zero, finPowerEquiv_one,
-                         permute_zero                                 simp
+degree (Fin-only, no generic form)
+  degree zero                            finPowerEquiv_zero            simp
+  degree one                             finPowerEquiv_one             NOT simp
+  permutation zero                       permute_zero                  simp
 ```
 
-The simp column records the distinction that governs the whole layer: a lemma rewriting
-an equivalence **as a whole** on an arbitrary element must not be `simp`, since it
-pre-empts `Equiv.symm_apply_apply`/`apply_symm_apply` and leaves round-trips stuck; a
-lemma rewriting a *coordinate*, a *projection*, or an operation *surrounding* an
-equivalence is safe. That is why the whole-equivalence and forward reindex/permute
-entries are excluded while everything else is included.
+The simp column follows four rules, which together govern the whole layer:
+
+* `*_apply` forward rules **are** safe: they reduce a *coordinate* of a transported
+  family, not the equivalence value itself, so nothing is pre-empted.
+* `*_symm_apply` rules are **not** safe: they reveal the implementation
+  (`finitePiMk`) of the inverse on an arbitrary element, pre-empting
+  `Equiv.symm_apply_apply`/`apply_symm_apply` and leaving round-trip goals stuck.
+* Forward reindexing and permutation laws stay plain: they rewrite an entire
+  transported family and thereby commit to an orientation.
+* Operations *surrounding* a `.symm` — evaluation, `map`, `reindex`, `permute` applied
+  to an assembled family — are safe, and are exactly the inverse-facing rules whose
+  absence caused every omission found so far.
 
 Compatibility of these equivalences with coordinate reindexing and with permutation
 actions is deliberately **not** in this module: those are U5, and are derived from the
