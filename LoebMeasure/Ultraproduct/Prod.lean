@@ -36,6 +36,8 @@ so downstream code never sees how a pair was rebuilt.
   direction — projecting a factor back out of a merged pair.
 * `Filter.Product.map_prodEquiv_symm`: transporting a pair through the inverse
   commutes with stagewise maps of each factor.
+* `Filter.Product.map₂`: the binary coordinatewise map, with `map₂_ofFun`, `map_map₂`,
+  and `map₂_map`. M2's binary internal-set operations are all instances of it.
 
 Everything is generic in `l : Filter ι`: no `Nonempty` fiber, ultrafilter, or
 countable-incompleteness hypothesis, per ADR-0001.
@@ -165,6 +167,46 @@ theorem map_prodEquiv_symm (f : (i : ι) → X i → Z i) (g : (i : ι) → Y i 
       = (prodEquiv (l := l) (X := Z) (Y := W)).symm (map f x, map g y) := by
   simpa only [prodEquiv_symm_apply] using map_mkPair f g x y
 
+/-! ### Binary coordinatewise maps
+
+`map₂` is what makes a *binary* stagewise operation act on filter products. M2's
+internal-set operations — union, intersection, difference, symmetric difference — are
+all of this shape, and would otherwise each repeat the `prodEquiv.symm`-then-`map`
+construction.
+
+Named after `Filter.Germ.map₂`, whose computation rule is `map₂_coe`; ours is
+`map₂_ofFun`, matching this layer's constructor. -/
+
+/-- The binary map induced by a stagewise family of binary operations. Built from
+`prodEquiv.symm` and `map`, so it inherits their theory rather than introducing a new
+quotient lift. -/
+def map₂ (f : (i : ι) → X i → Y i → Z i) (x : l.Product X) (y : l.Product Y) :
+    l.Product Z :=
+  map (fun i (p : X i × Y i) ↦ f i p.1 p.2)
+    ((prodEquiv (l := l) (X := X) (Y := Y)).symm (x, y))
+
+@[simp]
+theorem map₂_ofFun (f : (i : ι) → X i → Y i → Z i) (a : (i : ι) → X i)
+    (b : (i : ι) → Y i) :
+    map₂ f (ofFun a : l.Product X) (ofFun b) = ofFun fun i ↦ f i (a i) (b i) :=
+  rfl
+
+/-- Post-composing a binary map with a stagewise map. -/
+@[simp]
+theorem map_map₂ {V : ι → Type*} (f : (i : ι) → X i → Y i → Z i)
+    (g : (i : ι) → Z i → V i) (x : l.Product X) (y : l.Product Y) :
+    map g (map₂ f x y) = map₂ (fun i a b ↦ g i (f i a b)) x y := by
+  induction x, y using Filter.Product.inductionOn₂ with
+  | _ a b => simp
+
+/-- Pre-composing each argument of a binary map. -/
+theorem map₂_map {V W : ι → Type*} (f : (i : ι) → Z i → V i → W i)
+    (g : (i : ι) → X i → Z i) (h : (i : ι) → Y i → V i)
+    (x : l.Product X) (y : l.Product Y) :
+    map₂ f (map g x) (map h y) = map₂ (fun i a b ↦ f i (g i a) (h i b)) x y := by
+  induction x, y using Filter.Product.inductionOn₂ with
+  | _ a b => simp
+
 /-! ### API tests -/
 
 section Tests
@@ -202,6 +244,18 @@ example (x : l.Product X) (y : l.Product Y) :
 
 example (x : l.Product X) (y : l.Product Y) :
     map (fun _ ↦ Prod.snd) ((prodEquiv (l := l) (X := X) (Y := Y)).symm (x, y)) = y := by
+  simp
+
+/-- `map₂` computes on representatives. -/
+example (f : (i : ι) → X i → Y i → Z i) (a : (i : ι) → X i) (b : (i : ι) → Y i) :
+    map₂ f (ofFun a : l.Product X) (ofFun b) = ofFun fun i ↦ f i (a i) (b i) := by
+  simp
+
+/-- **The M2 use case**: a binary stagewise set operation acting on internal-set data.
+Union, intersection, difference, and symmetric difference are all this shape. -/
+example (A B : (i : ι) → Set (X i)) :
+    map₂ (fun _ ↦ (· ∪ ·)) (ofFun A : l.Product fun i ↦ Set (X i)) (ofFun B)
+      = ofFun fun i ↦ A i ∪ B i := by
   simp
 
 /-- **Genuinely dependent families**, with both fibers varying with the index. -/

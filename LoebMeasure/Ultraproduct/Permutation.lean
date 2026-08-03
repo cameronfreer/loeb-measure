@@ -48,11 +48,12 @@ lemma, so that rewriting cannot silently pick an orientation.
 
 ## Main results
 
-* `Filter.Product.reindex` with `eval_reindex`, `reindex_id`, `reindex_comp`.
+* `Filter.Product.reindex` with `eval_reindex`, `reindex_id`, `reindex_comp`, and
+  `reindex_map` — reindexing commutes with a stagewise coordinate map.
 * `Filter.Product.finitePiEquiv_reindex`: reindexing corresponds to precomposition of
   the transported family.
 * `Filter.Product.permute` with `eval_permute`, `permute_one`, `permute_mul`,
-  `permute_permute_symm`, and `permute_zero`.
+  `permute_permute_symm`, `permute_map`, and `permute_zero`.
 * `Filter.Product.finitePiEquiv_permute`, and the graded-facing `Fin` specializations
   `finPowerEquiv_reindex` and `finPowerEquiv_permute`.
 * Inverse-facing companions — `reindex_finitePiEquiv_symm`,
@@ -65,7 +66,8 @@ hypothesis, per ADR-0001.
 
 namespace Filter.Product
 
-variable {ι : Type*} {l : Filter ι} {X : ι → Type*} {κ : Type*} {κ' : Type*} {κ'' : Type*}
+variable {ι : Type*} {l : Filter ι} {X : ι → Type*} {Y : ι → Type*}
+  {κ : Type*} {κ' : Type*} {κ'' : Type*}
 
 /-! ### Reindexing -/
 
@@ -107,6 +109,15 @@ theorem finitePiEquiv_reindex [Finite κ] [Finite κ'] (σ : κ' → κ)
       = fun a ↦ finitePiEquiv (l := l) (X := X) κ x (σ a) := by
   funext a
   rw [finitePiEquiv_apply, finitePiEquiv_apply, eval_reindex]
+
+/-- Reindexing commutes with a stagewise map applied to coordinate values. Immediate
+from `map_map`: both sides are the same pair of nested `map`s in the two orders. -/
+@[simp]
+theorem reindex_map (σ : κ' → κ) (f : (i : ι) → X i → Y i)
+    (x : l.Product fun i ↦ κ → X i) :
+    reindex σ (map (fun i (g : κ → X i) ↦ fun b ↦ f i (g b)) x)
+      = map (fun i (g : κ' → X i) ↦ fun b ↦ f i (g b)) (reindex σ x) := by
+  simp only [reindex, map_map, Function.comp_def]
 
 /-! ### The permutation action
 
@@ -156,6 +167,14 @@ theorem finitePiEquiv_permute [Finite κ] (σ : Equiv.Perm κ)
     finitePiEquiv (l := l) (X := X) κ (permute σ x)
       = fun a ↦ finitePiEquiv (l := l) (X := X) κ x (σ a) :=
   finitePiEquiv_reindex σ x
+
+/-- The permutation form of `reindex_map`. -/
+@[simp]
+theorem permute_map (σ : Equiv.Perm κ) (f : (i : ι) → X i → Y i)
+    (x : l.Product fun i ↦ κ → X i) :
+    permute σ (map (fun i (g : κ → X i) ↦ fun b ↦ f i (g b)) x)
+      = map (fun i (g : κ → X i) ↦ fun b ↦ f i (g b)) (permute σ x) :=
+  reindex_map (σ : κ → κ) f x
 
 /-! ### Reindexing an assembled family
 
@@ -289,6 +308,12 @@ example [Finite κ] [Finite κ'] (σ : κ' → κ) (F : κ → l.Product X) :
 example {k : ℕ} (σ : Equiv.Perm (Fin k)) (F : Fin k → l.Product X) :
     permute σ ((finPowerEquiv (l := l) (X := X) k).symm F)
       = (finPowerEquiv (l := l) (X := X) k).symm (F ∘ σ) := by
+  simp
+
+/-- Reindexing commutes with a stagewise coordinate map, by `simp`. -/
+example (σ : κ' → κ) (f : (i : ι) → X i → Y i) (x : l.Product fun i ↦ κ → X i) :
+    reindex σ (map (fun i (g : κ → X i) ↦ fun b ↦ f i (g b)) x)
+      = map (fun i (g : κ' → X i) ↦ fun b ↦ f i (g b)) (reindex σ x) := by
   simp
 
 /-- Degree zero: every permutation acts trivially, by `simp`. -/
