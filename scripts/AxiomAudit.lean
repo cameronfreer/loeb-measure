@@ -94,6 +94,7 @@ assert_standard_axioms Filter.Product.map_fst_prodEquiv_symm
 assert_standard_axioms Filter.Product.map_snd_prodEquiv_symm
 assert_standard_axioms Filter.Product.map₂
 assert_standard_axioms Filter.Product.map_map₂
+assert_standard_axioms Filter.Product.map₂_map
 assert_standard_axioms Filter.Product.finitePiEquiv
 assert_standard_axioms Filter.Product.finPowerEquiv
 assert_standard_axioms Filter.Product.map_finitePiEquiv_symm

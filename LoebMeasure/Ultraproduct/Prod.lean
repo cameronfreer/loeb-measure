@@ -196,16 +196,17 @@ theorem map₂_ofFun (f : (i : ι) → X i → Y i → Z i) (a : (i : ι) → X 
 theorem map_map₂ {V : ι → Type*} (f : (i : ι) → X i → Y i → Z i)
     (g : (i : ι) → Z i → V i) (x : l.Product X) (y : l.Product Y) :
     map g (map₂ f x y) = map₂ (fun i a b ↦ g i (f i a b)) x y := by
-  induction x, y using Filter.Product.inductionOn₂ with
-  | _ a b => simp
+  simp only [map₂, map_map, Function.comp_def]
 
-/-- Pre-composing each argument of a binary map. -/
+/-- Pre-composing each argument of a binary map. Like `map_map₂` this reduces nesting,
+so the two cannot loop against each other. -/
+@[simp]
 theorem map₂_map {V W : ι → Type*} (f : (i : ι) → Z i → V i → W i)
     (g : (i : ι) → X i → Z i) (h : (i : ι) → Y i → V i)
     (x : l.Product X) (y : l.Product Y) :
     map₂ f (map g x) (map h y) = map₂ (fun i a b ↦ f i (g i a) (h i b)) x y := by
-  induction x, y using Filter.Product.inductionOn₂ with
-  | _ a b => simp
+  rw [map₂, map₂, ← map_prodEquiv_symm g h x y, map_map]
+  rfl
 
 /-! ### API tests -/
 
@@ -256,6 +257,15 @@ Union, intersection, difference, and symmetric difference are all this shape. -/
 example (A B : (i : ι) → Set (X i)) :
     map₂ (fun _ ↦ (· ∪ ·)) (ofFun A : l.Product fun i ↦ Set (X i)) (ofFun B)
       = ofFun fun i ↦ A i ∪ B i := by
+  simp
+
+/-- Nested pre- and post-composition normalizes: `map₂_map` and `map_map₂` both reduce
+nesting, so `simp` drives a chain to a single `map₂`. -/
+example {V W : ι → Type*} (f : (i : ι) → Z i → V i → W i) (g : (i : ι) → X i → Z i)
+    (h : (i : ι) → Y i → V i) (k : (i : ι) → W i → Z i)
+    (x : l.Product X) (y : l.Product Y) :
+    map k (map₂ f (map g x) (map h y))
+      = map₂ (fun i a b ↦ k i (f i (g i a) (h i b))) x y := by
   simp
 
 /-- **Genuinely dependent families**, with both fibers varying with the index. -/
