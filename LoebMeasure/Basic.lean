@@ -3,7 +3,7 @@ Copyright (c) 2026 Cameron Freer. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Cameron Freer
 -/
-import LoebMeasure.Ultraproduct.Permutation
+import LoebMeasure.Ultraproduct.Basic
 import Mathlib.Order.Filter.Ultrafilter.Defs
 
 /-!
@@ -26,6 +26,11 @@ The alias is intentionally thin: `Loeb.Ultraproduct` fixes the filter to be an
 underlying API stays generic in an arbitrary filter (ADR-0001). Everything proved for
 `Filter.Product` therefore applies to `Loeb.Ultraproduct` without restatement, since
 the alias is reducible.
+
+This module imports only what the aliases themselves need, per the layering rule in
+`ARCHITECTURE.md`; `LoebMeasure.lean` is the umbrella that exposes the full API.
+Examples exercising the wider API against the alias live in `scripts/AxiomAudit.lean`,
+which already imports the root.
 -/
 
 namespace Loeb
@@ -55,19 +60,6 @@ by a dependent function, and equality of representatives is eventual equality. -
 example (f g : (i : ι) → X i) (h : ∀ᶠ i in (U : Filter ι), f i = g i) :
     (Filter.Product.ofFun f : Ultraproduct U X) = Filter.Product.ofFun g := by
   simp [h]
-
-/-- The generic API applies to the alias with no restatement: here a coordinatewise map
-and a finite-power evaluation. -/
-example {Y : ι → Type*} (φ : (i : ι) → X i → Y i) (f : (i : ι) → X i) :
-    Filter.Product.map φ (Filter.Product.ofFun f : Ultraproduct U X)
-      = Filter.Product.ofFun fun i ↦ φ i (f i) := by
-  simp
-
-example (k : ℕ) (f : (i : ι) → Fin k → X i) (j : Fin k) :
-    Filter.Product.finPowerEquiv (l := (U : Filter ι)) (X := X) k
-        (Filter.Product.ofFun f) j
-      = Filter.Product.ofFun fun i ↦ f i j := by
-  simp
 
 end Examples
 
