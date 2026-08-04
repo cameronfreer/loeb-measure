@@ -58,48 +58,18 @@ abbrev Ultraproduct
 end Loeb
 ```
 
-Generic API candidates under `Filter.Product`:
+**Layer U is implemented.** By the rule above, the modules are the reference and this
+sketch is superseded: see `LoebMeasure/Ultraproduct/` for the representative,
+functor, product, finite-power, and coordinate APIs, and their docstrings for the
+declarations and conventions. No declaration list is kept here, because a parallel
+inventory drifts — this one had already gone stale on `map_mk`, which merged as
+`map_ofFun`.
 
-```lean
-namespace Filter.Product
-
-theorem inductionOn ...
-theorem inductionOn₂ ...
-
-def map
-    (f : ∀ i, X i → Y i) :
-    l.Product X → l.Product Y
-
-@[simp] theorem map_mk ...
-@[simp] theorem map_id ...
-theorem map_comp ...
-
-def prodEquiv :
-    l.Product (fun i => X i × Y i) ≃
-      l.Product X × l.Product Y
-
-def finitePiEquiv (κ : Type*) [Finite κ] :
-    l.Product (fun i => κ → X i) ≃
-      (κ → l.Product X)
-
-def finPowerEquiv (n : ℕ) :
-    l.Product (fun i => Fin n → X i) ≃
-      (Fin n → l.Product X)
-
-end Filter.Product
-```
-
-Required laws:
-
-- representative equality is eventual equality;
-- every quotient element has a representative elimination principle;
-- maps preserve identity and composition;
-- product/power equivalences commute with coordinate evaluation;
-- reindexing a finite power is functorial;
-- a permutation and its inverse induce inverse maps.
+What remains recorded below is the design content that is *not* derivable from the
+code: why the layer is shaped this way, and the conventions later layers must respect.
 
 `Filter.Product` provides no canonical representative selection. Everything downstream
-is defined by quotient lifting through the eliminators above, with representative
+is defined by quotient lifting through those eliminators, with representative
 independence proved from eventual equality. The eliminators should follow the existing
 `Filter.Germ.inductionOn` precedent exactly: theorems marked `@[elab_as_elim]`.
 
