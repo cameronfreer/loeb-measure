@@ -92,6 +92,9 @@ assert_standard_axioms Filter.Product.prodEquiv
 assert_standard_axioms Filter.Product.map_prodEquiv_symm
 assert_standard_axioms Filter.Product.map_fst_prodEquiv_symm
 assert_standard_axioms Filter.Product.map_snd_prodEquiv_symm
+assert_standard_axioms Filter.Product.map₂
+assert_standard_axioms Filter.Product.map_map₂
+assert_standard_axioms Filter.Product.map₂_map
 assert_standard_axioms Filter.Product.finitePiEquiv
 assert_standard_axioms Filter.Product.finPowerEquiv
 assert_standard_axioms Filter.Product.map_finitePiEquiv_symm
@@ -108,3 +111,5 @@ assert_standard_axioms Filter.Product.finPowerEquiv_permute
 -- These two transitively cover their generic forms and `reindex_finitePiMk`.
 assert_standard_axioms Filter.Product.reindex_finPowerEquiv_symm
 assert_standard_axioms Filter.Product.permute_finPowerEquiv_symm
+assert_standard_axioms Filter.Product.reindex_map
+assert_standard_axioms Filter.Product.permute_map
