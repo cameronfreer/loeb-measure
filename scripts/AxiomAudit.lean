@@ -70,6 +70,24 @@ open Loeb in
 example {ι : Type} (U : Ultrafilter ι) (X : Type) (f : ι → X) : Ultrapower U X :=
   Filter.Product.ofFun f
 
+open Loeb in
+/-- The wider generic API applies through the alias with no restatement: a
+coordinatewise map and a finite-power evaluation. These live here rather than in
+`LoebMeasure/Basic.lean`, which imports only what its aliases need. -/
+example {ι : Type} {U : Ultrafilter ι} {X Y : ι → Type} (φ : (i : ι) → X i → Y i)
+    (f : (i : ι) → X i) :
+    Filter.Product.map φ (Filter.Product.ofFun f : Ultraproduct U X)
+      = Filter.Product.ofFun fun i ↦ φ i (f i) := by
+  simp
+
+open Loeb in
+example {ι : Type} {U : Ultrafilter ι} {X : ι → Type} (k : ℕ)
+    (f : (i : ι) → Fin k → X i) (j : Fin k) :
+    Filter.Product.finPowerEquiv (l := (U : Filter ι)) (X := X) k
+        (Filter.Product.ofFun f) j
+      = Filter.Product.ofFun fun i ↦ f i j := by
+  simp
+
 /-! ## Audited boundary declarations -/
 
 -- Project facade
@@ -108,7 +126,7 @@ assert_standard_axioms Filter.Product.reindex
 assert_standard_axioms Filter.Product.permute
 assert_standard_axioms Filter.Product.finitePiEquiv_reindex
 assert_standard_axioms Filter.Product.finPowerEquiv_permute
--- These two transitively cover their generic forms and `reindex_finitePiMk`.
+-- These two transitively cover their generic forms and `reindex_piMk`.
 assert_standard_axioms Filter.Product.reindex_finPowerEquiv_symm
 assert_standard_axioms Filter.Product.permute_finPowerEquiv_symm
 assert_standard_axioms Filter.Product.reindex_map

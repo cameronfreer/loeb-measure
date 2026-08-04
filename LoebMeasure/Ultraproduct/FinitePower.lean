@@ -3,7 +3,7 @@ Copyright (c) 2026 Cameron Freer. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Cameron Freer
 -/
-import LoebMeasure.Ultraproduct.Prod
+import LoebMeasure.Ultraproduct.Map
 import Mathlib.Order.Filter.Finite
 
 /-!
@@ -28,10 +28,12 @@ where:
 
 * `Filter.Product.eval`, the forward direction, is a coordinatewise `map` — no
   finiteness, stated for arbitrary `κ`.
-* `Filter.Product.finitePiMk`, the assembling direction, **also needs no finiteness**:
+* `Filter.Product.piMk`, the assembling direction, **also needs no finiteness**:
   it chooses a representative per coordinate and transposes. Both it and
-  `eval_finitePiMk` (the right inverse) are stated for arbitrary `κ`.
-* Finiteness is consumed by exactly one theorem: `finitePiMk_ofFun`, the **left**
+  `eval_piMk` (the right inverse) are stated for arbitrary `κ`. The name carries no
+  `finite`, deliberately: the asymmetry with `finitePiEquiv` is informative, marking
+  exactly where finiteness enters.
+* Finiteness is consumed by exactly one theorem: `piMk_ofFun`, the **left**
   inverse. Recovering the original element requires knowing that the per-coordinate
   choices agree with it *simultaneously*, which intersects a `κ`-indexed family of
   eventual-equality sets — and a filter is closed under finite intersections only.
@@ -67,7 +69,7 @@ match a `Fin`-power goal. The obligation is therefore precisely:
 > every generic law **whose statement mentions `finitePiEquiv`** needs an explicit
 > `finPowerEquiv` counterpart.
 
-Equivalence-free laws — `eval_finitePiMk`, `finitePiMk_ofFun`, `map_finitePiMk`, and
+Equivalence-free laws — `eval_piMk`, `piMk_ofFun`, `map_piMk`, and
 the algebraic reindexing laws — need no counterpart and stay outside the matrix. Two
 omissions were already found the slow way, so the obligation is recorded here rather
 than rediscovered lemma by lemma.
@@ -115,7 +117,7 @@ The simp column follows four rules, which together govern the whole layer:
 * `*_apply` forward rules **are** safe: they reduce a *coordinate* of a transported
   family, not the equivalence value itself, so nothing is pre-empted.
 * `*_symm_apply` rules are **not** safe: they reveal the implementation
-  (`finitePiMk`) of the inverse on an arbitrary element, pre-empting
+  (`piMk`) of the inverse on an arbitrary element, pre-empting
   `Equiv.symm_apply_apply`/`apply_symm_apply` and leaving round-trip goals stuck.
 * Forward reindexing and permutation laws stay plain: they rewrite an entire
   transported family and thereby commit to an orientation.
@@ -178,21 +180,21 @@ private theorem ofFun_rep (F : κ → l.Product X) (a : κ) : ofFun (rep F a) = 
 /-- Assemble a family of filter products into a filter product of functions, by
 choosing a representative for each coordinate and transposing.
 
-No finiteness is needed to *build* this, nor to prove `eval_finitePiMk`; the choices
-only have to be reconciled with each other in `finitePiMk_ofFun`, which is where
+No finiteness is needed to *build* this, nor to prove `eval_piMk`; the choices
+only have to be reconciled with each other in `piMk_ofFun`, which is where
 `[Finite κ]` is consumed. -/
-noncomputable def finitePiMk (F : κ → l.Product X) :
+noncomputable def piMk (F : κ → l.Product X) :
     l.Product fun i ↦ κ → X i :=
   ofFun fun i a ↦ rep F a i
 
 @[simp]
-theorem eval_finitePiMk (F : κ → l.Product X) (a : κ) :
-    eval a (finitePiMk F) = F a := by
-  rw [finitePiMk, eval_ofFun]
+theorem eval_piMk (F : κ → l.Product X) (a : κ) :
+    eval a (piMk F) = F a := by
+  rw [piMk, eval_ofFun]
   exact ofFun_rep F a
 
-theorem finitePiMk_ofFun [Finite κ] (f : (i : ι) → κ → X i) :
-    finitePiMk (fun a ↦ (ofFun fun i ↦ f i a : l.Product X)) = ofFun f := by
+theorem piMk_ofFun [Finite κ] (f : (i : ι) → κ → X i) :
+    piMk (fun a ↦ (ofFun fun i ↦ f i a : l.Product X)) = ofFun f := by
   refine ofFun_congr ?_
   refine (eventually_forall_of_forall fun a ↦ ?_).mono fun i hi ↦ funext fun a ↦ hi a
   exact ofFun_eq_ofFun.1 (ofFun_rep (fun a ↦ (ofFun fun i ↦ f i a : l.Product X)) a)
@@ -206,10 +208,10 @@ generic `Equiv.symm_apply_apply`/`apply_symm_apply`; no lemma rewriting the equi
 noncomputable def finitePiEquiv (κ : Type*) [Finite κ] :
     (l.Product fun i ↦ κ → X i) ≃ (κ → l.Product X) where
   toFun x a := eval a x
-  invFun := finitePiMk
+  invFun := piMk
   left_inv x := by
     induction x using Filter.Product.inductionOn with
-    | _ f => simpa using finitePiMk_ofFun f
+    | _ f => simpa using piMk_ofFun f
   right_inv F := by
     funext a
     simp
@@ -226,7 +228,7 @@ element, which would pre-empt `Equiv.apply_symm_apply` and leave round-trip goal
 stuck. This is the same hazard as in `Prod.lean`; only coordinate/evaluation lemmas are
 safe to mark. -/
 theorem finitePiEquiv_symm_apply [Finite κ] (F : κ → l.Product X) :
-    (finitePiEquiv (l := l) (X := X) κ).symm F = finitePiMk F :=
+    (finitePiEquiv (l := l) (X := X) κ).symm F = piMk F :=
   rfl
 
 /-- The `Fin`-power equivalence: **definitionally** the `κ := Fin k` specialization,
@@ -246,7 +248,7 @@ theorem finPowerEquiv_apply (k : ℕ) (x : l.Product fun i ↦ Fin k → X i) (j
 
 /-- Not `simp`, for the same reason as `finitePiEquiv_symm_apply`. -/
 theorem finPowerEquiv_symm_apply (k : ℕ) (F : Fin k → l.Product X) :
-    (finPowerEquiv (l := l) (X := X) k).symm F = finitePiMk F :=
+    (finPowerEquiv (l := l) (X := X) k).symm F = piMk F :=
   rfl
 
 /-- The inverse, computed on a **representative-shaped** family. Safe as `simp`,
@@ -258,7 +260,7 @@ theorem finitePiEquiv_symm_ofFun [Finite κ] (f : (i : ι) → κ → X i) :
     (finitePiEquiv (l := l) (X := X) κ).symm (fun a ↦ (ofFun fun i ↦ f i a : l.Product X))
       = ofFun f := by
   rw [finitePiEquiv_symm_apply]
-  exact finitePiMk_ofFun f
+  exact piMk_ofFun f
 
 /-- Evaluating a coordinate of the inverse recovers that coordinate. Safe as `simp` in
 the U3 sense: it rewrites a coordinate, not the equivalence itself, so round-trip goals
@@ -266,13 +268,13 @@ are unaffected. -/
 @[simp]
 theorem eval_finitePiEquiv_symm [Finite κ] (F : κ → l.Product X) (a : κ) :
     eval a ((finitePiEquiv (l := l) (X := X) κ).symm F) = F a := by
-  rw [finitePiEquiv_symm_apply, eval_finitePiMk]
+  rw [finitePiEquiv_symm_apply, eval_piMk]
 
 /-- The `Fin`-power form of `eval_finitePiEquiv_symm`. -/
 @[simp]
 theorem eval_finPowerEquiv_symm (k : ℕ) (F : Fin k → l.Product X) (j : Fin k) :
     eval j ((finPowerEquiv (l := l) (X := X) k).symm F) = F j := by
-  rw [finPowerEquiv_symm_apply, eval_finitePiMk]
+  rw [finPowerEquiv_symm_apply, eval_piMk]
 
 /-- The `Fin`-power form of `finitePiEquiv_symm_ofFun`. -/
 @[simp]
@@ -297,14 +299,14 @@ theorem eval_map (f : (i : ι) → X i → Y i) (a : κ)
 
 /-- Naturality of the inverse against `map`. -/
 @[simp]
-theorem map_finitePiMk [Finite κ] (f : (i : ι) → X i → Y i) (F : κ → l.Product X) :
-    map (fun i (g : κ → X i) ↦ fun b ↦ f i (g b)) (finitePiMk F)
-      = finitePiMk fun a ↦ map f (F a) := by
+theorem map_piMk [Finite κ] (f : (i : ι) → X i → Y i) (F : κ → l.Product X) :
+    map (fun i (g : κ → X i) ↦ fun b ↦ f i (g b)) (piMk F)
+      = piMk fun a ↦ map f (F a) := by
   refine (finitePiEquiv (l := l) (X := Y) κ).injective (funext fun a ↦ ?_)
-  rw [finitePiEquiv_apply, finitePiEquiv_apply, eval_map, eval_finitePiMk, eval_finitePiMk]
+  rw [finitePiEquiv_apply, finitePiEquiv_apply, eval_map, eval_piMk, eval_piMk]
 
 /-- Naturality in equivalence form, the interface downstream code should use: it never
-mentions `finitePiMk`, so the representative choice stays hidden behind the equivalence
+mentions `piMk`, so the representative choice stays hidden behind the equivalence
 API. -/
 @[simp]
 theorem map_finitePiEquiv_symm [Finite κ] (f : (i : ι) → X i → Y i)
@@ -313,7 +315,7 @@ theorem map_finitePiEquiv_symm [Finite κ] (f : (i : ι) → X i → Y i)
         ((finitePiEquiv (l := l) (X := X) κ).symm F)
       = (finitePiEquiv (l := l) (X := Y) κ).symm fun a ↦ map f (F a) := by
   rw [finitePiEquiv_symm_apply, finitePiEquiv_symm_apply]
-  exact map_finitePiMk f F
+  exact map_piMk f F
 
 /-- The `Fin`-power form of `map_finitePiEquiv_symm`. -/
 @[simp]
@@ -402,7 +404,7 @@ example {ι' : Type 2} {l' : Filter ι'} {X' : ι' → Type 5} {κ' : Type 7} [F
     finitePiEquiv (l := l') (X := X') κ' (ofFun f) a = ofFun fun i ↦ f i a := by
   simp
 
-/-- Naturality is usable without naming `finitePiMk`. -/
+/-- Naturality is usable without naming `piMk`. -/
 example [Finite κ] (f : (i : ι) → X i → Y i) (F : κ → l.Product X) :
     map (fun i (g : κ → X i) ↦ fun b ↦ f i (g b))
         ((finitePiEquiv (l := l) (X := X) κ).symm F)

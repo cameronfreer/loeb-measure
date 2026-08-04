@@ -106,6 +106,15 @@ Modules are grouped into dependency layers under `LoebMeasure/`. The layers, not
 individual files, are the architectural commitment; a file inventory would age with
 every merge, so the module docstrings are the reference for what exists.
 
+Within a layer, a module imports only what it uses; the root `LoebMeasure.lean` is the
+umbrella that exposes the whole public surface. In particular the ultraproduct layer is
+not a chain — `FinitePower` does not depend on `Prod`:
+
+```text
+Basic → Map → Prod
+            ↘ FinitePower → Permutation
+```
+
 ```text
 Ultraproduct/   the generic dependent filter-product API
 Internal/       internal sets, functions, relations, and diagonalization
