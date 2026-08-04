@@ -108,7 +108,7 @@ assert_standard_axioms Filter.Product.reindex
 assert_standard_axioms Filter.Product.permute
 assert_standard_axioms Filter.Product.finitePiEquiv_reindex
 assert_standard_axioms Filter.Product.finPowerEquiv_permute
--- These two transitively cover their generic forms and `reindex_finitePiMk`.
+-- These two transitively cover their generic forms and `reindex_piMk`.
 assert_standard_axioms Filter.Product.reindex_finPowerEquiv_symm
 assert_standard_axioms Filter.Product.permute_finPowerEquiv_symm
 assert_standard_axioms Filter.Product.reindex_map

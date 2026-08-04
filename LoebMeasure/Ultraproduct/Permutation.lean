@@ -5,7 +5,6 @@ Authors: Cameron Freer
 -/
 import LoebMeasure.Ultraproduct.FinitePower
 import Mathlib.GroupTheory.Perm.Basic
-import Mathlib.Logic.Equiv.Basic
 
 /-!
 # Coordinate reindexing and the finite permutation action
@@ -189,11 +188,11 @@ the source coordinate type is never intersected over. `reindex_finitePiEquiv_sym
 below does need `[Finite κ]` as well, because its statement mentions the source
 equivalence. -/
 @[simp]
-theorem reindex_finitePiMk [Finite κ'] (σ : κ' → κ) (F : κ → l.Product X) :
-    reindex σ (finitePiMk F) = finitePiMk (F ∘ σ) := by
+theorem reindex_piMk [Finite κ'] (σ : κ' → κ) (F : κ → l.Product X) :
+    reindex σ (piMk F) = piMk (F ∘ σ) := by
   refine (finitePiEquiv (l := l) (X := X) κ').injective (funext fun a ↦ ?_)
-  rw [finitePiEquiv_apply, finitePiEquiv_apply, eval_reindex, eval_finitePiMk,
-    eval_finitePiMk, Function.comp_apply]
+  rw [finitePiEquiv_apply, finitePiEquiv_apply, eval_reindex, eval_piMk,
+    eval_piMk, Function.comp_apply]
 
 /-- Reindexing through the inverse of the finite-product equivalence. -/
 @[simp]
@@ -201,7 +200,7 @@ theorem reindex_finitePiEquiv_symm [Finite κ] [Finite κ'] (σ : κ' → κ)
     (F : κ → l.Product X) :
     reindex σ ((finitePiEquiv (l := l) (X := X) κ).symm F)
       = (finitePiEquiv (l := l) (X := X) κ').symm (F ∘ σ) := by
-  rw [finitePiEquiv_symm_apply, finitePiEquiv_symm_apply, reindex_finitePiMk]
+  rw [finitePiEquiv_symm_apply, finitePiEquiv_symm_apply, reindex_piMk]
 
 /-- The permutation form: permuting an assembled family precomposes it. -/
 @[simp]

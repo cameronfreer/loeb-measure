@@ -32,6 +32,13 @@ Upstreaming note: the tidy fix is a one-line mathlib change redefining `coeTC` a
 `⟨ofFun⟩`, after which `mk'_eq_ofFun` becomes redundant. Until then the normalization
 lemmas bridge the gap.
 
+That decision also settles the naming. `Filter.Germ` names the analogous lemmas after
+the coercion — `coe_eq`, `map_coe` — because its `coeTC` *is* `⟨ofFun⟩`. Ours are
+`ofFun_eq_ofFun` and `map_ofFun`, naming the function that actually appears in the
+terms. The two conventions converge exactly when `Product.coeTC` is routed through
+`ofFun`; until then the `ofFun_*` names describe what a goal really contains, so the
+naming question is *downstream of* the `coeTC` decision rather than independent of it.
+
 ## Main results
 
 * `Filter.Product.ofFun`: the public constructor, and simp normal form.
