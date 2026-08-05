@@ -37,15 +37,6 @@ compact probability ultralimit
 
 ## Layer U — dependent ultraproducts
 
-Module candidates:
-
-```text
-LoebMeasure/Ultraproduct/Basic.lean
-LoebMeasure/Ultraproduct/Map.lean
-LoebMeasure/Ultraproduct/FinitePower.lean
-LoebMeasure/Ultraproduct/Permutation.lean
-```
-
 Core alias:
 
 ```lean
@@ -102,10 +93,11 @@ wrapped as `Loeb.splitEquiv`. Fixed conventions:
   statements take the measurable space at each degree as data and carry compatibility
   as a hypothesis. The former discharge the latter.
 
-The `finitePiEquiv`/`finPowerEquiv` ultraproduct equivalences above are *separate* U4
-work; the canonical split is about plain finite powers. U4 must additionally supply
-their evaluation, naturality, and compatibility with `splitEquiv`, `reindex`, and
-`permute`, preserving the contravariance convention.
+Note the distinction this preserves: the `finitePiEquiv`/`finPowerEquiv` *ultraproduct*
+equivalences are a different thing from the canonical split, which is about plain finite
+powers `Fin n → Ω`. Compatibility between the two is still deferred, because
+`splitEquiv` has not landed; when it does, it must respect the contravariance
+convention above.
 
 ## Layer I — internal sets
 
@@ -182,8 +174,10 @@ The first relation API only needs finite arity and coordinatewise maps.
 
 ## Layer D — diagonalization
 
-The exact freeness property is unresolved. The public theorem should isolate it rather
-than fix `Filter.hyperfilter ℕ` throughout the entire library.
+The hypothesis is settled by ADR-0001: `Filter.CountablyIncomplete`, a predicate on
+`Filter` rather than on `Ultrafilter`, with properness deliberately separate. The
+public theorems isolate it rather than fixing `Filter.hyperfilter ℕ` library-wide, and
+the diagonalization itself consumes no ultrafilter property.
 
 Required mathematical forms:
 
@@ -288,7 +282,7 @@ theorem internalAddContent_isSigmaSubadditive :
     internalAddContent U X |>.IsSigmaSubadditive
 ```
 
-The exact constructors depend on ADR-0003, whose candidate route is: saturation makes
+The exact constructors follow the route accepted in ADR-0003: saturation makes
 a decreasing internal sequence with empty intersection eventually empty (continuity at
 `∅`), then `addContent_iUnion_eq_sum_of_tendsto_zero`,
 `isSigmaSubadditive_of_addContent_iUnion_eq_tsum`, and
@@ -453,7 +447,8 @@ the public internal finite-power API.
 
 ## Stability policy
 
-- M0–M2 declaration names are provisional.
+- Names in a section with no corresponding compiled module are provisional; names in an
+  implemented layer are not.
 - Once a milestone gate is reached, renaming its public declarations requires a
   migration note and issue.
 - Mathematical assumptions may never be hidden merely to preserve a provisional
