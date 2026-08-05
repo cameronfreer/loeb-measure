@@ -37,15 +37,6 @@ compact probability ultralimit
 
 ## Layer U — dependent ultraproducts
 
-Module candidates:
-
-```text
-LoebMeasure/Ultraproduct/Basic.lean
-LoebMeasure/Ultraproduct/Map.lean
-LoebMeasure/Ultraproduct/FinitePower.lean
-LoebMeasure/Ultraproduct/Permutation.lean
-```
-
 Core alias:
 
 ```lean
@@ -58,48 +49,18 @@ abbrev Ultraproduct
 end Loeb
 ```
 
-Generic API candidates under `Filter.Product`:
+**Layer U is implemented.** By the rule above, the modules are the reference and this
+sketch is superseded: see `LoebMeasure/Ultraproduct/` for the representative,
+functor, product, finite-power, and coordinate APIs, and their docstrings for the
+declarations and conventions. No declaration list is kept here, because a parallel
+inventory drifts — this one had already gone stale on `map_mk`, which merged as
+`map_ofFun`.
 
-```lean
-namespace Filter.Product
-
-theorem inductionOn ...
-theorem inductionOn₂ ...
-
-def map
-    (f : ∀ i, X i → Y i) :
-    l.Product X → l.Product Y
-
-@[simp] theorem map_mk ...
-@[simp] theorem map_id ...
-theorem map_comp ...
-
-def prodEquiv :
-    l.Product (fun i => X i × Y i) ≃
-      l.Product X × l.Product Y
-
-def finitePiEquiv (κ : Type*) [Finite κ] :
-    l.Product (fun i => κ → X i) ≃
-      (κ → l.Product X)
-
-def finPowerEquiv (n : ℕ) :
-    l.Product (fun i => Fin n → X i) ≃
-      (Fin n → l.Product X)
-
-end Filter.Product
-```
-
-Required laws:
-
-- representative equality is eventual equality;
-- every quotient element has a representative elimination principle;
-- maps preserve identity and composition;
-- product/power equivalences commute with coordinate evaluation;
-- reindexing a finite power is functorial;
-- a permutation and its inverse induce inverse maps.
+What remains recorded below is the design content that is *not* derivable from the
+code: why the layer is shaped this way, and the conventions later layers must respect.
 
 `Filter.Product` provides no canonical representative selection. Everything downstream
-is defined by quotient lifting through the eliminators above, with representative
+is defined by quotient lifting through those eliminators, with representative
 independence proved from eventual equality. The eliminators should follow the existing
 `Filter.Germ.inductionOn` precedent exactly: theorems marked `@[elab_as_elim]`.
 
@@ -132,10 +93,11 @@ wrapped as `Loeb.splitEquiv`. Fixed conventions:
   statements take the measurable space at each degree as data and carry compatibility
   as a hypothesis. The former discharge the latter.
 
-The `finitePiEquiv`/`finPowerEquiv` ultraproduct equivalences above are *separate* U4
-work; the canonical split is about plain finite powers. U4 must additionally supply
-their evaluation, naturality, and compatibility with `splitEquiv`, `reindex`, and
-`permute`, preserving the contravariance convention.
+Note the distinction this preserves: the `finitePiEquiv`/`finPowerEquiv` *ultraproduct*
+equivalences are a different thing from the canonical split, which is about plain finite
+powers `Fin n → Ω`. Compatibility between the two is still deferred, because
+`splitEquiv` has not landed; when it does, it must respect the contravariance
+convention above.
 
 ## Layer I — internal sets
 
@@ -212,8 +174,10 @@ The first relation API only needs finite arity and coordinatewise maps.
 
 ## Layer D — diagonalization
 
-The exact freeness property is unresolved. The public theorem should isolate it rather
-than fix `Filter.hyperfilter ℕ` throughout the entire library.
+The hypothesis is settled by ADR-0001: `Filter.CountablyIncomplete`, a predicate on
+`Filter` rather than on `Ultrafilter`, with properness deliberately separate. The
+public theorems isolate it rather than fixing `Filter.hyperfilter ℕ` library-wide, and
+the diagonalization itself consumes no ultrafilter property.
 
 Required mathematical forms:
 
@@ -318,7 +282,7 @@ theorem internalAddContent_isSigmaSubadditive :
     internalAddContent U X |>.IsSigmaSubadditive
 ```
 
-The exact constructors depend on ADR-0003, whose candidate route is: saturation makes
+The exact constructors follow the route accepted in ADR-0003: saturation makes
 a decreasing internal sequence with empty intersection eventually empty (continuity at
 `∅`), then `addContent_iUnion_eq_sum_of_tendsto_zero`,
 `isSigmaSubadditive_of_addContent_iUnion_eq_tsum`, and
@@ -347,9 +311,14 @@ instance : IsProbabilityMeasure (loebMeasure U X)
 instance : (loebMeasure U X).IsComplete
 ```
 
-Completeness is not supplied automatically by the Carathéodory API; expect a short
-direct instance. The characterizations below are likewise substantive theorems — they
-use finite total mass and the Layer D diagonal lemma, not just the construction.
+Completeness is not supplied by the Carathéodory API, but it does **not** need a direct
+proof here: the D0.3 spike established the generic
+`MeasureTheory.AddContent.measureCaratheodory_isComplete` — no finiteness or
+probability hypotheses — so the Loeb instance must *wrap* that theorem rather than
+reproduce its argument (ADR-0003).
+
+The characterizations below are the genuinely substantive part: they use finite total
+mass and the Layer D diagonal lemma, not just the construction.
 
 Downstream working characterizations:
 
@@ -483,7 +452,8 @@ the public internal finite-power API.
 
 ## Stability policy
 
-- M0–M2 declaration names are provisional.
+- Names in a section with no corresponding compiled module are provisional; names in an
+  implemented layer are not.
 - Once a milestone gate is reached, renaming its public declarations requires a
   migration note and issue.
 - Mathematical assumptions may never be hidden merely to preserve a provisional
