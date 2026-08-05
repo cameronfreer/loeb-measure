@@ -311,9 +311,14 @@ instance : IsProbabilityMeasure (loebMeasure U X)
 instance : (loebMeasure U X).IsComplete
 ```
 
-Completeness is not supplied automatically by the Carathéodory API; expect a short
-direct instance. The characterizations below are likewise substantive theorems — they
-use finite total mass and the Layer D diagonal lemma, not just the construction.
+Completeness is not supplied by the Carathéodory API, but it does **not** need a direct
+proof here: the D0.3 spike established the generic
+`MeasureTheory.AddContent.measureCaratheodory_isComplete` — no finiteness or
+probability hypotheses — so the Loeb instance must *wrap* that theorem rather than
+reproduce its argument (ADR-0003).
+
+The characterizations below are the genuinely substantive part: they use finite total
+mass and the Layer D diagonal lemma, not just the construction.
 
 Downstream working characterizations:
 
