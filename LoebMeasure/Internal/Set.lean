@@ -218,7 +218,7 @@ example (hX : ∀ i, Nonempty (X i)) (A B : InternalSet U X)
 example (U : Ultrafilter ℕ) (A : (i : ℕ) → Set (Fin (i + 1)))
     (h : ∀ᶠ i in (U : Filter ℕ), (A i).Nonempty) :
     (carrier (Filter.Product.ofFun A : InternalSet U fun i ↦ Fin (i + 1))).Nonempty :=
-  (carrier_ofFun_nonempty_iff (fun i ↦ ⟨0⟩) A).2 h
+  (carrier_ofFun_nonempty_iff (fun _ ↦ ⟨0⟩) A).2 h
 
 /-- Carriers are ordinary sets, so ordinary set language applies to them — which is the
 point of the seam. -/
