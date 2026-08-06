@@ -33,7 +33,9 @@ congruences.
 That matters because M2 is where three easily-conflated hypotheses arrive, and
 ADR-0001 requires them to stay apart:
 
-* **nonempty fibers** — for representative selection;
+* **nonempty fibers** — for choosing a stagewise *witness* or default value in later
+  nonemptiness and diagonal arguments. Not for quotient representatives, which need no
+  such hypothesis, as this module demonstrates;
 * **the ultrafilter dichotomy** — for passing from `A ≠ ∅` at the quotient level to
   *eventual* nonemptiness, and for carrier injectivity;
 * **countable incompleteness** — for diagonalization, and only there.
@@ -91,22 +93,6 @@ theorem mem_carrier_ofFun (x : (i : ι) → X i) (A : (i : ι) → Set (X i)) :
     (Filter.Product.ofFun x : Ultraproduct U X) ∈ carrier (Filter.Product.ofFun A) ↔
       ∀ᶠ i in (U : Filter ι), x i ∈ A i :=
   Iff.rfl
-
-/-- Every membership question reduces to the representative form: pick representatives
-for the point and the internal set, and membership is eventual. -/
-theorem mem_carrier_iff (x : Ultraproduct U X) (A : InternalSet U X) :
-    x ∈ carrier A ↔ ∃ (x' : (i : ι) → X i) (A' : (i : ι) → Set (X i)),
-      x = Filter.Product.ofFun x' ∧ A = Filter.Product.ofFun A' ∧
-        ∀ᶠ i in (U : Filter ι), x' i ∈ A' i := by
-  induction x, A using Filter.Product.inductionOn₂ with
-  | _ x' A' =>
-    constructor
-    · exact fun h ↦ ⟨x', A', rfl, rfl, h⟩
-    · rintro ⟨y', B', hy, hB, h⟩
-      rw [Filter.Product.ofFun_eq_ofFun] at hy hB
-      exact ((mem_carrier_ofFun x' A').2
-        (((h.congr (hy.mono fun i hi ↦ by rw [hi])).and (hB.mono fun _ hi ↦ hi.symm)).mono
-          fun i hi ↦ hi.2 ▸ hi.1))
 
 /-! ### API tests -/
 

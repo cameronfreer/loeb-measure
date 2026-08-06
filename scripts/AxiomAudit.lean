@@ -123,7 +123,6 @@ assert_standard_axioms Filter.Product.map_finPowerEquiv_symm
 assert_standard_axioms Loeb.InternalSet
 assert_standard_axioms Loeb.InternalSet.carrier
 assert_standard_axioms Loeb.InternalSet.mem_carrier_ofFun
-assert_standard_axioms Loeb.InternalSet.mem_carrier_iff
 
 -- Coordinate layer
 assert_standard_axioms Filter.Product.eval
