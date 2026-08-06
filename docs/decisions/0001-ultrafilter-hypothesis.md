@@ -46,8 +46,9 @@ Filter.CountablyIncomplete (F : Filter ι) : Prop
 — option 3, refined to the `Filter` level. The content-free diagonal lemma
 (`CountablyIncomplete.exists_forall_eventually_mem`) is proved from this hypothesis
 alone plus nonempty fibers for choosing a stagewise witness or default value; **no
-ultrafilter property is consumed by the diagonalization**. M1 and the elementary part of M2 stay generic in a
-filter or ultrafilter; only the diagonal layer takes the predicate.
+ultrafilter property is consumed by the diagonalization**.
+M1 and the elementary part of M2 stay generic in a filter or ultrafilter; only the
+diagonal layer takes the predicate.
 
 Coverage of the concrete applications: `countablyIncomplete_of_le_cofinite` shows any
 filter refining `cofinite` on a countable index type qualifies — in particular every
