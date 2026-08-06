@@ -94,6 +94,96 @@ theorem mem_carrier_ofFun (x : (i : ι) → X i) (A : (i : ι) → Set (X i)) :
       ∀ᶠ i in (U : Filter ι), x i ∈ A i :=
   Iff.rfl
 
+/-! ### Nonemptiness and injectivity
+
+The two facts that make `carrier` a *faithful* embedding of internal-set data into
+ordinary sets, which is what lets the Boolean algebra be stated against `Set`
+operations.
+
+Their hypotheses differ, and the difference is the point:
+
+* `carrier_ofFun_nonempty_iff` uses nonempty fibers **only** to supply a default value
+  outside the eventual good set. Its filter reasoning uses no ultrafilter property.
+* `carrier_injective` additionally uses the **ultrafilter dichotomy**, and uses it in
+  exactly one place — see its proof note.
+* Neither uses countable incompleteness.
+
+Nonemptiness is an explicit hypothesis `(hX : ∀ i, Nonempty (X i))` rather than an
+instance, so the assumption boundary is visible in every statement that needs it. -/
+
+/-- Choose a point in each of an eventually-nonempty family of stagewise sets.
+
+This is where nonempty fibers are used, and all they are used for: a default value at
+the stages outside the good set, whose behaviour is irrelevant. -/
+private theorem exists_ofFun_mem (hX : ∀ i, Nonempty (X i)) {A : (i : ι) → Set (X i)}
+    (h : ∀ᶠ i in (U : Filter ι), (A i).Nonempty) :
+    ∃ x : (i : ι) → X i, ∀ᶠ i in (U : Filter ι), x i ∈ A i := by
+  classical
+  refine ⟨fun i ↦ if hi : (A i).Nonempty then hi.choose else (hX i).some, ?_⟩
+  filter_upwards [h] with i hi
+  simpa only [dif_pos hi] using hi.choose_spec
+
+/-- **Carrier nonemptiness is stagewise-eventual nonemptiness.**
+
+The forward direction needs no hypotheses at all; the reverse uses `hX` to default
+outside the good set. No ultrafilter property is involved in either. -/
+theorem carrier_ofFun_nonempty_iff (hX : ∀ i, Nonempty (X i))
+    (A : (i : ι) → Set (X i)) :
+    (carrier (Filter.Product.ofFun A : InternalSet U X)).Nonempty ↔
+      ∀ᶠ i in (U : Filter ι), (A i).Nonempty := by
+  constructor
+  · rintro ⟨x, hx⟩
+    induction x using Filter.Product.inductionOn with
+    | _ x' => exact ((mem_carrier_ofFun x' A).1 hx).mono fun _ hi ↦ ⟨_, hi⟩
+  · intro h
+    obtain ⟨x, hx⟩ := exists_ofFun_mem hX h
+    exact ⟨Filter.Product.ofFun x, (mem_carrier_ofFun x A).2 hx⟩
+
+/-- If one stagewise difference is eventually nonempty, the carriers differ: the
+witness family lies eventually in one and eventually outside the other. -/
+private theorem carrier_ofFun_ne (hX : ∀ i, Nonempty (X i))
+    {A B : (i : ι) → Set (X i)}
+    (h : ∀ᶠ i in (U : Filter ι), (A i \ B i).Nonempty) :
+    carrier (Filter.Product.ofFun A : InternalSet U X)
+      ≠ carrier (Filter.Product.ofFun B) := by
+  obtain ⟨x, hx⟩ := exists_ofFun_mem hX h
+  intro hEq
+  have hA : (Filter.Product.ofFun x : Ultraproduct U X) ∈
+      carrier (Filter.Product.ofFun A) :=
+    (mem_carrier_ofFun x A).2 (hx.mono fun _ hi ↦ hi.1)
+  have hB := (mem_carrier_ofFun x B).1 (hEq ▸ hA)
+  obtain ⟨i, hi, hmem⟩ := (hx.and hB).exists
+  exact hi.2 hmem
+
+/-- **An internal set is determined by its carrier.**
+
+Proof note — the one place the ultrafilter dichotomy is used, and why it is
+unavoidable. Eventual stagewise *inequality* does not by itself yield a separating
+point: the direction of the symmetric difference may vary by stage, and a witness
+family must come from one consistent direction to be eventually inside one carrier and
+eventually outside the other. The dichotomy selects that direction — deciding whether
+`{i | (A i \ B i).Nonempty}` or its complement is large — before any witness is
+chosen. -/
+theorem carrier_injective (hX : ∀ i, Nonempty (X i)) :
+    Function.Injective (carrier (U := U) (X := X)) := by
+  intro A B hEq
+  induction A, B using Filter.Product.inductionOn₂ with
+  | _ A' B' =>
+    rw [Filter.Product.ofFun_eq_ofFun]
+    by_contra hne
+    -- eventual inequality, then a *single* eventual direction for the difference
+    have hne' : ∀ᶠ i in (U : Filter ι), A' i ≠ B' i := Ultrafilter.eventually_not.2 hne
+    have hsplit : ∀ᶠ i in (U : Filter ι),
+        (A' i \ B' i).Nonempty ∨ (B' i \ A' i).Nonempty := by
+      filter_upwards [hne'] with i hi
+      by_contra hcon
+      push Not at hcon
+      exact hi (Set.Subset.antisymm (Set.sdiff_eq_empty.1 hcon.1)
+        (Set.sdiff_eq_empty.1 hcon.2))
+    rcases Ultrafilter.eventually_or.1 hsplit with h | h
+    · exact carrier_ofFun_ne hX h hEq
+    · exact carrier_ofFun_ne hX h hEq.symm
+
 /-! ### API tests -/
 
 section Tests
@@ -111,6 +201,24 @@ example (U : Ultrafilter ℕ) (x : (i : ℕ) → Fin (i + 1))
     (Filter.Product.ofFun x : Ultraproduct U fun i ↦ Fin (i + 1))
       ∈ carrier (Filter.Product.ofFun A) := by
   simp [h]
+
+/-- Nonemptiness transfers, by the stated rule. -/
+example (hX : ∀ i, Nonempty (X i)) (A : (i : ι) → Set (X i))
+    (h : ∀ᶠ i in (U : Filter ι), (A i).Nonempty) :
+    (carrier (Filter.Product.ofFun A : InternalSet U X)).Nonempty :=
+  (carrier_ofFun_nonempty_iff hX A).2 h
+
+/-- Equal carriers force equal internal sets — the faithfulness I3 needs to state the
+Boolean algebra against `Set` operations. -/
+example (hX : ∀ i, Nonempty (X i)) (A B : InternalSet U X)
+    (h : carrier A = carrier B) : A = B :=
+  carrier_injective hX h
+
+/-- **A genuinely dependent family**, for both new rules. -/
+example (U : Ultrafilter ℕ) (A : (i : ℕ) → Set (Fin (i + 1)))
+    (h : ∀ᶠ i in (U : Filter ℕ), (A i).Nonempty) :
+    (carrier (Filter.Product.ofFun A : InternalSet U fun i ↦ Fin (i + 1))).Nonempty :=
+  (carrier_ofFun_nonempty_iff (fun i ↦ ⟨0⟩) A).2 h
 
 /-- Carriers are ordinary sets, so ordinary set language applies to them — which is the
 point of the seam. -/

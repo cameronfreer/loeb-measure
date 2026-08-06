@@ -116,10 +116,12 @@ LoebMeasure/Internal/Diagonal.lean
 
 Two recorded caveats:
 
-- Carrier injectivity/extensionality needs nonempty fibers — for choosing a stagewise
-  *witness* in the symmetric difference, with a default elsewhere — and holds for any
-  ultrafilter; freeness or countable incompleteness first becomes essential in the
-  Layer D diagonal lemma. Hypotheses should be split accordingly.
+- Carrier nonemptiness and injectivity are **implemented**; see
+  `LoebMeasure/Internal/Set.lean`, whose docstrings record which hypothesis each one
+  consumes. The durable rule they establish: nonempty fibers, the ultrafilter
+  dichotomy, and countable incompleteness are three separate assumptions and must be
+  introduced separately — freeness or countable incompleteness first becomes essential
+  in the Layer D diagonal lemma, and nowhere earlier.
 - `InternalSet` deliberately quantifies over *all* stagewise subsets and should stay
   that way. General measured families will add a separate `InternalMeasurableSet`
   with a forgetful map to `InternalSet`; finite counting stages identify the two
