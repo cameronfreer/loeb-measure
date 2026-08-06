@@ -76,6 +76,10 @@ and confirm:
 - if a public module or capability changed, `scripts/AxiomAudit.lean` has been
   reviewed and updated — its list of audited boundary declarations must keep covering
   the substance of the library, which no automated check can verify;
+- if this PR implements declarations sketched in [docs/blueprint.md](docs/blueprint.md),
+  those sketches have been replaced with a pointer to the compiled module and its
+  docstring — the blueprint covers what does not exist yet, and code supersedes it
+  wherever code exists;
 - no linter warnings (warnings are errors in this package);
 - public declarations have docstrings;
 - tests/examples use the public API rather than unfolding quotients;

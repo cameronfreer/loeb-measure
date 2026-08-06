@@ -16,6 +16,7 @@ Closes #
 - [ ] No `sorry` in scope
 - [ ] No new nonstandard axioms
 - [ ] If a public module or capability changed, `scripts/AxiomAudit.lean` reviewed and updated
+- [ ] If this PR implements blueprint sketches, they are replaced by a pointer to the compiled module
 - [ ] Public declarations and modules have docstrings
 - [ ] Examples use the public API rather than quotient unfolding
 - [ ] Roadmap/blueprint/decision records updated if assumptions or dependencies changed
