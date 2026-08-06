@@ -101,42 +101,23 @@ convention above.
 
 ## Layer I — internal sets
 
-Module candidates:
+**The I1 seam is implemented**: `InternalSet`, `carrier`, and the membership rule live
+in `LoebMeasure/Internal/Set.lean`, whose docstring is the reference. By the rule
+above, no sketch of them is kept here. The remaining Layer I units — the Boolean
+algebra and set ring, carrier injectivity, internal maps and relations — are still
+unimplemented and sketched below.
+
+Module candidates for the unimplemented units:
 
 ```text
-LoebMeasure/Internal/Set.lean
 LoebMeasure/Internal/Relation.lean
 LoebMeasure/Internal/Diagonal.lean
 ```
 
-Candidate data:
-
-```lean
-namespace Loeb
-
-abbrev InternalSet
-    (U : Ultrafilter ι) (X : ι → Type*) :=
-  (U : Filter ι).Product (fun i => Set (X i))
-
-def InternalSet.carrier
-    (A : InternalSet U X) :
-    Set (Ultraproduct U X)
-
-@[simp] theorem InternalSet.mem_carrier_mk_iff
-    (x : ∀ i, X i) (A : ∀ i, Set (X i)) :
-    (x : Ultraproduct U X) ∈
-        InternalSet.carrier (A : InternalSet U X) ↔
-      ∀ᶠ i in U, x i ∈ A i
-
-end Loeb
-```
-
-The exact coercion policy is an M2 API choice. Even if a coercion to `Set` is supplied,
-the named `carrier` must remain available for readable statements.
-
 Two recorded caveats:
 
-- Carrier injectivity/extensionality needs only nonempty fibers and holds for any
+- Carrier injectivity/extensionality needs nonempty fibers — for choosing a stagewise
+  *witness* in the symmetric difference, with a default elsewhere — and holds for any
   ultrafilter; freeness or countable incompleteness first becomes essential in the
   Layer D diagonal lemma. Hypotheses should be split accordingly.
 - `InternalSet` deliberately quantifies over *all* stagewise subsets and should stay

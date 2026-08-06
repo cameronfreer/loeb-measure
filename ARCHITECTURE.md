@@ -170,7 +170,8 @@ cycles.
 
 The API should make these assumptions visible:
 
-- nonempty fibers, where representative selection needs them;
+- nonempty fibers, where a stagewise witness or default value must be chosen — not for
+  quotient representatives, which need no such hypothesis;
 - ultrafilter versus arbitrary filter;
 - freeness or countable incompleteness, only where diagonalization needs it;
 - finite nonempty stage spaces for normalized counting;
