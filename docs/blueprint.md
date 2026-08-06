@@ -101,11 +101,11 @@ convention above.
 
 ## Layer I — internal sets
 
-**The I1 seam is implemented**: `InternalSet`, `carrier`, and the membership rule live
-in `LoebMeasure/Internal/Set.lean`, whose docstring is the reference. By the rule
-above, no sketch of them is kept here. The remaining Layer I units — the Boolean
-algebra and set ring, carrier injectivity, internal maps and relations — are still
-unimplemented and sketched below.
+**Implemented**: `InternalSet`, `carrier`, the membership rule, and the nonemptiness
+and injectivity facts that make `carrier` faithful all live in
+`LoebMeasure/Internal/Set.lean`, whose docstrings are the reference. By the rule above,
+no sketch of them is kept here. The remaining Layer I units — the Boolean algebra and
+set ring, internal maps and relations — are still unimplemented and sketched below.
 
 Module candidates for the unimplemented units:
 

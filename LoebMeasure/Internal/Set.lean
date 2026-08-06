@@ -40,17 +40,23 @@ ADR-0001 requires them to stay apart:
   *eventual* nonemptiness, and for carrier injectivity;
 * **countable incompleteness** — for diagonalization, and only there.
 
-This module uses none of them, which is the cleanest possible base for keeping them
-separate. `InternalSet` is nevertheless stated for an `Ultrafilter`, matching where the
-project's mathematics lives, without the proofs relying on it: the identical descent
-elaborates verbatim over an arbitrary `Filter`, which is how that claim was checked
-rather than assumed.
+The representation seam itself — `carrier` and `mem_carrier_ofFun` — uses **none** of
+them: the identical descent elaborates verbatim over an arbitrary `Filter`, which is
+how that claim was checked rather than assumed. `InternalSet` is nevertheless stated
+for an `Ultrafilter`, matching where the project's mathematics lives, without those
+proofs relying on it.
+
+The two facts below then add hypotheses visibly, one at a time, rather than inheriting
+them: `carrier_ofFun_nonempty_iff` takes nonempty fibers and nothing else, and
+`carrier_injective` takes the dichotomy on top. Countable incompleteness appears
+nowhere in this module.
 
 ## Scope
 
-Deliberately narrow: the type, the carrier, and the membership rule. The Boolean
-algebra and set ring, carrier injectivity, internal maps and relations, and
-diagonalization are separate units. No coercion to `Set` is supplied until a second
+Deliberately narrow: the type, the carrier, the membership rule, and the two facts
+making `carrier` faithful. The Boolean algebra and set ring, internal maps and
+relations, and diagonalization are separate units. No coercion to `Set` is supplied,
+and no derived extensionality lemma, until a second
 consumer justifies one; the named `carrier` keeps statements readable in the meantime.
 -/
 
