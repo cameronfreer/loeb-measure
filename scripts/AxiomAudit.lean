@@ -125,6 +125,13 @@ assert_standard_axioms Loeb.InternalSet.carrier
 assert_standard_axioms Loeb.InternalSet.mem_carrier_ofFun
 assert_standard_axioms Loeb.InternalSet.carrier_ofFun_nonempty_iff
 assert_standard_axioms Loeb.InternalSet.carrier_injective
+assert_standard_axioms Loeb.InternalSet.carrier_bot
+assert_standard_axioms Loeb.InternalSet.carrier_sup
+assert_standard_axioms Loeb.InternalSet.carrier_compl
+assert_standard_axioms Loeb.InternalSet.carrier_sdiff
+assert_standard_axioms Loeb.InternalSet.carriers
+assert_standard_axioms Loeb.InternalSet.isSetAlgebra_carriers
+assert_standard_axioms Loeb.InternalSet.isSetRing_carriers
 
 -- Coordinate layer
 assert_standard_axioms Filter.Product.eval
