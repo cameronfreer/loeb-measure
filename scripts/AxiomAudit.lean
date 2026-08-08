@@ -125,7 +125,12 @@ assert_standard_axioms Loeb.InternalSet.carrier
 assert_standard_axioms Loeb.InternalSet.mem_carrier_ofFun
 assert_standard_axioms Loeb.InternalSet.carrier_ofFun_nonempty_iff
 assert_standard_axioms Loeb.InternalSet.carrier_injective
+assert_standard_axioms Loeb.InternalSet.instBooleanAlgebra
+assert_standard_axioms Loeb.InternalSet.le_ofFun_iff
 assert_standard_axioms Loeb.InternalSet.carrier_bot
+assert_standard_axioms Loeb.InternalSet.carrier_top
+assert_standard_axioms Loeb.InternalSet.carrier_inf
+assert_standard_axioms Loeb.InternalSet.carrier_symmDiff
 assert_standard_axioms Loeb.InternalSet.carrier_sup
 assert_standard_axioms Loeb.InternalSet.carrier_compl
 assert_standard_axioms Loeb.InternalSet.carrier_sdiff

@@ -13,13 +13,15 @@ Internal sets carry the stagewise Boolean operations, and `carrier` preserves th
 
 ## Where each fact's structure comes from
 
-The operations themselves are `Filter.Product.map`/`map₂` of the corresponding `Set`
-operations, so they and their representative computation rules use only ordinary
-`Filter` API — no ultrafilter property, no nonempty fibers, no countable
-incompleteness. The Boolean-algebra construction is likewise filter-generic; the public
-`BooleanAlgebra` instance is scoped to `InternalSet U X` rather than installed on
+The operations are `Filter.Product.map`/`map₂` of the corresponding `Set` operations,
+and the `BooleanAlgebra` instance is built from their stagewise laws through
+`Lattice.mk'` and `DistribLattice.ofInfSupLe`. All of that uses only ordinary `Filter`
+API — no ultrafilter property, no nonempty fibers, no countable incompleteness. The
+public instance is scoped to `InternalSet U X` rather than installed on
 `Filter.Product`, since a generic public instance is a broader upstream decision with
 coherence implications (see #45).
+
+The order is eventual stagewise inclusion (`le_ofFun_iff`).
 
 The theorems saying `carrier` *preserves* the operations are where the structure
 stratifies, and the pattern is not uniform:
@@ -29,7 +31,8 @@ stratifies, and the pattern is not uniform:
 | `carrier_bot` | properness — supplied by `Ultrafilter` |
 | `carrier_top`, `carrier_inf` | ordinary filter laws only |
 | `carrier_sup`, `carrier_compl` | the **ultrafilter dichotomy** |
-| `carrier_sdiff`, `carrier_symmDiff` | derived from those |
+| `carrier_sdiff` | derived: `sdiff_eq` then `carrier_inf`/`carrier_compl` |
+| `carrier_symmDiff` | derived: `carrier_sup` and `carrier_sdiff` |
 
 Nothing here uses nonempty fibers or countable incompleteness, and **`carrier_injective`
 is deliberately not used**: set-ring closure needs only that representing internal sets
@@ -79,6 +82,80 @@ theorem sdiff_ofFun (A B : (i : ι) → Set (X i)) :
     (Filter.Product.ofFun A : InternalSet U X) \ Filter.Product.ofFun B
       = Filter.Product.ofFun fun i ↦ A i \ B i :=
   rfl
+
+/-! ### The Boolean algebra
+
+Each law is the corresponding `Set` law applied stagewise, so the construction uses
+only ordinary `Filter` API — no ultrafilter property. The public instance is scoped to
+`InternalSet U X`; a generic instance on `Filter.Product` is a broader upstream
+decision and is deliberately out of scope. -/
+
+private theorem ofFun_congrArg {A B : (i : ι) → Set (X i)} (h : ∀ i, A i = B i) :
+    (Filter.Product.ofFun A : InternalSet U X) = Filter.Product.ofFun B :=
+  congrArg _ (funext h)
+
+instance instLattice : Lattice (InternalSet U X) :=
+  Lattice.mk'
+    (sup_comm := by
+      intro A B
+      induction A, B using Filter.Product.inductionOn₂ with
+      | _ A' B' => exact ofFun_congrArg fun i ↦ Set.union_comm _ _)
+    (sup_assoc := by
+      intro A B C
+      induction A, B using Filter.Product.inductionOn₂ with
+      | _ A' B' =>
+        induction C using Filter.Product.inductionOn with
+        | _ C' => exact ofFun_congrArg fun i ↦ Set.union_assoc _ _ _)
+    (inf_comm := by
+      intro A B
+      induction A, B using Filter.Product.inductionOn₂ with
+      | _ A' B' => exact ofFun_congrArg fun i ↦ Set.inter_comm _ _)
+    (inf_assoc := by
+      intro A B C
+      induction A, B using Filter.Product.inductionOn₂ with
+      | _ A' B' =>
+        induction C using Filter.Product.inductionOn with
+        | _ C' => exact ofFun_congrArg fun i ↦ Set.inter_assoc _ _ _)
+    (sup_inf_self := by
+      intro A B
+      induction A, B using Filter.Product.inductionOn₂ with
+      | _ A' B' => exact ofFun_congrArg fun i ↦ sup_inf_self)
+    (inf_sup_self := by
+      intro A B
+      induction A, B using Filter.Product.inductionOn₂ with
+      | _ A' B' => exact ofFun_congrArg fun i ↦ inf_sup_self)
+
+instance instDistribLattice : DistribLattice (InternalSet U X) :=
+  DistribLattice.ofInfSupLe fun A B C ↦ by
+    induction A, B using Filter.Product.inductionOn₂ with
+    | _ A' B' =>
+      induction C using Filter.Product.inductionOn with
+      | _ C' => exact le_of_eq (ofFun_congrArg fun i ↦ Set.inter_union_distrib_left ..)
+
+instance instBooleanAlgebra : BooleanAlgebra (InternalSet U X) where
+  inf_compl_le_bot A := by
+    induction A using Filter.Product.inductionOn with
+    | _ A' => exact le_of_eq (ofFun_congrArg fun i ↦ Set.inter_compl_self _)
+  top_le_sup_compl A := by
+    induction A using Filter.Product.inductionOn with
+    | _ A' => exact le_of_eq (ofFun_congrArg fun i ↦ (Set.union_compl_self _).symm)
+  le_top A := by
+    induction A using Filter.Product.inductionOn with
+    | _ A' => exact sup_eq_right.1 (ofFun_congrArg fun i ↦ Set.union_univ _)
+  bot_le A := by
+    induction A using Filter.Product.inductionOn with
+    | _ A' => exact sup_eq_right.1 (ofFun_congrArg fun i ↦ Set.empty_union _)
+  sdiff_eq A B := by
+    induction A, B using Filter.Product.inductionOn₂ with
+    | _ A' B' => exact ofFun_congrArg fun i ↦ Set.sdiff_eq _ _
+
+/-- The order is eventual stagewise inclusion. -/
+theorem le_ofFun_iff (A B : (i : ι) → Set (X i)) :
+    (Filter.Product.ofFun A : InternalSet U X) ≤ Filter.Product.ofFun B ↔
+      ∀ᶠ i in (U : Filter ι), A i ⊆ B i := by
+  rw [← sup_eq_right]
+  simp only [sup_ofFun, Filter.Product.ofFun_eq_ofFun]
+  exact eventually_congr (Eventually.of_forall fun i ↦ Set.union_eq_right)
 
 /-! ### Carriers of the operations
 
@@ -134,21 +211,48 @@ theorem carrier_compl (A : InternalSet U X) : carrier Aᶜ = (carrier A)ᶜ := b
     simp only [compl_ofFun, mem_carrier_ofFun, Set.mem_compl_iff]
     exact Ultrafilter.eventually_not
 
-/-- Difference is preserved, derived from complement and intersection. -/
+/-- Difference is preserved. Genuinely *derived*, as the table says: `sdiff_eq` reduces
+it to intersection with a complement, and those two laws finish it. -/
 @[simp]
 theorem carrier_sdiff (A B : InternalSet U X) :
     carrier (A \ B) = carrier A \ carrier B := by
-  ext x
-  induction x, A using Filter.Product.inductionOn₂ with
-  | _ x' A' =>
-    induction B using Filter.Product.inductionOn with
-    | _ B' =>
-      simp only [sdiff_ofFun, mem_carrier_ofFun, Set.mem_sdiff, Filter.eventually_and]
-      exact and_congr_right fun _ ↦ Ultrafilter.eventually_not
+  rw [sdiff_eq, carrier_inf, carrier_compl, Set.sdiff_eq]
+
+/-- Symmetric difference is preserved, derived from supremum and difference. This is
+the operation M3's internal-approximation arguments are stated with.
+
+The final `rfl` bridges `∪` and `⊔` on `Set`, which are definitionally but not
+syntactically equal. -/
+@[simp]
+theorem carrier_symmDiff (A B : InternalSet U X) :
+    carrier (symmDiff A B) = symmDiff (carrier A) (carrier B) := by
+  rw [symmDiff_def, symmDiff_def, carrier_sup, carrier_sdiff, carrier_sdiff]; rfl
 
 /-! ### API tests -/
 
 section Tests
+
+/-- **The headline capability**: internal sets *are* a Boolean algebra. Compilation of
+the operations alone does not establish this — an earlier revision defined every
+operation and had no instance — so it is tested directly. -/
+example : BooleanAlgebra (InternalSet U X) := inferInstance
+
+/-- And the instance supports Boolean reasoning, not merely synthesis. -/
+example (A B : InternalSet U X) : (A ⊓ B)ᶜ = Aᶜ ⊔ Bᶜ := compl_inf
+
+example (A : InternalSet U X) : A ⊓ Aᶜ = ⊥ := inf_compl_self A
+
+example (A B C : InternalSet U X) : A ⊓ (B ⊔ C) = A ⊓ B ⊔ A ⊓ C := inf_sup_left A B C
+
+/-- The order is eventual stagewise inclusion. -/
+example (A B : (i : ι) → Set (X i)) (h : ∀ᶠ i in (U : Filter ι), A i ⊆ B i) :
+    (Filter.Product.ofFun A : InternalSet U X) ≤ Filter.Product.ofFun B :=
+  (le_ofFun_iff A B).2 h
+
+/-- Symmetric difference is preserved — the operation M3's approximation arguments use. -/
+example (A B : InternalSet U X) :
+    carrier (symmDiff A B) = symmDiff (carrier A) (carrier B) :=
+  carrier_symmDiff A B
 
 /-- Operations compute on representatives. -/
 example (A B : (i : ι) → Set (X i)) :
