@@ -23,6 +23,13 @@ coherence implications (see #45).
 
 The order is eventual stagewise inclusion (`le_ofFun_iff`).
 
+That filter-genericity is **verified by compilation**, not asserted: the
+`ArbitraryFilter` section below rebuilds the entire construction over an arbitrary
+`l : Filter ι` with `local instance`s, so nothing escapes onto `Filter.Product` and no
+diamond can reach `InternalSet`. The check has teeth — `Ultrafilter.eventually_or`,
+which `carrier_sup` needs, does not typecheck at a general filter — so a step that
+secretly required the ultrafilter would break that section.
+
 The theorems saying `carrier` *preserves* the operations are where the structure
 stratifies, and the pattern is not uniform:
 
@@ -150,6 +157,7 @@ instance instBooleanAlgebra : BooleanAlgebra (InternalSet U X) where
     | _ A' B' => exact ofFun_congrArg fun i ↦ Set.sdiff_eq _ _
 
 /-- The order is eventual stagewise inclusion. -/
+@[simp]
 theorem le_ofFun_iff (A B : (i : ι) → Set (X i)) :
     (Filter.Product.ofFun A : InternalSet U X) ≤ Filter.Product.ofFun B ↔
       ∀ᶠ i in (U : Filter ι), A i ⊆ B i := by
@@ -227,6 +235,95 @@ syntactically equal. -/
 theorem carrier_symmDiff (A B : InternalSet U X) :
     carrier (symmDiff A B) = symmDiff (carrier A) (carrier B) := by
   rw [symmDiff_def, symmDiff_def, carrier_sup, carrier_sdiff, carrier_sdiff]; rfl
+
+/-! ### The arbitrary-filter check
+
+The claim above — that the construction uses only ordinary `Filter` API — is verified
+here rather than asserted: the whole development is rebuilt over an arbitrary
+`l : Filter ι`, with `local instance`s so that nothing is installed on `Filter.Product`
+outside this section and no diamond can reach `InternalSet`. If any step secretly
+needed the ultrafilter, this section would fail to elaborate. -/
+
+section ArbitraryFilter
+
+variable {l : Filter ι}
+
+local instance : Bot (l.Product fun i ↦ Set (X i)) := ⟨Filter.Product.ofFun fun _ ↦ ∅⟩
+local instance : Top (l.Product fun i ↦ Set (X i)) :=
+  ⟨Filter.Product.ofFun fun _ ↦ Set.univ⟩
+local instance : Compl (l.Product fun i ↦ Set (X i)) :=
+  ⟨Filter.Product.map fun _ ↦ compl⟩
+local instance : Max (l.Product fun i ↦ Set (X i)) :=
+  ⟨Filter.Product.map₂ fun _ ↦ (· ∪ ·)⟩
+local instance : Min (l.Product fun i ↦ Set (X i)) :=
+  ⟨Filter.Product.map₂ fun _ ↦ (· ∩ ·)⟩
+local instance : SDiff (l.Product fun i ↦ Set (X i)) :=
+  ⟨Filter.Product.map₂ fun _ ↦ (· \ ·)⟩
+
+private theorem generic_congrArg {A B : (i : ι) → Set (X i)} (h : ∀ i, A i = B i) :
+    (Filter.Product.ofFun A : l.Product fun i ↦ Set (X i)) = Filter.Product.ofFun B :=
+  congrArg _ (funext h)
+
+local instance genericLattice : Lattice (l.Product fun i ↦ Set (X i)) :=
+  Lattice.mk'
+    (sup_comm := by
+      intro A B
+      induction A, B using Filter.Product.inductionOn₂ with
+      | _ A' B' => exact generic_congrArg fun i ↦ Set.union_comm _ _)
+    (sup_assoc := by
+      intro A B C
+      induction A, B using Filter.Product.inductionOn₂ with
+      | _ A' B' =>
+        induction C using Filter.Product.inductionOn with
+        | _ C' => exact generic_congrArg fun i ↦ Set.union_assoc _ _ _)
+    (inf_comm := by
+      intro A B
+      induction A, B using Filter.Product.inductionOn₂ with
+      | _ A' B' => exact generic_congrArg fun i ↦ Set.inter_comm _ _)
+    (inf_assoc := by
+      intro A B C
+      induction A, B using Filter.Product.inductionOn₂ with
+      | _ A' B' =>
+        induction C using Filter.Product.inductionOn with
+        | _ C' => exact generic_congrArg fun i ↦ Set.inter_assoc _ _ _)
+    (sup_inf_self := by
+      intro A B
+      induction A, B using Filter.Product.inductionOn₂ with
+      | _ A' B' => exact generic_congrArg fun i ↦ sup_inf_self)
+    (inf_sup_self := by
+      intro A B
+      induction A, B using Filter.Product.inductionOn₂ with
+      | _ A' B' => exact generic_congrArg fun i ↦ inf_sup_self)
+
+local instance genericDistribLattice : DistribLattice (l.Product fun i ↦ Set (X i)) :=
+  DistribLattice.ofInfSupLe fun A B C ↦ by
+    induction A, B using Filter.Product.inductionOn₂ with
+    | _ A' B' =>
+      induction C using Filter.Product.inductionOn with
+      | _ C' => exact le_of_eq (generic_congrArg fun i ↦ Set.inter_union_distrib_left ..)
+
+/-- **The verification.** A `BooleanAlgebra` over an arbitrary filter, using no
+ultrafilter property anywhere. The public instance above is this construction at
+`l := (U : Filter ι)`. -/
+local instance genericBooleanAlgebra :
+    BooleanAlgebra (l.Product fun i ↦ Set (X i)) where
+  inf_compl_le_bot A := by
+    induction A using Filter.Product.inductionOn with
+    | _ A' => exact le_of_eq (generic_congrArg fun i ↦ Set.inter_compl_self _)
+  top_le_sup_compl A := by
+    induction A using Filter.Product.inductionOn with
+    | _ A' => exact le_of_eq (generic_congrArg fun i ↦ (Set.union_compl_self _).symm)
+  le_top A := by
+    induction A using Filter.Product.inductionOn with
+    | _ A' => exact sup_eq_right.1 (generic_congrArg fun i ↦ Set.union_univ _)
+  bot_le A := by
+    induction A using Filter.Product.inductionOn with
+    | _ A' => exact sup_eq_right.1 (generic_congrArg fun i ↦ Set.empty_union _)
+  sdiff_eq A B := by
+    induction A, B using Filter.Product.inductionOn₂ with
+    | _ A' B' => exact generic_congrArg fun i ↦ Set.sdiff_eq _ _
+
+end ArbitraryFilter
 
 /-! ### API tests -/
 
