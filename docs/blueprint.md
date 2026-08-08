@@ -129,20 +129,13 @@ Two recorded caveats:
   in the domain of `internalContent`, not in the basic internal-set layer, and the
   M2/M3 issues should record that boundary explicitly.
 
-Boolean API:
-
-```lean
-InternalSet.empty
-InternalSet.univ
-InternalSet.compl
-InternalSet.union
-InternalSet.inter
-InternalSet.diff
-InternalSet.symmDiff
-```
-
-with carrier lemmas for every operation. The realized carriers should be packaged as a
-set ring suitable for `MeasureTheory.AddContent`.
+The Boolean operations, their carrier laws, and the realized carrier algebra are
+**implemented**: see `LoebMeasure/Internal/BooleanAlgebra.lean` and
+`LoebMeasure/Internal/SetRing.lean`. The durable design points they establish: the
+carriers form a set *algebra*, from which the ring `MeasureTheory.AddContent` consumes
+is derived; and the structure each law needs is not uniform — `⊥` uses properness, `⊤`
+and intersection ordinary filter laws, union and complement the ultrafilter dichotomy,
+and none of them nonempty fibers or countable incompleteness.
 
 Internal maps and relations:
 
