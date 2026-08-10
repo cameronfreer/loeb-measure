@@ -69,6 +69,11 @@ lake build
 lake env lean scripts/AxiomAudit.lean
 ```
 
+`lake build` is the authority, not a per-file check: `lake env lean <file>` does **not**
+apply the `leanOptions` the lakefile sets on the library, so it silently permits
+`autoImplicit`, `sorry`, and linter warnings that the build rejects. Use it for fast
+iteration, never as the final gate.
+
 and confirm:
 
 - no `sorry` in the PR scope;

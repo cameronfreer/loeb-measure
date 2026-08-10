@@ -10,3 +10,5 @@ import LoebMeasure.Ultraproduct.Prod
 import LoebMeasure.Ultraproduct.FinitePower
 import LoebMeasure.Ultraproduct.Permutation
 import LoebMeasure.Internal.Set
+import LoebMeasure.Internal.BooleanAlgebra
+import LoebMeasure.Internal.SetRing
