@@ -160,20 +160,19 @@ Required mathematical forms:
 3. a null-cover lemma for countable unions; and
 4. a version usable to prove sigma-subadditivity of internal content.
 
-Candidate statement shape:
+**Only the content-free forms belong to M2.** Forms 1 and 3 mention content and are
+deferred: the increasing envelope — Elek–Szegedy Lemma 2.4, which preserves the
+*limiting internal content* — moves to M3 once `internalContent` exists, and the
+null-cover lemma later still, with the null-set/approximation layer. Form 4's
+content-free shape is the eventual-emptiness statement
 
 ```lean
-theorem exists_internal_iUnion_envelope
-    (A : ℕ → InternalSet U X)
-    (hmono : Monotone A)
-    (hμ : Tendsto (fun n => content (A n)) atTop (𝓝 t)) :
-    ∃ B : InternalSet U X,
-      (∀ n, A n ≤ B) ∧ content B = t
+theorem eventually_eq_bot_of_antitone_iInter_carrier_eq_empty ...
+    (hempty : ⋂ n, carrier (A n) = ∅) : ∀ᶠ n in atTop, A n = ⊥
 ```
 
-This statement depends on content and may live later than the underlying combinatorial
-diagonal lemma. The M2 issue must first expose a content-free lemma from which this
-follows.
+which is continuity at `∅` in combinatorial dress, and is what makes
+`addContent_iUnion_eq_sum_of_tendsto_zero` applicable at M3.
 
 Carrier-level equivalences belong to Layer I, not here: with nonempty fibers,
 `carrier(A).Nonempty ↔ ∀ᶠ i, (A i).Nonempty` holds for any filter, while passing from

@@ -98,7 +98,8 @@ Acceptance:
 | I3 | Give internal sets a Boolean algebra and realized set ring | I1, I2 | Carrier lemmas for all operations; `IsSetRing` |
 | I4 | Define internal maps, relations, and preimages | U2, I1 | Composition and carrier-preimage theorem |
 | I5 | Prove the content-free diagonal lemma | D0.1, I3 | Reusable theorem with no measure imports |
-| I6 | Derive increasing-envelope and null-cover forms | I5, D0.2 | Statements match later AddContent proof needs |
+| I6 | Derive the content-free saturation consequences | I5 | Eventual-emptiness form matching the later AddContent proof need |
+| (M3) | Increasing-envelope and null-cover forms | internal content | Deferred: both mention content, so they cannot land in M2 |
 
 ## M3 — Loeb measure
 

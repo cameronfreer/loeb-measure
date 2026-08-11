@@ -76,15 +76,23 @@ Goal: expose internal subsets of an ultraproduct as a Boolean algebra of actual 
 - A separate realization/carrier map into `Set (Loeb.Ultraproduct U X)`.
 - Membership, equality, complement, union, intersection, and symmetric-difference
   lemmas.
-- Internal maps and preimages.
-- The countable diagonal/envelope lemma needed for Loeb measure.
+- Internal maps, preimages, and relations.
+- The countable diagonal lemma, and its content-free saturation consequences —
+  in particular the eventual-emptiness form that is continuity at `∅` in combinatorial
+  dress.
+
+The increasing-envelope theorem is **not** here. Elek–Szegedy's Lemma 2.4 preserves the
+limiting internal content, so it cannot land before `internalContent` exists; it belongs
+to M3. The countable null-cover theorem belongs later still, with the
+null-set/approximation layer.
 
 Gate:
 
 - representative-level membership reduces to eventual membership;
 - realized internal sets form a set ring;
-- the chosen diagonal theorem has a statement reusable by both measure and
-  integration; and
+- the diagonal theorem has a statement reusable by both measure and integration, and
+  its eventual-emptiness consequence is stated in the form M3's sigma-subadditivity
+  argument consumes; and
 - no first-order syntax or general model-theoretic saturation is required.
 
 ## M3 — Ultralimits, internal content, and Loeb measure
