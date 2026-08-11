@@ -137,16 +137,13 @@ is derived; and the structure each law needs is not uniform — `⊥` uses prope
 and intersection ordinary filter laws, union and complement the ultrafilter dichotomy,
 and none of them nonempty fibers or countable incompleteness.
 
-Internal maps and relations:
-
-```lean
-def InternalMap ...
-def InternalMap.toFun ...
-def InternalSet.preimage ...
-abbrev InternalRelation ...  -- an internal set on a finite power
-```
-
-The first relation API only needs finite arity and coordinatewise maps.
+Internal maps, preimages, and relations are **implemented**: see
+`LoebMeasure/Internal/Function.lean` and `LoebMeasure/Internal/Relation.lean`. The
+durable design points they fix: quotient data and its realization stay separate (no
+`CoeFun`, as with `carrier`); an internal relation is an *alias* for an internal set on
+the stagewise finite powers, so internality and later Loeb measure are defined on that
+side; and `finPowerEquiv` appears only in the separately named `tupleCarrier`
+realization, never inside the alias.
 
 ## Layer D — diagonalization
 
