@@ -20,9 +20,12 @@ improves the API.
 ## Hypotheses
 
 Nothing here needs any: no nonempty fibers, no ultrafilter dichotomy, no properness, no
-countable incompleteness. The generic auxiliary `applyOn` is defined once over an
-arbitrary `l : Filter ι` and the ultrafilter-scoped declarations specialize it, so the
-genericity is structural rather than a duplicated witness (contrast #47).
+countable incompleteness.
+
+No quotient reasoning is introduced either. Pointwise application is just another
+consumer of `Filter.Product.map₂` — `toFun f = map₂ (fun _ f' x' ↦ f' x') f` — so
+genericity comes structurally through the M1 abstraction rather than from a fresh lift
+or a duplicated witness (contrast #47).
 
 `carrier_preimage` in particular is the *same* eventual-membership proposition on both
 sides — `x' i ∈ f' i ⁻¹' A' i` and `f' i (x' i) ∈ A' i` are the same statement — so it
@@ -41,33 +44,9 @@ abbrev InternalMap (U : Ultrafilter ι) (X Y : ι → Type*) :=
 
 namespace InternalMap
 
-section Generic
-
-variable {l : Filter ι}
-
-/-- Apply a filter product of functions to a filter product of arguments. Defined once
-over an arbitrary filter; the ultrafilter-scoped `toFun` is this. -/
-private def applyOn (f : l.Product fun i ↦ X i → Y i) : l.Product X → l.Product Y :=
-  Filter.Product.liftOn f
-    (fun f' ↦ fun x : l.Product X ↦
-      Filter.Product.liftOn x
-        (fun x' ↦ (Filter.Product.ofFun fun i ↦ f' i (x' i) : l.Product Y))
-        (fun _ _ h ↦ Filter.Product.ofFun_congr (h.mono fun _ hi ↦ by rw [hi])))
-    (fun _ _ h ↦ by
-      funext x
-      induction x using Filter.Product.inductionOn with
-      | _ x' => exact Filter.Product.ofFun_congr (h.mono fun _ hi ↦ by rw [hi]))
-
-private theorem applyOn_ofFun (f : (i : ι) → X i → Y i) (x : (i : ι) → X i) :
-    applyOn (Filter.Product.ofFun f : l.Product fun i ↦ X i → Y i)
-        (Filter.Product.ofFun x) = Filter.Product.ofFun fun i ↦ f i (x i) :=
-  rfl
-
-end Generic
-
 /-- The function between ultraproducts that an internal map realizes. -/
 def toFun (f : InternalMap U X Y) : Ultraproduct U X → Ultraproduct U Y :=
-  applyOn f
+  Filter.Product.map₂ (fun _ f' x' ↦ f' x') f
 
 @[simp]
 theorem toFun_ofFun (f : (i : ι) → X i → Y i) (x : (i : ι) → X i) :
@@ -81,6 +60,12 @@ def id : InternalMap U X X := Filter.Product.ofFun fun _ ↦ _root_.id
 /-- Composition of internal maps. -/
 def comp (g : InternalMap U Y Z) (f : InternalMap U X Y) : InternalMap U X Z :=
   Filter.Product.map₂ (fun _ (g' : Y _ → Z _) (f' : X _ → Y _) ↦ g' ∘ f') g f
+
+@[simp]
+theorem comp_ofFun (g : (i : ι) → Y i → Z i) (f : (i : ι) → X i → Y i) :
+    comp (Filter.Product.ofFun g : InternalMap U Y Z) (Filter.Product.ofFun f)
+      = Filter.Product.ofFun fun i ↦ g i ∘ f i :=
+  rfl
 
 @[simp]
 theorem toFun_id : toFun (id : InternalMap U X X) = _root_.id := by
@@ -147,6 +132,12 @@ section Tests
 example (f : (i : ι) → X i → Y i) (x : (i : ι) → X i) :
     toFun (Filter.Product.ofFun f : InternalMap U X Y) (Filter.Product.ofFun x)
       = Filter.Product.ofFun fun i ↦ f i (x i) := by
+  simp
+
+/-- Composition computes on representatives. -/
+example (g : (i : ι) → Y i → Z i) (f : (i : ι) → X i → Y i) :
+    comp (Filter.Product.ofFun g : InternalMap U Y Z) (Filter.Product.ofFun f)
+      = Filter.Product.ofFun fun i ↦ g i ∘ f i := by
   simp
 
 /-- Functoriality, by `simp`. -/

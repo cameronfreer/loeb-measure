@@ -36,8 +36,9 @@ becomes an ordinary preimage of tuple sets:
 tupleCarrier (R.comap σ) = (fun x ↦ x ∘ σ) ⁻¹' tupleCarrier R
 ```
 
-This is where `Filter.Product.finPowerEquiv_reindex` earns its keep, and it is the
-relation API the homomorphism-density slice at M4 will use.
+This is where `Filter.Product.reindex_finPowerEquiv_symm` earns its keep — one of the
+inverse-facing rules added because an audit predicted downstream goals would need them
+— and it is the relation API the homomorphism-density slice at M4 will use.
 -/
 
 namespace Loeb
@@ -76,8 +77,12 @@ def comap (σ : Fin m → Fin n) (R : InternalRelation U X m) : InternalRelation
   InternalSet.preimage
     (Filter.Product.ofFun fun _ (g : Fin n → X _) ↦ g ∘ σ : InternalMap U _ _) R
 
-/-- The realized internal map of the coordinate selection is `Filter.Product.reindex`. -/
-theorem toFun_reindexMap (σ : Fin m → Fin n) :
+/-- The realized internal map of the coordinate selection is `Filter.Product.reindex`.
+
+`private`: it is a statement about an anonymous implementation expression, and only
+`carrier_comap` consumes it. If that internal map acquires a second consumer, give the
+map itself a public name at that point. -/
+private theorem toFun_reindexMap (σ : Fin m → Fin n) :
     InternalMap.toFun
         (Filter.Product.ofFun fun _ (g : Fin n → X _) ↦ g ∘ σ : InternalMap U _ _)
       = Filter.Product.reindex (l := (U : Filter ι)) (X := X) σ := by
