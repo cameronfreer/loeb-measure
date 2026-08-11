@@ -138,6 +138,17 @@ assert_standard_axioms Loeb.InternalSet.carriers
 assert_standard_axioms Loeb.InternalSet.isSetAlgebra_carriers
 assert_standard_axioms Loeb.InternalSet.isSetRing_carriers
 
+-- Internal maps and relations
+assert_standard_axioms Loeb.InternalMap.toFun
+assert_standard_axioms Loeb.InternalMap.toFun_comp
+assert_standard_axioms Loeb.InternalMap.comp_ofFun
+assert_standard_axioms Loeb.InternalSet.preimage
+assert_standard_axioms Loeb.InternalSet.carrier_preimage
+assert_standard_axioms Loeb.InternalSet.preimage_comp
+assert_standard_axioms Loeb.InternalRelation.tupleCarrier
+assert_standard_axioms Loeb.InternalRelation.carrier_comap
+assert_standard_axioms Loeb.InternalRelation.tupleCarrier_comap
+
 -- Coordinate layer
 assert_standard_axioms Filter.Product.eval
 assert_standard_axioms Filter.Product.eval_finitePiEquiv_symm
