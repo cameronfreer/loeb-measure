@@ -16,7 +16,7 @@ UProd representatives/maps
   ├── finite power equivalence ──→ coordinate maps/permutations
   └── internal-set quotient ─────→ carrier/Boolean algebra
                                       ↓
-                            diagonal/envelope lemmas
+                            diagonal/saturation lemmas
 
 compact probability ultralimit
   └── internal content ←────────── carrier/Boolean algebra
@@ -24,6 +24,7 @@ compact probability ultralimit
    sigma-subadditive AddContent
           ↓
       Loeb measure
+      ├── increasing envelope   (needs content, hence here and not at M2)
       ├── internal value theorem
       ├── null/completion characterization
       └── internal approximation

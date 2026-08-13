@@ -99,7 +99,7 @@ Acceptance:
 | I4 | Define internal maps, relations, and preimages | U2, I1 | Composition and carrier-preimage theorem |
 | I5 | Prove the content-free diagonal lemma | D0.1, I3 | Reusable theorem with no measure imports |
 | I6 | Derive the content-free saturation consequences | I5 | Eventual-emptiness form matching the later AddContent proof need |
-| (M3) | Increasing-envelope and null-cover forms | internal content | Deferred: both mention content, so they cannot land in M2 |
+| C7/C8 | Increasing-envelope and null-cover forms | internal content, I5 | Deferred from M2: both mention content. Provisional M3 owner; a later M3 decomposition may split them out |
 
 ## M3 — Loeb measure
 
