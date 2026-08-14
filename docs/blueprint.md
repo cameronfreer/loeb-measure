@@ -148,7 +148,8 @@ realization, never inside the alias.
 
 ## Layer D — diagonalization
 
-**Implemented**: `Filter.CountablyIncomplete` and the diagonal selection theorem live in
+**Diagonal selection is implemented**; the internal saturation consequences remain for
+I6. `Filter.CountablyIncomplete` and the selection theorem live in
 `LoebMeasure/Internal/Diagonal.lean`, whose docstring is the reference. The hypothesis
 was settled by ADR-0001 — a predicate on `Filter` rather than on `Ultrafilter`, with
 properness deliberately separate — and the diagonalization consumes no ultrafilter

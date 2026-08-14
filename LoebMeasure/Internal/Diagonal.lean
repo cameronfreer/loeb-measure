@@ -11,12 +11,15 @@ import Mathlib.Order.Filter.Finite
 # Countable incompleteness and the diagonal lemma
 
 The exact hypothesis behind Loeb-measure diagonalization, and the content-free diagonal
-lemma itself. Accepted as ADR-0001 after the D0.1 spike (#1); promoted here unchanged.
+lemma itself. Accepted as ADR-0001 after the D0.1 spike (#1); the **proofs** are
+promoted unchanged, while the prose below was corrected on the way in.
 
 * `Filter.CountablyIncomplete`: some countable family of members has empty
-  intersection. This is the **weakest hypothesis** of the ADR-0001 candidates: the
-  diagonal lemma below needs only a filter carrying such a witness — not an
-  ultrafilter, not `ℕ`-indexing, not `Filter.hyperfilter` specifically.
+  intersection. This is ADR-0001's accepted choice — its option 3, refined to the
+  `Filter` level — and not a claim to be weakest among the candidates, since option 4
+  was broader and incomparable. What it buys concretely: the diagonal lemma below needs
+  only a filter carrying such a witness, not an ultrafilter, not `ℕ`-indexing, and not
+  `Filter.hyperfilter` specifically.
 * `Filter.countablyIncomplete_of_le_cofinite`: on a countable index type, any filter
   at least as fine as `cofinite` qualifies. In particular every nonprincipal
   ultrafilter on `ℕ` qualifies, and `Filter.hyperfilter_countablyIncomplete` records
@@ -40,6 +43,8 @@ property. Nothing here mentions `InternalSet`, quotients, or measure theory.
 This material is a mathlib upstream candidate but is deliberately **not** under
 `LoebMeasure/Mathlib/`: #12 records that its name and its properness convention are
 unsettled, and that directory holds only declarations whose upstream shape is decided.
+#12 asks for downstream consumers before freezing those choices; defining the API here
+is not itself a use of it, so that condition is still open.
 -/
 
 open Set
