@@ -67,10 +67,13 @@ construction.
   than duplicate its proof.
 - **C7/C8 remain substantive approximation work** and must not be treated as formal
   consequences of the construction. In dependency order: carriers form an
-  `IsSetSemiring` (I3); diagonal-driven sigma-subadditivity (C5); unfolding
+  `IsSetSemiring` (I3); diagonal-driven sigma-subadditivity (C5), whose continuity at
+  `∅` is supplied by M2's content-free eventual-emptiness theorem while the
+  increasing-envelope form is deferred to M3 because it mentions content; unfolding
   `inducedOuterMeasure`'s infimum over countable semiring covers, which consumes
   **finite total mass** (C7); the increasing-envelope diagonal form collapsing a
-  countable internal cover to a single internal set within `ε` (I6); yielding
+  countable internal cover to a single internal set within `ε` — an M3 step, since it
+  mentions content, provisionally owned by C7/C8; yielding
   `exists_internal_symmDiff_lt` and `loebMeasurable_iff_internal_mod_null` (C8).
   Finite mass and saturation enter at these steps and are not concealed inside
   `measureCaratheodory`.
