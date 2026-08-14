@@ -138,6 +138,14 @@ assert_standard_axioms Loeb.InternalSet.carriers
 assert_standard_axioms Loeb.InternalSet.isSetAlgebra_carriers
 assert_standard_axioms Loeb.InternalSet.isSetRing_carriers
 
+-- Diagonal selection
+assert_standard_axioms Filter.CountablyIncomplete
+assert_standard_axioms Filter.CountablyIncomplete.exists_antitone
+assert_standard_axioms Filter.countablyIncomplete_of_le_cofinite
+assert_standard_axioms Filter.hyperfilter_countablyIncomplete
+assert_standard_axioms Filter.CountablyIncomplete.exists_forall_eventually_mem
+assert_standard_axioms Filter.CountablyIncomplete.exists_forall_eventually_mem_of_antitone
+
 -- Internal maps and relations
 assert_standard_axioms Loeb.InternalMap.toFun
 assert_standard_axioms Loeb.InternalMap.toFun_comp

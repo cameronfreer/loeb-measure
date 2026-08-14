@@ -148,10 +148,11 @@ realization, never inside the alias.
 
 ## Layer D — diagonalization
 
-The hypothesis is settled by ADR-0001: `Filter.CountablyIncomplete`, a predicate on
-`Filter` rather than on `Ultrafilter`, with properness deliberately separate. The
-public theorems isolate it rather than fixing `Filter.hyperfilter ℕ` library-wide, and
-the diagonalization itself consumes no ultrafilter property.
+**Implemented**: `Filter.CountablyIncomplete` and the diagonal selection theorem live in
+`LoebMeasure/Internal/Diagonal.lean`, whose docstring is the reference. The hypothesis
+was settled by ADR-0001 — a predicate on `Filter` rather than on `Ultrafilter`, with
+properness deliberately separate — and the diagonalization consumes no ultrafilter
+property.
 
 Required mathematical forms:
 
