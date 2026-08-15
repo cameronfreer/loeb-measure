@@ -17,8 +17,9 @@ thin, stable wrapper — introducing a second generic normalized-counting measur
 be a genuine duplication, and the wrapper exists only so the project has one name it
 controls for the stage measures.
 
-The construction is stated for a **family** of finite types varying with an index, since
-that is how the ultraproduct uses it — the stage spaces are not a single fixed type.
+The definition is polymorphic in a single type and is applied **pointwise** to a family
+that varies with the index, which is how the ultraproduct uses it: the stage spaces are
+not one fixed type.
 
 ## Where nonemptiness is needed, and where it is not
 
@@ -64,7 +65,7 @@ theorem normalizedCounting_apply [Fintype X] [MeasurableSingletonClass X] (s : S
 
 /-- **Total mass one needs nonemptiness**, and this is where it is needed. Inherited
 from mathlib's instance for `uniformOn univ`. -/
-instance instIsProbabilityMeasure [Finite X] [Nonempty X] :
+instance instIsProbabilityMeasureNormalizedCounting [Finite X] [Nonempty X] :
     IsProbabilityMeasure (normalizedCounting X) :=
   ProbabilityTheory.instIsProbabilityMeasure_uniformOn_univ
 
