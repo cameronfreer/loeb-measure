@@ -85,12 +85,14 @@ required for probability *normalization*, not for boundedness.
 
 ### The first concrete model is normalized finite counting measure
 
-The initial Loeb construction targets finite types with normalized counting measure.
-ADR-0004 settled this: a signature spike showed the general measured-family API *is*
-harder, because finite additivity needs the stagewise sets to be measurable — which
-`InternalSet` deliberately does not record. General families therefore arrive later as
-an addition (a separate `InternalMeasurableSet` and a measure-parameterized content),
-never as a refactor of the internal-set layer.
+Internal content is defined for **finite discrete stages**; nonemptiness is added only
+for normalization and the resulting probability measure.
+
+ADR-0004 settled the generality question: a signature spike showed the general
+measured-family API *is* harder, because finite additivity needs the stagewise sets to
+be measurable — which `InternalSet` deliberately does not record. General families
+therefore arrive later as an addition (a separate `InternalMeasurableSet` and a
+measure-parameterized content), never as a refactor of the internal-set layer.
 
 ### Generic helpers use mathlib namespaces
 

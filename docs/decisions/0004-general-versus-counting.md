@@ -4,7 +4,9 @@ Status: Accepted
 
 Date: 2026-08-15
 
-Issue: activated by the M3 content unit (C2); deferred at M0 as open decision 4
+Issue: [#65](https://github.com/cameronfreer/loeb-measure/issues/65); spike in
+[PR #64](https://github.com/cameronfreer/loeb-measure/pull/64). Deferred at M0 as open
+decision 4, with the trigger *activate before M3*.
 
 ## Context
 
@@ -35,11 +37,13 @@ decide it; the consequences do.
 
 ```lean
 -- A, counting-first: the content is a function of the internal set alone.
-def contentA [∀ i, Fintype (X i)] [∀ i, MeasurableSingletonClass (X i)]
+def contentA [∀ i, MeasurableSpace (X i)] [∀ i, Fintype (X i)]
+    [∀ i, MeasurableSingletonClass (X i)]
     (U : Ultrafilter ι) (A : InternalSet U X) : ℝ≥0∞
 
 -- B, general: the content takes a stage-measure parameter.
-def contentB (U : Ultrafilter ι) (μ : ∀ i, Measure (X i)) (A : InternalSet U X) : ℝ≥0∞
+def contentB [∀ i, MeasurableSpace (X i)]
+    (U : Ultrafilter ι) (μ : ∀ i, Measure (X i)) (A : InternalSet U X) : ℝ≥0∞
 ```
 
 What the spike showed:
@@ -79,6 +83,7 @@ construction stops being a definition and starts being a measure.
   probability spaces will need the `InternalMeasurableSet` layer, which is additive
   work rather than a rewrite.
 - The Layer I caveat is upheld: the generalization cost stays in the content's domain.
-- Should the later general layer prove awkward, the fallback is to parameterize the
-  content and prove the counting case is its instance — which the spike shows is a
-  signature change, not a re-proof.
+- The later general layer will most likely factor through `InternalMeasurableSet`. How
+  much of the additive construction it can reuse is **not** settled here: the spike
+  stops before additivity, so it establishes that the *quotient descent* is reusable
+  and nothing more. Proof reuse is to be determined when that layer is built.
