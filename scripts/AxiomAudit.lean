@@ -150,6 +150,16 @@ assert_standard_axioms Ultrafilter.ultralimit_le
 assert_standard_axioms Ultrafilter.le_ultralimit
 assert_standard_axioms Ultrafilter.ultralimit_eq_limUnder
 
+-- Probability ultralimits
+assert_standard_axioms Loeb.ultralimit_zero
+assert_standard_axioms Loeb.ultralimit_one
+assert_standard_axioms Loeb.ultralimit_add
+assert_standard_axioms Loeb.ultralimit_le_of_le
+assert_standard_axioms Loeb.ultralimit_le_one
+assert_standard_axioms Loeb.ultralimit_le_one'
+assert_standard_axioms Loeb.ultralimit_ne_top_of_le
+assert_standard_axioms Loeb.ultralimit_ne_top
+
 -- Normalized counting measure
 assert_standard_axioms Loeb.normalizedCounting
 assert_standard_axioms Loeb.normalizedCounting_apply
