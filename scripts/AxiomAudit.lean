@@ -138,6 +138,13 @@ assert_standard_axioms Loeb.InternalSet.carriers
 assert_standard_axioms Loeb.InternalSet.isSetAlgebra_carriers
 assert_standard_axioms Loeb.InternalSet.isSetRing_carriers
 
+-- Normalized counting measure
+assert_standard_axioms Loeb.normalizedCounting
+assert_standard_axioms Loeb.normalizedCounting_apply
+assert_standard_axioms Loeb.normalizedCounting_univ
+assert_standard_axioms Loeb.normalizedCounting_le_one
+assert_standard_axioms Loeb.normalizedCounting_apply_eq_sum
+
 -- Diagonal selection
 assert_standard_axioms Filter.CountablyIncomplete
 assert_standard_axioms Filter.CountablyIncomplete.exists_antitone

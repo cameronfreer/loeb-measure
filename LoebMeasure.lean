@@ -12,6 +12,7 @@ import LoebMeasure.Ultraproduct.Permutation
 import LoebMeasure.Internal.Set
 import LoebMeasure.Internal.BooleanAlgebra
 import LoebMeasure.Internal.Diagonal
+import LoebMeasure.Measure.Counting
 import LoebMeasure.Internal.Function
 import LoebMeasure.Internal.Relation
 import LoebMeasure.Internal.Saturation
