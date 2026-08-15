@@ -149,6 +149,15 @@ This avoids a backlog of dozens of stale theorem signatures.
 The full seed list in [issue-seeds.md](issue-seeds.md) is intentionally more detailed
 than the set that should be opened on day one.
 
+## Closing a milestone
+
+When a milestone's roadmap gate is met, close the GitHub milestone. Move any unresolved
+follow-ups that are **not** gate criteria — upstreaming, design notes, deferred
+refactors — to the upstreaming bucket or a later milestone first.
+
+Upstream acceptance in particular is never a gate criterion, so an open upstreaming
+issue must not hold a milestone open.
+
 ## Progress reporting
 
 Report progress by gates and public capabilities:
