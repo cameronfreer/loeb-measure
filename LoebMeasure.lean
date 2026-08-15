@@ -17,3 +17,4 @@ import LoebMeasure.Internal.Function
 import LoebMeasure.Internal.Relation
 import LoebMeasure.Internal.Saturation
 import LoebMeasure.Internal.SetRing
+import LoebMeasure.Measure.Counting

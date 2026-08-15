@@ -150,6 +150,15 @@ assert_standard_axioms Ultrafilter.ultralimit_le
 assert_standard_axioms Ultrafilter.le_ultralimit
 assert_standard_axioms Ultrafilter.ultralimit_eq_limUnder
 
+-- Normalized counting measure
+assert_standard_axioms Loeb.normalizedCounting
+assert_standard_axioms Loeb.normalizedCounting_apply
+assert_standard_axioms Loeb.normalizedCounting_univ
+assert_standard_axioms Loeb.normalizedCounting_le_one
+assert_standard_axioms Loeb.normalizedCounting_apply_eq_sum
+assert_standard_axioms Loeb.normalizedCounting_eq_uniformOn
+assert_standard_axioms Loeb.instIsProbabilityMeasureNormalizedCounting
+
 -- Diagonal selection
 assert_standard_axioms Filter.CountablyIncomplete
 assert_standard_axioms Filter.CountablyIncomplete.exists_antitone
