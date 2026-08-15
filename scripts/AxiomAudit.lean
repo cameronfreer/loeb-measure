@@ -145,7 +145,10 @@ assert_standard_axioms Ultrafilter.ultralimit_congr
 assert_standard_axioms Ultrafilter.ultralimit_const
 assert_standard_axioms Ultrafilter.ultralimit_comp
 assert_standard_axioms Ultrafilter.ultralimit_mono
+assert_standard_axioms Ultrafilter.ultralimit_mono'
 assert_standard_axioms Ultrafilter.ultralimit_le
+assert_standard_axioms Ultrafilter.le_ultralimit
+assert_standard_axioms Ultrafilter.ultralimit_eq_limUnder
 
 -- Diagonal selection
 assert_standard_axioms Filter.CountablyIncomplete

@@ -36,6 +36,12 @@ hypothesis on the lemmas rather than on the definition.
 * `Ultrafilter.ultralimit_mono`, `Ultrafilter.ultralimit_le`,
   `Ultrafilter.le_ultralimit`: order rules in a compact space with an order-closed
   topology.
+* `Ultrafilter.ultralimit_eq_limUnder`: the bridge to `Filter.limUnder`, which the two
+  share definitionally when `K` is nonempty.
+
+Hypotheses are kept exact: `ultralimit_const` needs only `[T2Space K]`, and
+`ultralimit_comp` only `[CompactSpace K] [T2Space L]` — compactness of the *target* is
+not required.
 -/
 
 namespace Ultrafilter
@@ -51,6 +57,14 @@ noncomputable def ultralimit (U : Ultrafilter ι) (f : ι → K) : K :=
 
 variable {U : Ultrafilter ι} {f g : ι → K}
 
+/-- **Relationship to `Filter.limUnder`.** This is not a missing limit construction but
+an ergonomic specialization: `Ultrafilter.lim` derives the `Nonempty` instance from the
+mapped ultrafilter, which `Filter.limUnder` must be given. Where the instance is
+available anyway the two agree definitionally. -/
+theorem ultralimit_eq_limUnder [Nonempty K] (U : Ultrafilter ι) (f : ι → K) :
+    U.ultralimit f = Filter.limUnder (U : Filter ι) f :=
+  rfl
+
 /-- In a compact codomain, `f` genuinely tends to its ultralimit along `U`. -/
 theorem tendsto_ultralimit [CompactSpace K] (U : Ultrafilter ι) (f : ι → K) :
     Tendsto f U (𝓝 (U.ultralimit f)) :=
@@ -61,15 +75,20 @@ theorem ultralimit_congr (h : f =ᶠ[U] g) : U.ultralimit f = U.ultralimit g :=
   congrArg Ultrafilter.lim (Ultrafilter.coe_injective (map_congr h))
 
 @[simp]
-theorem ultralimit_const [CompactSpace K] [T2Space K] (c : K) :
-    U.ultralimit (fun _ ↦ c) = c :=
-  tendsto_nhds_unique (tendsto_ultralimit U _) tendsto_const_nhds
+theorem ultralimit_const [T2Space K] (c : K) : U.ultralimit (fun _ ↦ c) = c := by
+  have h : ((U.map fun _ ↦ c : Ultrafilter K) : Filter K) ≤ 𝓝 c := by
+    rw [Ultrafilter.coe_map, Filter.map_const]
+    exact pure_le_nhds c
+  exact lim_eq h
 
 /-- Continuous maps commute with ultralimits. -/
-theorem ultralimit_comp [CompactSpace K] [CompactSpace L] [T2Space L] {g : K → L}
+theorem ultralimit_comp [CompactSpace K] [T2Space L] {g : K → L}
     (hg : Continuous g) (U : Ultrafilter ι) (f : ι → K) :
-    U.ultralimit (g ∘ f) = g (U.ultralimit f) :=
-  tendsto_nhds_unique (tendsto_ultralimit U _) ((hg.tendsto _).comp (tendsto_ultralimit U f))
+    U.ultralimit (g ∘ f) = g (U.ultralimit f) := by
+  have h : ((U.map (g ∘ f) : Ultrafilter L) : Filter L) ≤ 𝓝 (g (U.ultralimit f)) := by
+    rw [Ultrafilter.coe_map]
+    exact (hg.tendsto _).comp (tendsto_ultralimit U f)
+  exact lim_eq h
 
 section Order
 
