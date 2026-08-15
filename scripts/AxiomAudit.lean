@@ -145,7 +145,7 @@ assert_standard_axioms Loeb.normalizedCounting_univ
 assert_standard_axioms Loeb.normalizedCounting_le_one
 assert_standard_axioms Loeb.normalizedCounting_apply_eq_sum
 assert_standard_axioms Loeb.normalizedCounting_eq_uniformOn
-assert_standard_axioms Loeb.instIsProbabilityMeasure
+assert_standard_axioms Loeb.instIsProbabilityMeasureNormalizedCounting
 
 -- Diagonal selection
 assert_standard_axioms Filter.CountablyIncomplete
