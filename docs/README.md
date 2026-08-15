@@ -65,7 +65,7 @@ each has a better home in this map.
 
 ### Upstreaming
 
-Generic material intended for mathlib is kept under a `LoebMeasure/Mathlib/` mirror
-directory whose paths match the proposed upstream module, with its own README recording
-the convention. That directory currently exists only on the M0 spike branches; it
-reaches `main` when the first upstream-shaped material is promoted.
+Generic material intended for mathlib is kept under a
+[`LoebMeasure/Mathlib/`](../LoebMeasure/Mathlib/README.md) mirror directory whose paths
+match the proposed upstream module. Its README records the convention, and
+[ARCHITECTURE](../ARCHITECTURE.md) records it as an architectural rule.

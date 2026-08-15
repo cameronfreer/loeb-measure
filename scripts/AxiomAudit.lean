@@ -138,6 +138,18 @@ assert_standard_axioms Loeb.InternalSet.carriers
 assert_standard_axioms Loeb.InternalSet.isSetAlgebra_carriers
 assert_standard_axioms Loeb.InternalSet.isSetRing_carriers
 
+-- Compact ultralimits (mirror directory)
+assert_standard_axioms Ultrafilter.ultralimit
+assert_standard_axioms Ultrafilter.tendsto_ultralimit
+assert_standard_axioms Ultrafilter.ultralimit_congr
+assert_standard_axioms Ultrafilter.ultralimit_const
+assert_standard_axioms Ultrafilter.ultralimit_comp
+assert_standard_axioms Ultrafilter.ultralimit_mono
+assert_standard_axioms Ultrafilter.ultralimit_mono'
+assert_standard_axioms Ultrafilter.ultralimit_le
+assert_standard_axioms Ultrafilter.le_ultralimit
+assert_standard_axioms Ultrafilter.ultralimit_eq_limUnder
+
 -- Diagonal selection
 assert_standard_axioms Filter.CountablyIncomplete
 assert_standard_axioms Filter.CountablyIncomplete.exists_antitone
