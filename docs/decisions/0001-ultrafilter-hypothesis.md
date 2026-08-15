@@ -69,8 +69,13 @@ canonical instance.
   gives `A = empty ↔ ∀ᶠ i, A i = ∅`), and for carrier injectivity. Neither uses
   countable incompleteness. The M2 issues (I2, I5, I6) must keep these hypotheses
   separated exactly this way.
-- Downstream units I5/I6/C5 consume the named diagonal API
-  (`exists_forall_eventually_mem` and its antitone corollary) rather than re-proving
-  ad hoc diagonal arguments.
+- I5 *defines* the diagonal API. **I6 is its first direct consumer**, using
+  `exists_forall_eventually_mem` and its antitone corollary rather than re-proving ad
+  hoc diagonal arguments. **C5 consumes I6's eventual-emptiness consequence**, not the
+  diagonal API itself, so it is not a second independent use. **C7/C8 is expected to
+  provide that second independent direct use** before the API is frozen for
+  upstreaming. Defining the API is not a use of it, and using a theorem derived from it
+  is not a use of it either — both distinctions matter because upstreaming (see the
+  tracker) is gated on genuine, independent downstream evidence.
 - The predicate and diagonal lemma are mathlib upstream candidates in the `Filter`
   namespace (tracked by the M1 packaging unit U6).

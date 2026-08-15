@@ -18,6 +18,10 @@ at a time:
 
 - **Status lives on GitHub, not in files.** Milestones and issues are the live record.
   Prose in the repository should describe capabilities and invariants, not progress.
+- **A closed gate closes its milestone.** When a milestone's roadmap gate is met, close
+  the GitHub milestone and move any unresolved non-gating follow-ups elsewhere — an
+  upstreaming bucket, or a later milestone. Leaving nonblocking work attached makes a
+  finished milestone look unfinished.
 - **The API reference is the module docstrings.** Not because docstrings cannot drift —
   review has caught them drifting — but because they are reviewed alongside the
   declarations they describe, so they drift far less than a duplicated inventory kept
@@ -55,8 +59,9 @@ each has a better home in this map.
   definition of done.
 - [tracking](tracking.md) — milestone/label vocabulary and the criteria for an issue
   being ready or done.
-- [issue-seeds](issue-seeds.md) — planned epics and work units that have not been
-  opened yet. Entries are removed as they become real issues.
+- [issue-seeds](issue-seeds.md) — the original work-unit decomposition. A historical
+  planning record, **not** updated as issues open or close; GitHub is authoritative,
+  and a remaining seed should be revalidated before it is opened.
 
 ### Upstreaming
 
