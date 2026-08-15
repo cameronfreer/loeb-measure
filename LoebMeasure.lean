@@ -17,4 +17,5 @@ import LoebMeasure.Internal.Function
 import LoebMeasure.Internal.Relation
 import LoebMeasure.Internal.Saturation
 import LoebMeasure.Internal.SetRing
+import LoebMeasure.Ultralimit.Probability
 import LoebMeasure.Measure.Counting
