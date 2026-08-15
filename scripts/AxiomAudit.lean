@@ -146,6 +146,11 @@ assert_standard_axioms Filter.hyperfilter_countablyIncomplete
 assert_standard_axioms Filter.CountablyIncomplete.exists_forall_eventually_mem
 assert_standard_axioms Filter.CountablyIncomplete.exists_forall_eventually_mem_of_antitone
 
+-- Internal saturation
+assert_standard_axioms Loeb.InternalSet.nonempty_iInter_carrier_of_antitone
+assert_standard_axioms Loeb.InternalSet.nonempty_iInter_carrier_of_ne_bot
+assert_standard_axioms Loeb.InternalSet.eventually_eq_bot_of_antitone_iInter_carrier_eq_empty
+
 -- Internal maps and relations
 assert_standard_axioms Loeb.InternalMap.toFun
 assert_standard_axioms Loeb.InternalMap.toFun_comp
