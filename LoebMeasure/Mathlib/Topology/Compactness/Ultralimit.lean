@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Cameron Freer
 -/
 import Mathlib.Topology.Order.Compact
-import Mathlib.Topology.Separation.Hausdorff
 
 /-!
 # Ultralimits in compact spaces
@@ -18,13 +17,14 @@ and finiteness of a probability-valued ultralimit — are deliberately *not* her
 are Loeb-specific specializations and belong outside the mirror.
 
 `Ultrafilter.ultralimit U f` is the limit of `f` along `U`, defined as the limit of the
-pushforward ultrafilter `U.map f`. In a compact codomain every function genuinely tends
-to its ultralimit (`Ultrafilter.tendsto_ultralimit`); in a compact Hausdorff codomain
-that limit is unique, which gives the computation rules.
+pushforward ultrafilter `U.map f`. It agrees with a unique limit whenever one exists;
+compactness is what guarantees that a limit exists for *every* function
+(`Ultrafilter.tendsto_ultralimit`).
 
 The definition is total: it uses `Ultrafilter.lim`, which produces a junk value when
-the filter has no limit, matching the `Filter.lim` idiom. Compactness is therefore a
-hypothesis on the lemmas rather than on the definition.
+the filter has no limit, matching the `Filter.lim` idiom. Hypotheses therefore sit on
+the lemmas, and each takes only what it needs — a constant's ultralimit needs
+uniqueness but no compactness, and composition needs compactness only on the source.
 
 ## Main results
 
