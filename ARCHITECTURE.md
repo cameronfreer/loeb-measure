@@ -97,8 +97,24 @@ measure theory use their natural namespaces and avoid `Loeb` in declaration name
 Loeb-specific contents, measurable spaces, graded structures, and applications live
 under `Loeb`.
 
-Potential upstream declarations should be isolated in modules whose dependency set is
-acceptable to mathlib.
+### Upstream-oriented material lives in a mirror directory
+
+Declarations that are *about mathlib objects only* — no ultraproducts, no internal sets,
+no Loeb-specific notions — live under `LoebMeasure/Mathlib/`, at the path their upstream
+counterpart would occupy. `LoebMeasure/Mathlib/README.md` states the convention in full;
+its rules are:
+
+- **mirror the proposed mathlib path**, so the eventual pull request is obvious;
+- **use mathlib namespaces**, never `Loeb`, so declarations read as they would upstream;
+- **keep imports minimal**, and never import a `Loeb`-specific module — this is what
+  makes an isolated upstream PR possible, and it is enforced by review, not tooling;
+- **no project-specific hypotheses**: a statement needing a Loeb notion belongs outside;
+- downstream modules import these freely; **nothing here imports downstream**;
+- downstream code **wraps** these declarations rather than duplicating their proofs, so
+  an upstream rename stays a one-line change.
+
+Upstreaming itself is tracked by `kind: upstream` issues and is never a milestone gate
+criterion.
 
 ## Module layers
 
@@ -116,6 +132,7 @@ Basic → Map → Prod
 ```
 
 ```text
+Mathlib/        upstream-oriented material, mirroring proposed mathlib paths
 Ultraproduct/   the generic dependent filter-product API
 Internal/       internal sets, functions, relations, and diagonalization
 Ultralimit/     compact ultralimits and probability values
