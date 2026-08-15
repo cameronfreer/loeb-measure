@@ -3,14 +3,19 @@ Copyright (c) 2026 Cameron Freer. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Cameron Freer
 -/
-import Mathlib.MeasureTheory.Measure.Count
-import Mathlib.MeasureTheory.Measure.Typeclasses.Probability
+import Mathlib.Probability.UniformOn
 
 /-!
 # Normalized counting measure
 
-The stagewise measures the first Loeb construction is built from: mathlib's counting
-measure scaled by the reciprocal of the cardinality, on a finite type.
+The stagewise measures the first Loeb construction is built from.
+
+This is **not a new construction**: mathlib already has it as
+`ProbabilityTheory.uniformOn Set.univ`, together with the value formula and a
+probability-measure instance for finite nonempty types. `Loeb.normalizedCounting` is a
+thin, stable wrapper — introducing a second generic normalized-counting measure would
+be a genuine duplication, and the wrapper exists only so the project has one name it
+controls for the stage measures.
 
 The construction is stated for a **family** of finite types varying with an index, since
 that is how the ultraproduct uses it — the stage spaces are not a single fixed type.
@@ -20,12 +25,14 @@ that is how the ultraproduct uses it — the stage spaces are not a single fixed
 Deliberately split, following ADR-0002:
 
 * the **definition** needs no nonemptiness, and neither does the bound
-  `normalizedCounting_le_one`. On an empty type every subset is empty and the value is
-  `0 / 0 = 0` in `ℝ≥0∞` — never `∞`, which is the trap this arrangement avoids;
+  `normalizedCounting_le_one`. On an empty type `univ = ∅` and the measure is `0`, so
+  the value is `0` rather than the `∞` a careless normalization would produce;
 * **total mass one**, and hence `IsProbabilityMeasure`, genuinely require `[Nonempty X]`:
   on an empty type the total mass is `0`.
 
-So `[Nonempty X]` appears on the normalization results and nowhere else.
+So `[Nonempty X]` appears on the normalization results and nowhere else. Note also that
+the bound needs only `[Finite X]`, not `[Fintype X]`: the cardinality is used to state
+`normalizedCounting_apply`, not to prove boundedness.
 -/
 
 namespace Loeb
@@ -33,55 +40,53 @@ namespace Loeb
 open MeasureTheory
 open scoped ENNReal
 
-variable (X : Type*) [MeasurableSpace X] [Fintype X]
+variable (X : Type*) [MeasurableSpace X]
 
-/-- Counting measure normalized by the cardinality. No nonemptiness is needed to define
-it; on an empty type it is the zero measure. -/
+/-- Counting measure normalized by the cardinality: mathlib's `uniformOn` at `univ`,
+under a project-stable name. No nonemptiness is needed to define it; on an empty type
+`univ = ∅` and this is the zero measure. -/
 noncomputable def normalizedCounting : Measure X :=
-  (Fintype.card X : ℝ≥0∞)⁻¹ • Measure.count
+  ProbabilityTheory.uniformOn (Set.univ : Set X)
+
+theorem normalizedCounting_eq_uniformOn :
+    normalizedCounting X = ProbabilityTheory.uniformOn (Set.univ : Set X) :=
+  rfl
 
 variable {X}
 
-theorem normalizedCounting_apply [MeasurableSingletonClass X] (s : Set X) :
+theorem normalizedCounting_apply [Fintype X] [MeasurableSingletonClass X] (s : Set X) :
     normalizedCounting X s = (s.ncard : ℝ≥0∞) / (Fintype.card X : ℝ≥0∞) := by
   classical
-  rw [normalizedCounting, Measure.smul_apply, smul_eq_mul,
+  rw [normalizedCounting, ProbabilityTheory.uniformOn_univ,
     Measure.count_apply s.toFinite.measurableSet, Set.encard_eq_coe_toFinset_card,
-    Set.ncard_eq_toFinset_card' s, ENNReal.div_eq_inv_mul]
+    Set.ncard_eq_toFinset_card' s]
   norm_cast
 
-/-- **Total mass one needs nonemptiness**, and this is the only place it is needed. -/
-@[simp]
-theorem normalizedCounting_univ [Nonempty X] :
-    normalizedCounting X Set.univ = 1 := by
-  classical
-  rw [normalizedCounting, Measure.smul_apply, smul_eq_mul,
-    Measure.count_apply MeasurableSet.univ, Set.encard_eq_coe_toFinset_card,
-    Set.toFinset_univ, Finset.card_univ,
-    show ((Fintype.card X : ℕ∞) : ℝ≥0∞) = (Fintype.card X : ℝ≥0∞) from by norm_cast]
-  exact ENNReal.inv_mul_cancel (by exact_mod_cast Fintype.card_ne_zero)
-    (ENNReal.natCast_ne_top _)
+/-- **Total mass one needs nonemptiness**, and this is where it is needed. Inherited
+from mathlib's instance for `uniformOn univ`. -/
+instance instIsProbabilityMeasure [Finite X] [Nonempty X] :
+    IsProbabilityMeasure (normalizedCounting X) :=
+  ProbabilityTheory.instIsProbabilityMeasure_uniformOn_univ
 
-instance [Nonempty X] : IsProbabilityMeasure (normalizedCounting X) :=
-  ⟨normalizedCounting_univ⟩
+@[simp]
+theorem normalizedCounting_univ [Finite X] [Nonempty X] :
+    normalizedCounting X Set.univ = 1 :=
+  measure_univ
 
 /-- **The bound needs no nonemptiness.** On an empty type every subset is empty and the
 value is `0 / 0 = 0`; the `∞` that a careless normalization would produce never
 appears. -/
-theorem normalizedCounting_le_one [MeasurableSingletonClass X] (s : Set X) :
+theorem normalizedCounting_le_one [Finite X] (s : Set X) :
     normalizedCounting X s ≤ 1 := by
   rcases isEmpty_or_nonempty X with hX | hX
-  · simp [Set.eq_empty_of_isEmpty s]
-  · rw [normalizedCounting_apply,
-      ENNReal.div_le_iff (by exact_mod_cast Fintype.card_ne_zero)
-        (ENNReal.natCast_ne_top _), one_mul]
-    have : s.ncard ≤ Fintype.card X := by
-      simpa [Set.ncard_univ] using Set.ncard_le_ncard (Set.subset_univ s) Set.finite_univ
-    exact_mod_cast this
+  · rw [normalizedCounting, Set.univ_eq_empty_iff.2 hX,
+      ProbabilityTheory.uniformOn_empty_meas]
+    simp
+  · exact prob_le_one
 
 /-- The normalized-average form, as a `Finset` sum over the whole type — the shape the
 stagewise content computations use. -/
-theorem normalizedCounting_apply_eq_sum [MeasurableSingletonClass X]
+theorem normalizedCounting_apply_eq_sum [Fintype X] [MeasurableSingletonClass X]
     (s : Set X) [DecidablePred (· ∈ s)] :
     normalizedCounting X s
       = (∑ _x ∈ Finset.univ.filter (· ∈ s), (1 : ℝ≥0∞)) / (Fintype.card X : ℝ≥0∞) := by
@@ -98,10 +103,10 @@ theorem normalizedCounting_apply_eq_sum [MeasurableSingletonClass X]
 section Tests
 
 /-- A probability measure, when the stage is nonempty. -/
-example [Nonempty X] : normalizedCounting X Set.univ = 1 := by simp
+example [Finite X] [Nonempty X] : normalizedCounting X Set.univ = 1 := by simp
 
 /-- The bound holds with no nonemptiness hypothesis — including on an empty stage. -/
-example [MeasurableSingletonClass X] (s : Set X) : normalizedCounting X s ≤ 1 :=
+example [Finite X] (s : Set X) : normalizedCounting X s ≤ 1 :=
   normalizedCounting_le_one s
 
 /-- **A varying family of finite types**, which is how the ultraproduct uses this: the
