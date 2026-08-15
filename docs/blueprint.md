@@ -164,19 +164,16 @@ Required mathematical forms:
 3. a null-cover lemma for countable unions; and
 4. a version usable to prove sigma-subadditivity of internal content.
 
-**Only the content-free forms belong to M2.** Forms 1 and 3 mention content and are
-deferred: the increasing envelope — Elek–Szegedy Lemma 2.4, which preserves the
-*limiting internal content* — moves to M3 once `internalContent` exists, and the
-null-cover lemma later still, with the null-set/approximation layer. Form 4's
-content-free shape is the eventual-emptiness statement
+**Only the content-free forms belong to M2**, and both are now implemented in
+`LoebMeasure/Internal/Saturation.lean`: form 2 as the two nonempty-intersection
+theorems, and form 4 as the eventual-emptiness theorem — continuity at `∅` in
+combinatorial dress, and what makes `addContent_iUnion_eq_sum_of_tendsto_zero`
+applicable at M3. Their docstrings are the reference.
 
-```lean
-theorem eventually_eq_bot_of_antitone_iInter_carrier_eq_empty ...
-    (hempty : ⋂ n, carrier (A n) = ∅) : ∀ᶠ n in atTop, A n = ⊥
-```
-
-which is continuity at `∅` in combinatorial dress, and is what makes
-`addContent_iUnion_eq_sum_of_tendsto_zero` applicable at M3.
+Forms 1 and 3 mention content and remain deferred: the increasing envelope —
+Elek–Szegedy Lemma 2.4, which preserves the *limiting internal content* — moves to M3
+once `internalContent` exists, provisionally owned by C7/C8, and the null-cover lemma
+later still, with the null-set/approximation layer.
 
 Carrier-level equivalences belong to Layer I, not here: with nonempty fibers,
 `carrier(A).Nonempty ↔ ∀ᶠ i, (A i).Nonempty` holds for any filter, while passing from
