@@ -14,4 +14,5 @@ import LoebMeasure.Internal.BooleanAlgebra
 import LoebMeasure.Internal.Diagonal
 import LoebMeasure.Internal.Function
 import LoebMeasure.Internal.Relation
+import LoebMeasure.Internal.Saturation
 import LoebMeasure.Internal.SetRing
