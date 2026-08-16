@@ -11,18 +11,19 @@ decision 4, with the trigger *activate before M3*.
 ## Context
 
 The M0 review deferred this question with an explicit trigger: *activate before M3*.
-That trigger has arrived. L1, L2, and C1 did not commit the choice — none of them
-mentions a stage measure — but the internal content does, since its very signature
-either takes a stage-measure parameter or does not.
+That trigger has arrived. L1 and L2 do not mention stage measures at all. C1 supplies
+normalized counting as the first concrete stage measure, but does not determine whether
+`internalContent` is *specialized* to it or *parameterized* by an arbitrary family of
+measures — and the content's signature must decide exactly that.
 
 The question: should the first Loeb construction be built for **normalized counting on
 finite discrete stages**, or immediately for a **general family of measured stages**?
 
 ## Constraints
 
-- ARCHITECTURE records that the first concrete model is normalized finite counting
-  measure, and that general families "are not allowed to complicate the first
-  construction unless a design spike shows the general API is no harder".
+- Before activation, ARCHITECTURE required the counting-first construction unless a
+  design spike showed the general API was no harder. (This record replaces that
+  conditional wording with the outcome.)
 - The blueprint's Layer I caveat records that `InternalSet` quantifies over **all**
   stagewise subsets, and that general measured families would add a separate
   `InternalMeasurableSet` with a forgetful map — putting the generalization cost in the
