@@ -223,29 +223,17 @@ LoebMeasure/Measure/Completion.lean
 LoebMeasure/Measure/Approximation.lean
 ```
 
-Initial stage data:
-
 **Implemented**: `normalizedCounting` in `LoebMeasure/Measure/Counting.lean` (a wrapper
-around mathlib's `uniformOn univ`) and `internalContent` in
-`LoebMeasure/Measure/Content.lean`, whose docstrings are the reference and tabulate the
-exact stage hypotheses each result takes. Note that neither needs the `[Nonempty]`
-sketched here except for the normalization results — ADR-0002's distinction — and that
-the raw evaluator's bottom value and bounds need no finiteness at all. Finiteness and
-discreteness enter for normalization, and for additivity from C3, where the content is
-restricted to finite discrete stages.
+around mathlib's `uniformOn univ`), and `internalContent` with its elementary values and
+finite additivity in `LoebMeasure/Measure/Content.lean`. Their docstrings are the
+reference and tabulate the exact stage hypotheses each result takes.
 
-Required theorems:
-
-```lean
-@[simp] theorem internalContent_empty ...
-@[simp] theorem internalContent_univ ...
-theorem internalContent_congr ...
-```
-
-Finite additivity is **implemented** as `internalContent_sup_of_disjoint`, stated
-against the Boolean `⊔` rather than a set union: disjointness comes from the Boolean
-structure on `InternalSet`, via `eventually_disjoint_of_disjoint`, with no carrier
-involved.
+Two things the sketches here got wrong, worth recording since they were design
+expectations rather than typos: nonemptiness is needed only for the normalization
+results (ADR-0002's distinction), and the raw evaluator's bottom value and bounds need
+no finiteness at all. Additivity is stated against the Boolean `⊔` rather than a set
+union, with disjointness coming from the Boolean structure on `InternalSet` and no
+carrier involved.
 
 The content is then transported to the set ring of realized internal carriers:
 

@@ -167,7 +167,6 @@ assert_standard_axioms Loeb.internalContent_bot
 assert_standard_axioms Loeb.internalContent_top
 assert_standard_axioms Loeb.internalContent_le_one
 assert_standard_axioms Loeb.internalContent_ne_top
-assert_standard_axioms Loeb.eventually_disjoint_of_disjoint
 assert_standard_axioms Loeb.internalContent_sup_of_disjoint
 
 -- Normalized counting measure

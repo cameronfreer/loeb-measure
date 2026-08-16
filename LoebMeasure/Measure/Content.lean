@@ -39,10 +39,17 @@ neither is needed, and the linter said so. What each result actually takes:
 | `internalContent`, `internalContent_ofFun`, `internalContent_bot` | `MeasurableSpace` only |
 | `internalContent_le_one`, `internalContent_ne_top` | `MeasurableSpace` only |
 | `internalContent_top` | `MeasurableSpace`, `Finite`, **`Nonempty`** |
+| the private disjointness helper | **none** — purely Boolean |
+| `internalContent_sup_of_disjoint` | `MeasurableSpace`, `Finite`, **`MeasurableSingletonClass`** |
 
-Finiteness appears only for normalization; the bound and the finiteness of the content
-value require none. `uniformOn` is `IsZeroOrProbabilityMeasure` unconditionally, so
-`normalizedCounting_le_one` is `prob_le_one` outright.
+Among the C2 results, finiteness appears only for normalization; the bound and the
+finiteness of the content value require none, because `uniformOn` is
+`IsZeroOrProbabilityMeasure` unconditionally and so `normalizedCounting_le_one` is
+`prob_le_one` outright. `MeasurableSingletonClass` is not needed by any of them.
+
+Additivity is where discreteness first earns its place: `measure_union` needs the
+stagewise sets measurable, which on a finite discrete stage they are. Even there,
+nonemptiness stays absent — additivity is about disjointness, not total mass.
 
 **Nonemptiness appears only on `internalContent_top`**, which is the ADR-0002
 distinction paying off: it is for *normalization*, never for boundedness. On an empty
@@ -130,8 +137,13 @@ No nonemptiness: additivity is about disjointness, not total mass. -/
 omit [∀ i, MeasurableSpace (X i)] [∀ i, Finite (X i)] in
 /-- Disjoint internal sets are eventually disjoint stagewise. Proved through the
 Boolean API alone: no carrier appears, and no measure-theoretic structure is used —
-this is a fact about the Boolean algebra, not about measures. -/
-theorem eventually_disjoint_of_disjoint {A B : (i : ι) → Set (X i)}
+this is a fact about the Boolean algebra, not about measures.
+
+`private`, and representative-specific: it is stated for `ofFun` arguments and has one
+consumer. Should it acquire another, the right public form is an exact characterization
+under `Loeb.InternalSet`, `disjoint_ofFun_iff`, rather than this one-directional
+lemma. -/
+private theorem eventually_disjoint_of_disjoint {A B : (i : ι) → Set (X i)}
     (h : Disjoint (Filter.Product.ofFun A : InternalSet U X) (Filter.Product.ofFun B)) :
     ∀ᶠ i in (U : Filter ι), Disjoint (A i) (B i) := by
   rw [disjoint_iff, InternalSet.inf_ofFun, InternalSet.bot_def,
@@ -176,7 +188,8 @@ example {A B : InternalSet U X} (h : Disjoint A B) :
     internalContent U (A ⊔ B) = internalContent U A + internalContent U B :=
   internalContent_sup_of_disjoint h
 
-/-- Additivity on representatives, where disjointness is stagewise. -/
+/-- Additivity on representatives. Note the hypothesis is still quotient-level
+disjointness, which is *eventual* stagewise disjointness — not pointwise. -/
 example (A B : (i : ι) → Set (X i))
     (h : Disjoint (Filter.Product.ofFun A : InternalSet U X) (Filter.Product.ofFun B)) :
     internalContent U (Filter.Product.ofFun A ⊔ Filter.Product.ofFun B)
@@ -184,8 +197,11 @@ example (A B : (i : ι) → Set (X i))
         + internalContent U (Filter.Product.ofFun B) :=
   internalContent_sup_of_disjoint h
 
-/-- A set and its complement partition the whole: additivity plus the top value give
-the complement rule, which C4's `AddContent` packaging will want. -/
+/-- A set and its complement partition the whole. A useful normalization corollary —
+and, unlike additivity, it does need nonemptiness, through `internalContent_top`.
+
+(Not a C4 input: `IsSetRing.addContent_of_union` needs the empty value and
+disjoint-union additivity, not this.) -/
 example [∀ i, Nonempty (X i)] (A : InternalSet U X) :
     internalContent U A + internalContent U Aᶜ = 1 := by
   rw [← internalContent_sup_of_disjoint disjoint_compl_right, sup_compl_eq_top,
