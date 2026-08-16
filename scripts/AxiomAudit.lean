@@ -169,6 +169,12 @@ assert_standard_axioms Loeb.internalContent_le_one
 assert_standard_axioms Loeb.internalContent_ne_top
 assert_standard_axioms Loeb.internalContent_sup_of_disjoint
 
+-- The content packaged as an AddContent
+assert_standard_axioms Loeb.transported
+assert_standard_axioms Loeb.transported_carrier
+assert_standard_axioms Loeb.internalAddContent
+assert_standard_axioms Loeb.internalAddContent_carrier
+
 -- Normalized counting measure
 assert_standard_axioms Loeb.normalizedCounting
 assert_standard_axioms Loeb.normalizedCounting_apply
