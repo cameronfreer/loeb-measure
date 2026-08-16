@@ -51,9 +51,9 @@ stage the total mass is `0`, and the content of any internal set is `0` rather t
 
 ## Scope
 
-The definition and its elementary values. Additivity, transport to carriers, the
-`MeasureTheory.AddContent` packaging, saturation, and the Carathéodory construction are
-all downstream and deliberately absent.
+The definition, its elementary values, and finite additivity. Transport to carriers,
+the `MeasureTheory.AddContent` packaging, saturation, and the Carathéodory construction
+are all downstream and deliberately absent.
 -/
 
 namespace Loeb
@@ -114,6 +114,43 @@ hypotheses. -/
 theorem internalContent_ne_top (A : InternalSet U X) : internalContent U A ≠ ∞ :=
   ((internalContent_le_one A).trans_lt (Ne.lt_top ENNReal.one_ne_top)).ne
 
+/-! ### Finite additivity
+
+The first result making the content measure-like rather than merely bounded.
+
+The two hypotheses do different jobs, and it is worth keeping them apart:
+**disjointness** comes from the Boolean structure on `InternalSet` — `Disjoint A B`
+unfolds through `disjoint_iff` and `inf_ofFun` to eventual stagewise disjointness, with
+no mention of realized carriers — while **`MeasurableSingletonClass`** supplies
+measurability of the finite stagewise subsets, which `measure_union` needs and which
+disjointness does not provide.
+
+No nonemptiness: additivity is about disjointness, not total mass. -/
+
+omit [∀ i, MeasurableSpace (X i)] [∀ i, Finite (X i)] in
+/-- Disjoint internal sets are eventually disjoint stagewise. Proved through the
+Boolean API alone: no carrier appears, and no measure-theoretic structure is used —
+this is a fact about the Boolean algebra, not about measures. -/
+theorem eventually_disjoint_of_disjoint {A B : (i : ι) → Set (X i)}
+    (h : Disjoint (Filter.Product.ofFun A : InternalSet U X) (Filter.Product.ofFun B)) :
+    ∀ᶠ i in (U : Filter ι), Disjoint (A i) (B i) := by
+  rw [disjoint_iff, InternalSet.inf_ofFun, InternalSet.bot_def,
+    Filter.Product.ofFun_eq_ofFun] at h
+  exact h.mono fun i hi ↦ Set.disjoint_iff_inter_eq_empty.2 hi
+
+variable [∀ i, MeasurableSingletonClass (X i)]
+
+/-- **The internal content is finitely additive.** -/
+theorem internalContent_sup_of_disjoint {A B : InternalSet U X} (h : Disjoint A B) :
+    internalContent U (A ⊔ B) = internalContent U A + internalContent U B := by
+  induction A, B using Filter.Product.inductionOn₂ with
+  | _ A' B' =>
+    have hdisj := eventually_disjoint_of_disjoint h
+    rw [InternalSet.sup_ofFun, internalContent_ofFun, internalContent_ofFun,
+      internalContent_ofFun, ← ultralimit_add]
+    refine Ultrafilter.ultralimit_congr (hdisj.mono fun i hi ↦ ?_)
+    exact measure_union hi (Set.Finite.measurableSet (Set.toFinite _))
+
 /-! ### API tests -/
 
 section Tests
@@ -133,6 +170,26 @@ example [∀ i, Nonempty (X i)] :
 /-- The bound holds with no nonemptiness hypothesis in sight. -/
 example (A : InternalSet U X) : internalContent U A ≤ 1 ∧ internalContent U A ≠ ∞ :=
   ⟨internalContent_le_one A, internalContent_ne_top A⟩
+
+/-- **Finite additivity**, the C3 result. -/
+example {A B : InternalSet U X} (h : Disjoint A B) :
+    internalContent U (A ⊔ B) = internalContent U A + internalContent U B :=
+  internalContent_sup_of_disjoint h
+
+/-- Additivity on representatives, where disjointness is stagewise. -/
+example (A B : (i : ι) → Set (X i))
+    (h : Disjoint (Filter.Product.ofFun A : InternalSet U X) (Filter.Product.ofFun B)) :
+    internalContent U (Filter.Product.ofFun A ⊔ Filter.Product.ofFun B)
+      = internalContent U (Filter.Product.ofFun A : InternalSet U X)
+        + internalContent U (Filter.Product.ofFun B) :=
+  internalContent_sup_of_disjoint h
+
+/-- A set and its complement partition the whole: additivity plus the top value give
+the complement rule, which C4's `AddContent` packaging will want. -/
+example [∀ i, Nonempty (X i)] (A : InternalSet U X) :
+    internalContent U A + internalContent U Aᶜ = 1 := by
+  rw [← internalContent_sup_of_disjoint disjoint_compl_right, sup_compl_eq_top,
+    internalContent_top]
 
 /-- **A genuinely dependent family**: the stage spaces vary with the index. -/
 example (U : Ultrafilter ℕ) (A : (i : ℕ) → Set (Fin (i + 1))) :

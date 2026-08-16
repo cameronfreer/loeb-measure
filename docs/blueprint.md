@@ -240,11 +240,12 @@ Required theorems:
 @[simp] theorem internalContent_empty ...
 @[simp] theorem internalContent_univ ...
 theorem internalContent_congr ...
-theorem internalContent_union
-    (h : Disjoint A B) :
-    internalContent U (A ∪ B) =
-      internalContent U A + internalContent U B
 ```
+
+Finite additivity is **implemented** as `internalContent_sup_of_disjoint`, stated
+against the Boolean `⊔` rather than a set union: disjointness comes from the Boolean
+structure on `InternalSet`, via `eventually_disjoint_of_disjoint`, with no carrier
+involved.
 
 The content is then transported to the set ring of realized internal carriers:
 
