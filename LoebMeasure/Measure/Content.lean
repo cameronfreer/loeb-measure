@@ -25,14 +25,16 @@ parameterized content, rather than as a refactor of this layer.
 
 The raw evaluator below turns out to make sense for **arbitrary measurable stages**, and
 is stated that way rather than artificially restricted. Finiteness and discreteness
-enter only where they are genuinely used: for normalization here, and for additivity
-from C3 onward. The *additive* content — the one that becomes a measure — remains
-restricted to finite discrete stages.
+enter only where they are genuinely used, and not together: **finiteness** for
+normalization and for additivity, **discreteness** for additivity alone. The *additive*
+content — the one that becomes a measure — is what is restricted to finite discrete
+stages.
 
 ## Exact stage hypotheses
 
-The unit was specified with `[Fintype (X i)]` and `[MeasurableSingletonClass (X i)]`;
-neither is needed, and the linter said so. What each result actually takes:
+C2 was specified with `[Fintype (X i)]` and `[MeasurableSingletonClass (X i)]`; **no C2
+result needs either**, and the linter said so. C3's additivity does need
+`MeasurableSingletonClass`. What each result actually takes:
 
 | Result | Stage hypotheses |
 | --- | --- |

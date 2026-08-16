@@ -214,10 +214,9 @@ irrelevant topological choice details.
 
 ## Layer M — content and Loeb measure
 
-Module candidates:
+Remaining module candidates:
 
 ```text
-LoebMeasure/Measure/Content.lean
 LoebMeasure/Measure/Construction.lean
 LoebMeasure/Measure/Completion.lean
 LoebMeasure/Measure/Approximation.lean
