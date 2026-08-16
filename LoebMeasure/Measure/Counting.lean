@@ -26,14 +26,16 @@ not one fixed type.
 Deliberately split, following ADR-0002:
 
 * the **definition** needs no nonemptiness, and neither does the bound
-  `normalizedCounting_le_one`. On an empty type `univ = ∅` and the measure is `0`, so
-  the value is `0` rather than the `∞` a careless normalization would produce;
+  `normalizedCounting_le_one` — which in fact needs no *finiteness* either.
+  `uniformOn` is `IsZeroOrProbabilityMeasure` unconditionally, so the bound is
+  `prob_le_one` outright: on an empty type `univ = ∅` and the measure is `0`, giving
+  `0` rather than the `∞` a careless normalization would produce;
 * **total mass one**, and hence `IsProbabilityMeasure`, genuinely require `[Nonempty X]`:
   on an empty type the total mass is `0`.
 
-So `[Nonempty X]` appears on the normalization results and nowhere else. Note also that
-the bound needs only `[Finite X]`, not `[Fintype X]`: the cardinality is used to state
-`normalizedCounting_apply`, not to prove boundedness.
+So `[Nonempty X]` appears on the normalization results and nowhere else, and finiteness
+appears only in the cardinality formula and the normalization results — never in the
+bound.
 -/
 
 namespace Loeb
@@ -77,13 +79,9 @@ theorem normalizedCounting_univ [Finite X] [Nonempty X] :
 /-- **The bound needs no nonemptiness.** On an empty type every subset is empty and the
 value is `0 / 0 = 0`; the `∞` that a careless normalization would produce never
 appears. -/
-theorem normalizedCounting_le_one [Finite X] (s : Set X) :
-    normalizedCounting X s ≤ 1 := by
-  rcases isEmpty_or_nonempty X with hX | hX
-  · rw [normalizedCounting, Set.univ_eq_empty_iff.2 hX,
-      ProbabilityTheory.uniformOn_empty_meas]
-    simp
-  · exact prob_le_one
+theorem normalizedCounting_le_one (s : Set X) : normalizedCounting X s ≤ 1 := by
+  rw [normalizedCounting_eq_uniformOn]
+  exact prob_le_one
 
 /-- The normalized-average form, as a `Finset` sum over the whole type — the shape the
 stagewise content computations use. -/
@@ -107,7 +105,7 @@ section Tests
 example [Finite X] [Nonempty X] : normalizedCounting X Set.univ = 1 := by simp
 
 /-- The bound holds with no nonemptiness hypothesis — including on an empty stage. -/
-example [Finite X] (s : Set X) : normalizedCounting X s ≤ 1 :=
+example (s : Set X) : normalizedCounting X s ≤ 1 :=
   normalizedCounting_le_one s
 
 /-- **A varying family of finite types**, which is how the ultraproduct uses this: the

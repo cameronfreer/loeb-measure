@@ -77,9 +77,15 @@ construction stops being a definition and starts being a measure.
 
 ## Consequences
 
-- The content's signature is `internalContent (U) (A : InternalSet U X) : ℝ≥0∞`, with
-  finiteness and discreteness as instance hypotheses on the stages rather than a
-  measure argument.
+- The content's signature is `internalContent (U) (A : InternalSet U X) : ℝ≥0∞` — no
+  measure argument. Note what the decision does *not* say: it fixes the stage
+  **measure**, not the generality of the stages. In implementation the raw evaluator
+  turned out to make sense for arbitrary measurable stages, with its bottom value and
+  bounds needing no finiteness at all; finiteness and discreteness enter only for
+  normalization, and additivity from C3 is where the content is genuinely restricted to
+  finite discrete stages. That is stated at the strength each result actually has,
+  which does not weaken this decision: the stage measure is still fixed and no measure
+  parameter appears.
 - Elek–Szegedy is reachable with no further generalization; Hoover's varying
   probability spaces will need the `InternalMeasurableSet` layer, which is additive
   work rather than a rewrite.

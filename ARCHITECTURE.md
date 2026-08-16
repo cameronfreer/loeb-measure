@@ -85,8 +85,10 @@ required for probability *normalization*, not for boundedness.
 
 ### The first concrete model is normalized finite counting measure
 
-Internal content is defined for **finite discrete stages**; nonemptiness is added only
-for normalization and the resulting probability measure.
+The raw internal-content evaluator is defined for arbitrary measurable stages; its
+bottom value and bounds need no finiteness. The **additive** content — the one that
+becomes a measure — is restricted to **finite discrete stages**, and nonemptiness is
+added only for normalization and the resulting probability measure.
 
 ADR-0004 settled the generality question: a signature spike showed the general
 measured-family API *is* harder, because finite additivity needs the stagewise sets to
