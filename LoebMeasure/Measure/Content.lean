@@ -15,13 +15,19 @@ values. This is where the measure layer first meets internal-set data.
 
 ## Counting-first, per ADR-0004
 
-The stages are finite and discrete, and the stage measure is fixed — there is **no
-stage-measure parameter** and no generic all-set evaluator. A signature spike showed the
-general measured-family version is not merely a wider definition: its additivity needs
-the stagewise sets to be *measurable*, which `InternalSet` deliberately does not record.
-General families therefore arrive later as an addition, through a separate
-`InternalMeasurableSet` and a parameterized content, rather than as a refactor of this
-layer.
+The stage measure is **fixed**: there is no stage-measure parameter and no generic
+all-set evaluator. That is what ADR-0004 decided, and it is unaffected by how general
+the stages themselves may be — a signature spike showed the measure-parameterized
+version is not merely a wider definition, since its additivity needs the stagewise sets
+to be *measurable*, which `InternalSet` deliberately does not record. General families
+therefore arrive later as an addition, through a separate `InternalMeasurableSet` and a
+parameterized content, rather than as a refactor of this layer.
+
+The raw evaluator below turns out to make sense for **arbitrary measurable stages**, and
+is stated that way rather than artificially restricted. Finiteness and discreteness
+enter only where they are genuinely used: for normalization here, and for additivity
+from C3 onward. The *additive* content — the one that becomes a measure — remains
+restricted to finite discrete stages.
 
 ## Exact stage hypotheses
 
@@ -31,12 +37,12 @@ neither is needed, and the linter said so. What each result actually takes:
 | Result | Stage hypotheses |
 | --- | --- |
 | `internalContent`, `internalContent_ofFun`, `internalContent_bot` | `MeasurableSpace` only |
-| `internalContent_le_one`, `internalContent_ne_top` | `MeasurableSpace`, `Finite` |
+| `internalContent_le_one`, `internalContent_ne_top` | `MeasurableSpace` only |
 | `internalContent_top` | `MeasurableSpace`, `Finite`, **`Nonempty`** |
 
-`Finite` rather than `Fintype`, because nothing here enumerates a stage; and no
-`MeasurableSingletonClass`, because the bound comes from `normalizedCounting_le_one` —
-which is `prob_le_one` on a nonempty stage — rather than from the cardinality formula.
+Finiteness appears only where a cardinality is mentioned. The bound needs none at all:
+`uniformOn` is `IsZeroOrProbabilityMeasure` unconditionally, so
+`normalizedCounting_le_one` is `prob_le_one` outright.
 
 **Nonemptiness appears only on `internalContent_top`**, which is the ADR-0002
 distinction paying off: it is for *normalization*, never for boundedness. On an empty
@@ -92,15 +98,19 @@ theorem internalContent_top [∀ i, Nonempty (X i)] :
     internalContent U (⊤ : InternalSet U X) = 1 := by
   simp
 
-/-- The content is a probability value. **No nonemptiness**: an empty stage contributes
-`0`, not `∞`. -/
+omit [∀ i, Finite (X i)] in
+/-- The content is a probability value. Needs **neither nonemptiness nor finiteness**:
+`uniformOn` is `IsZeroOrProbabilityMeasure` unconditionally, and an empty stage
+contributes `0` rather than `∞`. -/
 theorem internalContent_le_one (A : InternalSet U X) : internalContent U A ≤ 1 := by
   induction A using Filter.Product.inductionOn with
   | _ A' =>
     exact ultralimit_le_one
       (Eventually.of_forall fun i ↦ normalizedCounting_le_one (A' i))
 
-/-- **No accidental `∞`**, derived from the bound. -/
+omit [∀ i, Finite (X i)] in
+/-- **No accidental `∞`**, derived from the bound, and inheriting its lack of
+hypotheses. -/
 theorem internalContent_ne_top (A : InternalSet U X) : internalContent U A ≠ ∞ :=
   ((internalContent_le_one A).trans_lt (Ne.lt_top ENNReal.one_ne_top)).ne
 

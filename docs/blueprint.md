@@ -230,7 +230,9 @@ around mathlib's `uniformOn univ`) and `internalContent` in
 `LoebMeasure/Measure/Content.lean`, whose docstrings are the reference and tabulate the
 exact stage hypotheses each result takes. Note that neither needs the `[Nonempty]`
 sketched here except for the normalization results — ADR-0002's distinction — and that
-the content needs `Finite` rather than `Fintype`.
+the raw evaluator's bottom value and bounds need no finiteness at all. Finiteness and
+discreteness enter for normalization, and for additivity from C3, where the content is
+restricted to finite discrete stages.
 
 Required theorems:
 
