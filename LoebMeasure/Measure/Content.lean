@@ -40,8 +40,8 @@ neither is needed, and the linter said so. What each result actually takes:
 | `internalContent_le_one`, `internalContent_ne_top` | `MeasurableSpace` only |
 | `internalContent_top` | `MeasurableSpace`, `Finite`, **`Nonempty`** |
 
-Finiteness appears only where a cardinality is mentioned. The bound needs none at all:
-`uniformOn` is `IsZeroOrProbabilityMeasure` unconditionally, so
+Finiteness appears only for normalization; the bound and the finiteness of the content
+value require none. `uniformOn` is `IsZeroOrProbabilityMeasure` unconditionally, so
 `normalizedCounting_le_one` is `prob_le_one` outright.
 
 **Nonemptiness appears only on `internalContent_top`**, which is the ADR-0002

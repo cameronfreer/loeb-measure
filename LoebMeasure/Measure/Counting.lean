@@ -34,8 +34,8 @@ Deliberately split, following ADR-0002:
   on an empty type the total mass is `0`.
 
 So `[Nonempty X]` appears on the normalization results and nowhere else, and finiteness
-appears only where a cardinality is actually mentioned — `normalizedCounting_apply` and
-the normalization results — never in the bound.
+appears only in the cardinality formula and the normalization results — never in the
+bound.
 -/
 
 namespace Loeb
