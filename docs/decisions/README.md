@@ -49,13 +49,13 @@ Accepted records:
   directly.
 - [ADR-0003: Loeb measure construction](0003-loeb-measure-construction.md) —
   Carathéodory-first.
+- [ADR-0004: general measured families versus counting spaces](0004-general-versus-counting.md)
+  — counting-first.
 
 Anticipated records, deliberately not created yet so unstable work is not seeded
 prematurely:
 
-- general versus counting-space construction — activate before M3 implementation
-  starts;
 - contents of `Graded.ProbabilitySpace` — activate before M6 implementation starts.
 
-These correspond to open decisions 4 and 5 in [ARCHITECTURE.md](../../ARCHITECTURE.md);
-they receive ADR numbers when activated.
+This corresponds to open decision 5 in [ARCHITECTURE.md](../../ARCHITECTURE.md); it
+receives an ADR number when activated.

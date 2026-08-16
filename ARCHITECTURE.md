@@ -85,10 +85,14 @@ required for probability *normalization*, not for boundedness.
 
 ### The first concrete model is normalized finite counting measure
 
-The initial Loeb construction targets nonempty finite types with normalized counting
-measure. General families of probability spaces are an intended extension, but are not
-allowed to complicate the first construction unless a design spike shows the general
-API is no harder.
+Internal content is defined for **finite discrete stages**; nonemptiness is added only
+for normalization and the resulting probability measure.
+
+ADR-0004 settled the generality question: a signature spike showed the general
+measured-family API *is* harder, because finite additivity needs the stagewise sets to
+be measurable — which `InternalSet` deliberately does not record. General families
+therefore arrive later as an addition (a separate `InternalMeasurableSet` and a
+measure-parameterized content), never as a refactor of the internal-set layer.
 
 ### Generic helpers use mathlib namespaces
 
@@ -222,10 +226,11 @@ Choices whose consequences span milestones are recorded as decision records rath
 buried in an implementation PR. The accepted decisions are already incorporated above as
 invariants; [docs/decisions/README.md](docs/decisions/README.md) owns their status list.
 
-Two decisions are deliberately deferred, with their activation triggers:
+4. whether general probability spaces cost essentially more than finite counting spaces
+   (ADR-0004) — counting-first.
 
-- whether general probability spaces cost essentially more than finite counting spaces
-  — activate before M3;
+One decision remains deliberately deferred, with its activation trigger:
+
 - what `Graded.ProbabilitySpace` bundles — measurable spaces, measures, or both with
   explicit compatibility proofs — activate before M6.
 
