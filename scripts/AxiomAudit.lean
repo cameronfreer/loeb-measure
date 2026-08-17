@@ -173,6 +173,12 @@ assert_standard_axioms Loeb.internalContent_sup_of_disjoint
 assert_standard_axioms Loeb.internalAddContent
 assert_standard_axioms Loeb.internalAddContent_carrier
 
+-- Sigma-subadditivity
+assert_standard_axioms Loeb.internalAddContent_ne_top
+assert_standard_axioms Loeb.internalAddContent_tendsto_zero
+assert_standard_axioms Loeb.internalAddContent_iUnion_eq_tsum
+assert_standard_axioms Loeb.internalAddContent_isSigmaSubadditive
+
 -- Normalized counting measure
 assert_standard_axioms Loeb.normalizedCounting
 assert_standard_axioms Loeb.normalizedCounting_apply
