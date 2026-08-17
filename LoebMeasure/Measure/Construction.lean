@@ -125,6 +125,16 @@ example (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i))
     Tendsto (fun n ↦ internalAddContent hX (s n)) atTop (𝓝 0) :=
   internalAddContent_tendsto_zero hU hX hs hanti hempty
 
+/-- **Countable additivity on the ring**, tested directly rather than only through its
+σ-subadditive consequence: it is the milestone's countable-additivity result and part of
+the public surface. -/
+example (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i))
+    (f : ℕ → Set (Ultraproduct U X)) (hf : ∀ i, f i ∈ InternalSet.carriers U X)
+    (hUf : (⋃ i, f i) ∈ InternalSet.carriers U X)
+    (hdisj : Pairwise (Function.onFun Disjoint f)) :
+    internalAddContent hX (⋃ i, f i) = ∑' i, internalAddContent hX (f i) :=
+  internalAddContent_iUnion_eq_tsum hU hX hf hUf hdisj
+
 /-- Finiteness on the ring, the other constructor input. -/
 example (hX : ∀ i, Nonempty (X i)) (A : InternalSet U X) :
     internalAddContent hX (InternalSet.carrier A) ≠ ∞ :=

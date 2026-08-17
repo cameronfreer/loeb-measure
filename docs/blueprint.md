@@ -214,10 +214,10 @@ irrelevant topological choice details.
 
 ## Layer M — content and Loeb measure
 
-Remaining module candidates:
+`LoebMeasure/Measure/Construction.lean` exists; C6's Carathéodory construction extends
+it rather than adding a module. Remaining module candidates:
 
 ```text
-LoebMeasure/Measure/Construction.lean
 LoebMeasure/Measure/Completion.lean
 LoebMeasure/Measure/Approximation.lean
 ```
