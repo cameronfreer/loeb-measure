@@ -155,6 +155,11 @@ When a milestone's roadmap gate is met, close the GitHub milestone. Move any unr
 follow-ups that are **not** gate criteria — upstreaming, design notes, deferred
 refactors — to the upstreaming bucket or a later milestone first.
 
+Deferred documentation updates belong in the epic's gate criteria, not in memory. The
+README capability table in particular is updated once per milestone rather than per
+unit, so the epic should carry that as a checkbox — otherwise it lags until someone
+notices.
+
 Upstream acceptance in particular is never a gate criterion, so an open upstreaming
 issue must not hold a milestone open.
 
