@@ -18,16 +18,25 @@ and read off the four consequences. No new measure-theoretic argument occurs her
 
 ## The two hypotheses, and where each is needed
 
-The construction is deliberately split so that the σ-algebra does **not** inherit the
-measure's hypotheses:
+Throughout, "hypothesis" means one of the two *explicit* arguments `hX` and `hU`. The
+stage instances `[∀ i, MeasurableSpace (X i)]`, `[∀ i, Finite (X i)]` and
+`[∀ i, MeasurableSingletonClass (X i)]` are ambient on the whole module — the content is
+built from the stage measures, so everything here needs them — and the claims below are
+about `hX` and `hU` only.
 
-* `loebMeasurableSpace` needs only nonempty fibers `hX`, through the content's
-  packaging. The Carathéodory σ-algebra of an induced outer measure exists whether or
-  not that outer measure is well behaved, so **countable incompleteness plays no part
-  in defining the σ-algebra**;
-* `loebMeasure` additionally needs `hU`, since σ-subadditivity — the input that makes
+Of those two, the construction is deliberately split so that the σ-algebra does **not**
+inherit the measure's:
+
+* `loebMeasurableSpace` takes `hX` alone, through the content's packaging. The
+  Carathéodory σ-algebra of an induced outer measure exists whether or not that outer
+  measure is well behaved, so **countable incompleteness plays no part in defining the
+  σ-algebra**;
+* `loebMeasure` additionally takes `hU`, since σ-subadditivity — the input that makes
   the extension a measure rather than merely an outer measure — is where C5 consumed
   saturation.
+
+The one declaration here that genuinely needs *nothing*, stage instances included, is
+`isSetSemiring_carriers`, which is why its instances are `omit`ted.
 
 Both hypotheses are `Prop`-valued, so proof irrelevance makes any two choices of `hX`
 give the *same* σ-algebra definitionally; there is no coherence obligation to discharge
@@ -67,11 +76,16 @@ omit [∀ i, MeasurableSpace (X i)] [∀ i, Finite (X i)] [∀ i, MeasurableSing
 /-- The set semiring the extension consumes: I3's set ring of realized internal sets,
 weakened to a semiring, which is the form `AddContent.measureCaratheodory` asks for.
 
-Named because the same term must appear in `loebMeasurableSpace` and in `loebMeasure`,
-and the two are related definitionally. It needs **no stage structure at all** — not
-measurability, not finiteness — since it is I3's Boolean algebra of internal sets and
-nothing more; every stage instance is omitted to make that visible. -/
-theorem isSetSemiring_carriers :
+`private`: every consumer is in this module. There is no coherence reason to name it —
+`IsSetSemiring` is a `Prop`, so proof irrelevance already makes any two proofs
+interchangeable — and it is named purely so the five constructions below read cleanly.
+Should it acquire a consumer outside this module, it belongs beside
+`InternalSet.isSetRing_carriers` in I3 rather than here.
+
+It needs **no stage structure at all** — not measurability, not finiteness — since it is
+I3's Boolean algebra of internal sets and nothing more; every stage instance is omitted
+to make that visible. -/
+private theorem isSetSemiring_carriers :
     IsSetSemiring (InternalSet.carriers U X) :=
   InternalSet.isSetRing_carriers.isSetSemiring
 
@@ -90,13 +104,14 @@ private noncomputable def loebOuterMeasure (hX : ∀ i, Nonempty (X i)) :
 /-- **The Loeb σ-algebra**: the Carathéodory σ-algebra of the outer measure induced by
 the internal content.
 
-Depends on nonempty fibers and on nothing else — in particular **not** on countable
-incompleteness, which enters only when the extension is shown to be a measure.
+Of the two explicit hypotheses it takes only `hX`, **not** `hU`: countable incompleteness
+enters only when the extension is shown to be a measure. The stage instances
+(`MeasurableSpace`, `Finite`, `MeasurableSingletonClass`) are of course still required,
+since the content is built from the stage measures.
 
-`@[reducible]`, as Lean requires of a definition whose result is a class: `loebMeasure`
-is stated at this space and is *defined* by `AddContent.measureCaratheodory`, whose own
-target is the Carathéodory space written out; reducibility is what makes those two the
-same type without a transport. -/
+`@[reducible]` because mathlib's linter asks it of any definition whose result is a class,
+and this project promotes warnings to errors. It is not needed for `loebMeasure` to
+elaborate at this space: a semireducible `def` unfolds during unification just as well. -/
 @[reducible]
 noncomputable def loebMeasurableSpace (hX : ∀ i, Nonempty (X i)) :
     MeasurableSpace (Ultraproduct U X) :=

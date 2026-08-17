@@ -285,17 +285,21 @@ instance : (loebMeasure hU hX).IsComplete
 ```
 
 The hypotheses carry `U` and `X`, so those are implicit rather than explicit as this
-sketch originally had them. More importantly the two hypotheses **separate**:
-`loebMeasurableSpace` and `measurableSet_internal` take only `hX`, because the
-Carathéodory σ-algebra of an induced outer measure exists whether or not that outer
-measure is σ-subadditive; countable incompleteness enters only where the extension is
-shown to be a measure. Both hypotheses are `Prop`-valued, so proof irrelevance means
-there is no coherence obligation and no canonical proof term to fix.
+sketch originally had them. Every declaration also sits under the ambient stage instances
+`[∀ i, MeasurableSpace (X i)]`, `[∀ i, Finite (X i)]`, `[∀ i, MeasurableSingletonClass
+(X i)]`, since the content is built from the stage measures; the separation below is
+about the two *explicit* hypotheses only.
 
-`loebMeasurableSpace` must be `@[reducible]` — Lean requires it of any definition whose
-result is a class — which is also what lets `loebMeasure` be stated at it while being
-*defined* by `AddContent.measureCaratheodory`, whose target is the Carathéodory space
-written out.
+Of those two, `loebMeasurableSpace` and `measurableSet_internal` take `hX` alone, because
+the Carathéodory σ-algebra of an induced outer measure exists whether or not that outer
+measure is σ-subadditive; countable incompleteness enters only where the extension is
+shown to be a measure. Both are `Prop`-valued, so proof irrelevance means there is no
+coherence obligation and no canonical proof term to fix.
+
+`loebMeasurableSpace` is `@[reducible]` because mathlib's linter asks it of any definition
+whose result is a class, and this project promotes warnings to errors. It is *not* needed
+for `loebMeasure` to elaborate at that space: a semireducible `def` unfolds during
+unification just as well, as removing the attribute confirms.
 
 Completeness is not supplied by the Carathéodory API, but it does **not** need a direct
 proof here: the mirror directory supplies the generic
@@ -310,19 +314,22 @@ Downstream working characterizations:
 
 ```lean
 theorem loebMeasurable_iff_internal_mod_null
+    (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i))
     (s : Set (Ultraproduct U X)) :
-    MeasurableSet[loebMeasurableSpace U X] s ↔
+    MeasurableSet[loebMeasurableSpace hX] s ↔
       ∃ A : InternalSet U X,
-        loebMeasure U X (s ∆ A.carrier) = 0
+        loebMeasure hU hX (s ∆ A.carrier) = 0
 
 theorem exists_internal_symmDiff_lt
-    (hs : MeasurableSet[loebMeasurableSpace U X] s)
-    (hε : 0 < ε) :
+    (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i))
+    (hs : MeasurableSet[loebMeasurableSpace hX] s) (hε : 0 < ε) :
     ∃ A : InternalSet U X,
-      loebMeasure U X (s ∆ A.carrier) < ε
+      loebMeasure hU hX (s ∆ A.carrier) < ε
 ```
 
-The exact symmetric-difference notation must follow pinned mathlib.
+Both carry `hU` even though the σ-algebra does not: the approximation is a statement
+about the *measure*, and the increasing-envelope diagonal argument is where saturation
+is consumed. The exact symmetric-difference notation must follow pinned mathlib.
 
 ## Layer B — bounded internal functions
 
@@ -351,11 +358,13 @@ public results:
 def BoundedInternalFunction.lift :
     Ultraproduct U X → ℝ
 
-theorem BoundedInternalFunction.measurable_lift :
-    Measurable[loebMeasurableSpace U X] f.lift
+theorem BoundedInternalFunction.measurable_lift
+    (hX : ∀ i, Nonempty (X i)) :
+    Measurable[loebMeasurableSpace hX] f.lift
 
-theorem integral_internalFunction :
-    ∫ x, f.lift x ∂loebMeasure U X =
+theorem integral_internalFunction
+    (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i)) :
+    ∫ x, f.lift x ∂loebMeasure hU hX =
       probabilityUltralimit U
         (fun i => ∫ x, f.fn i x ∂normalizedCounting i)
 ```

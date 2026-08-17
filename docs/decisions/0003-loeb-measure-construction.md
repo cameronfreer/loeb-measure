@@ -63,7 +63,7 @@ construction.
   `OuterMeasure.isCaratheodory_of_measure_zero`. Since `measureCaratheodory` is
   definitionally the induced outer measure on every set, a measure-zero set is
   outer-measure-zero and hence Carathéodory measurable. The eventual
-  `(loebMeasure U X).IsComplete` instance must **wrap** this generic theorem rather
+  `(loebMeasure hU hX).IsComplete` instance must **wrap** this generic theorem rather
   than duplicate its proof.
 - **C7/C8 remain substantive approximation work** and must not be treated as formal
   consequences of the construction. In dependency order: carriers form an

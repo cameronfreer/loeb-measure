@@ -185,7 +185,6 @@ assert_standard_axioms Loeb.internalAddContent_iUnion_eq_tsum
 assert_standard_axioms Loeb.internalAddContent_isSigmaSubadditive
 
 -- The Loeb measure
-assert_standard_axioms Loeb.isSetSemiring_carriers
 assert_standard_axioms Loeb.loebMeasurableSpace
 assert_standard_axioms Loeb.loebMeasure
 assert_standard_axioms Loeb.loebMeasure_internal
