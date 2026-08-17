@@ -138,6 +138,11 @@ assert_standard_axioms Loeb.InternalSet.carriers
 assert_standard_axioms Loeb.InternalSet.isSetAlgebra_carriers
 assert_standard_axioms Loeb.InternalSet.isSetRing_carriers
 
+-- Completeness criterion (mirror directory)
+assert_standard_axioms MeasureTheory.OuterMeasure.isCaratheodory_of_measure_zero
+assert_standard_axioms MeasureTheory.Measure.isComplete_of_caratheodory_le
+assert_standard_axioms MeasureTheory.AddContent.measureCaratheodory_isComplete
+
 -- Compact ultralimits (mirror directory)
 assert_standard_axioms Ultrafilter.ultralimit
 assert_standard_axioms Ultrafilter.tendsto_ultralimit
