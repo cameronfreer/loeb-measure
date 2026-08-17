@@ -282,7 +282,7 @@ instance : (loebMeasure U X).IsComplete
 ```
 
 Completeness is not supplied by the Carathéodory API, but it does **not** need a direct
-proof here: the D0.3 spike established the generic
+proof here: the mirror directory supplies the generic
 `MeasureTheory.AddContent.measureCaratheodory_isComplete` — no finiteness or
 probability hypotheses — so the Loeb instance must *wrap* that theorem rather than
 reproduce its argument (ADR-0003).
