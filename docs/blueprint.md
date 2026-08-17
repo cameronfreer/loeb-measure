@@ -214,10 +214,10 @@ irrelevant topological choice details.
 
 ## Layer M — content and Loeb measure
 
-Remaining module candidates:
+`LoebMeasure/Measure/Construction.lean` exists; C6's Carathéodory construction extends
+it rather than adding a module. Remaining module candidates:
 
 ```text
-LoebMeasure/Measure/Construction.lean
 LoebMeasure/Measure/Completion.lean
 LoebMeasure/Measure/Approximation.lean
 ```
@@ -245,12 +245,12 @@ not anticipate: besides normalization, it is what makes `carrier_injective` avai
 and hence what lets the content factor through `carrier` representation-independently.
 It is passed as an explicit argument, not an instance, to keep that visible.
 
-σ-subadditivity remains ahead:
-
-```lean
-theorem internalAddContent_isSigmaSubadditive :
-    (internalAddContent hX).IsSigmaSubadditive
-```
+σ-subadditivity is **implemented** too, in `LoebMeasure/Measure/Construction.lean`, on
+ADR-0003's accepted route: M2's saturation gives continuity at `∅` — the contents are
+eventually *equal* to zero, not merely convergent — then
+`addContent_iUnion_eq_sum_of_tendsto_zero` and
+`isSigmaSubadditive_of_addContent_iUnion_eq_tsum`. `CountablyIncomplete` enters the
+measure layer there, as an explicit argument.
 
 The exact constructors follow the route accepted in ADR-0003: saturation makes
 a decreasing internal sequence with empty intersection eventually empty (continuity at
