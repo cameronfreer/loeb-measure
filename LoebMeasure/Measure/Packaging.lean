@@ -24,10 +24,13 @@ the object the Carathéodory extension consumes.
 
 This is the first place carrier injectivity is genuinely load-bearing. Every earlier use
 was avoidable: I3's Boolean laws are proved through representatives, and C3's
-disjointness comes from the Boolean structure rather than from carriers. But
-transporting a *function* along `carrier` requires the carrier to determine the internal
-set — otherwise `transported` would not be well defined — so `carrier_injective`, and
-with it nonemptiness, does irreplaceable work here.
+disjointness comes from the Boolean structure rather than from carriers.
+
+What injectivity supplies is precise. The transported function is well defined without
+it — it simply chooses *some* representing internal set. What fails without injectivity
+is that it **factors `internalContent` through `carrier` representation-independently**:
+the chosen internal set need not be the one written, and only faithfulness makes the two
+values agree.
 
 Note precisely what nonemptiness is and is not used for. It appears twice, both times
 for **faithfulness**, never for additivity:
@@ -44,10 +47,12 @@ places, and none of the measure-theoretic work.
 
 ## Values off the carriers
 
-`transported` is a set function on all of `Set (Ultraproduct U X)`, because that is what
-`AddContent` requires, but only its values **on** `InternalSet.carriers U X` are
-meaningful. Off that family it returns `0`, and nothing should depend on that: the
-`AddContent` structure only ever evaluates it on members of the ring.
+The underlying function is defined on all of `Set (Ultraproduct U X)`, and an
+`AddContent` can indeed be *evaluated* anywhere. What is confined to the ring are its
+**laws** and everything downstream: `AddContent`'s additivity obligations quantify over
+members of `InternalSet.carriers U X`, and the Carathéodory extension reads only those
+values. Off the ring the function returns `0` by an arbitrary convention, and no result
+here or later may depend on that choice.
 
 ## Scope
 
@@ -72,15 +77,14 @@ returns `0` by convention, and no result below depends on that choice.
 The *definition* needs no nonemptiness — it picks some representing internal set. It is
 `transported_carrier`, which says the choice does not matter, that needs
 `carrier_injective` and hence nonemptiness. -/
-noncomputable def transported (s : Set (Ultraproduct U X)) : ℝ≥0∞ :=
+private noncomputable def transported (s : Set (Ultraproduct U X)) : ℝ≥0∞ :=
   if h : s ∈ InternalSet.carriers U X then internalContent U h.choose else 0
 
 omit [∀ i, Finite (X i)] [∀ i, MeasurableSingletonClass (X i)] in
 /-- **The transported value on a carrier is the content.** This is where
 `carrier_injective` does its work: the internal set chosen to represent the carrier need
 not be the one written, so faithfulness is what makes the two agree. -/
-@[simp]
-theorem transported_carrier (hX : ∀ i, Nonempty (X i)) (A : InternalSet U X) :
+private theorem transported_carrier (hX : ∀ i, Nonempty (X i)) (A : InternalSet U X) :
     transported (InternalSet.carrier A) = internalContent U A := by
   have hmem : InternalSet.carrier A ∈ InternalSet.carriers U X := ⟨A, rfl⟩
   rw [transported, dif_pos hmem]
@@ -88,8 +92,7 @@ theorem transported_carrier (hX : ∀ i, Nonempty (X i)) (A : InternalSet U X) :
   exact InternalSet.carrier_injective hX hmem.choose_spec
 
 omit [∀ i, Finite (X i)] [∀ i, MeasurableSingletonClass (X i)] in
-@[simp]
-theorem transported_empty (hX : ∀ i, Nonempty (X i)) :
+private theorem transported_empty (hX : ∀ i, Nonempty (X i)) :
     transported (U := U) (X := X) ∅ = 0 := by
   have h : (∅ : Set (Ultraproduct U X)) = InternalSet.carrier (⊥ : InternalSet U X) :=
     InternalSet.carrier_bot.symm

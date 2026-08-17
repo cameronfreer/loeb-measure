@@ -228,20 +228,28 @@ finite additivity in `LoebMeasure/Measure/Content.lean`. Their docstrings are th
 reference and tabulate the exact stage hypotheses each result takes.
 
 Two things the sketches here got wrong, worth recording since they were design
-expectations rather than typos: nonemptiness is needed only for the normalization
-results (ADR-0002's distinction), and the raw evaluator's bottom value and bounds need
-no finiteness at all. Additivity is stated against the Boolean `⊔` rather than a set
+expectations rather than typos: within the content layer nonemptiness is needed only for
+the normalization results (ADR-0002's distinction) — it acquires a second, distinct role
+at the carrier transport below — and the raw evaluator's bottom value and bounds need no
+finiteness at all. Additivity is stated against the Boolean `⊔` rather than a set
 union, with disjointness coming from the Boolean structure on `InternalSet` and no
 carrier involved.
 
-The content is then transported to the set ring of realized internal carriers:
+The transport to the realized carriers is **implemented**: `internalAddContent` in
+`LoebMeasure/Measure/Packaging.lean`, built by `IsSetRing.addContent_of_union` from the
+empty value and disjoint-union additivity, with `internalAddContent_carrier` evaluating
+it. Its docstring is the reference.
+
+Nonemptiness acquires a **second, distinct role** there, which the sketches above did
+not anticipate: besides normalization, it is what makes `carrier_injective` available,
+and hence what lets the content factor through `carrier` representation-independently.
+It is passed as an explicit argument, not an instance, to keep that visible.
+
+σ-subadditivity remains ahead:
 
 ```lean
-def internalAddContent :
-    MeasureTheory.AddContent ℝ≥0∞ internalSetRing
-
 theorem internalAddContent_isSigmaSubadditive :
-    internalAddContent U X |>.IsSigmaSubadditive
+    (internalAddContent hX).IsSigmaSubadditive
 ```
 
 The exact constructors follow the route accepted in ADR-0003: saturation makes
