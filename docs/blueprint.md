@@ -214,11 +214,16 @@ irrelevant topological choice details.
 
 ## Layer M — content and Loeb measure
 
-`LoebMeasure/Measure/Construction.lean` exists; C6's Carathéodory construction extends
-it rather than adding a module. Remaining module candidates:
+C6's Carathéodory construction went into a new `LoebMeasure/Measure/Loeb.lean` rather
+than extending `LoebMeasure/Measure/Construction.lean` as this section originally
+planned: that module's docstring scopes it to σ-subadditivity, and the construction also
+needs the mirror directory's `OfAddContent`, which σ-subadditivity does not.
+
+A `Measure/Completion.lean` is no longer a candidate — completeness is a two-line
+wrapper around the generic mirror theorem and lives beside the construction. Remaining
+module candidate:
 
 ```text
-LoebMeasure/Measure/Completion.lean
 LoebMeasure/Measure/Approximation.lean
 ```
 
@@ -252,40 +257,55 @@ eventually *equal* to zero, not merely convergent — then
 `isSigmaSubadditive_of_addContent_iUnion_eq_tsum`. `CountablyIncomplete` enters the
 measure layer there, as an explicit argument.
 
-The exact constructors follow the route accepted in ADR-0003: saturation makes
-a decreasing internal sequence with empty intersection eventually empty (continuity at
-`∅`), then `addContent_iUnion_eq_sum_of_tendsto_zero`,
-`isSigmaSubadditive_of_addContent_iUnion_eq_tsum`, and
-`AddContent.measureCaratheodory`. The stable user-facing declarations should have
-shapes like:
+The construction itself is **implemented**, in `LoebMeasure/Measure/Loeb.lean`: the last
+step of ADR-0003's route, `AddContent.measureCaratheodory`, applied to that
+σ-subadditivity and to I3's set ring weakened to a semiring. No new measure-theoretic
+argument occurs there. The stable user-facing declarations:
 
 ```lean
-def loebMeasurableSpace
-    (U : Ultrafilter ι) (X : ι → Type*) :
+@[reducible] noncomputable def loebMeasurableSpace
+    (hX : ∀ i, Nonempty (X i)) :
     MeasurableSpace (Ultraproduct U X)
 
 noncomputable def loebMeasure
-    (U : Ultrafilter ι) (X : ι → Type*) :
-    Measure (Ultraproduct U X)
-
-theorem measurableSet_internal
-    (A : InternalSet U X) :
-    MeasurableSet[loebMeasurableSpace U X] A.carrier
+    (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i)) :
+    @Measure (Ultraproduct U X) (loebMeasurableSpace hX)
 
 @[simp] theorem loebMeasure_internal
-    (A : InternalSet U X) :
-    loebMeasure U X A.carrier = internalContent U A
+    (hU) (hX) (A : InternalSet U X) :
+    loebMeasure hU hX A.carrier = internalContent U A
 
-instance : IsProbabilityMeasure (loebMeasure U X)
+theorem measurableSet_internal
+    (hX) (A : InternalSet U X) :
+    MeasurableSet[loebMeasurableSpace hX] A.carrier
 
-instance : (loebMeasure U X).IsComplete
+instance : IsProbabilityMeasure (loebMeasure hU hX)
+
+instance : (loebMeasure hU hX).IsComplete
 ```
+
+The hypotheses carry `U` and `X`, so those are implicit rather than explicit as this
+sketch originally had them. Every declaration also sits under the ambient stage instances
+`[∀ i, MeasurableSpace (X i)]`, `[∀ i, Finite (X i)]`, `[∀ i, MeasurableSingletonClass
+(X i)]`, since the content is built from the stage measures; the separation below is
+about the two *explicit* hypotheses only.
+
+Of those two, `loebMeasurableSpace` and `measurableSet_internal` take `hX` alone, because
+the Carathéodory σ-algebra of an induced outer measure exists whether or not that outer
+measure is σ-subadditive; countable incompleteness enters only where the extension is
+shown to be a measure. Both are `Prop`-valued, so proof irrelevance means there is no
+coherence obligation and no canonical proof term to fix.
+
+`loebMeasurableSpace` is `@[reducible]` because mathlib's linter asks it of any definition
+whose result is a class, and this project promotes warnings to errors. It is *not* needed
+for `loebMeasure` to elaborate at that space: a semireducible `def` unfolds during
+unification just as well, as removing the attribute confirms.
 
 Completeness is not supplied by the Carathéodory API, but it does **not** need a direct
 proof here: the mirror directory supplies the generic
 `MeasureTheory.AddContent.measureCaratheodory_isComplete` — no finiteness or
-probability hypotheses — so the Loeb instance must *wrap* that theorem rather than
-reproduce its argument (ADR-0003).
+probability hypotheses — so the Loeb instance *wraps* that theorem rather than
+reproducing its argument (ADR-0003).
 
 The characterizations below are the genuinely substantive part: they use finite total
 mass and the Layer D diagonal lemma, not just the construction.
@@ -294,19 +314,22 @@ Downstream working characterizations:
 
 ```lean
 theorem loebMeasurable_iff_internal_mod_null
+    (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i))
     (s : Set (Ultraproduct U X)) :
-    MeasurableSet[loebMeasurableSpace U X] s ↔
+    MeasurableSet[loebMeasurableSpace hX] s ↔
       ∃ A : InternalSet U X,
-        loebMeasure U X (s ∆ A.carrier) = 0
+        loebMeasure hU hX (s ∆ A.carrier) = 0
 
 theorem exists_internal_symmDiff_lt
-    (hs : MeasurableSet[loebMeasurableSpace U X] s)
-    (hε : 0 < ε) :
+    (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i))
+    (hs : MeasurableSet[loebMeasurableSpace hX] s) (hε : 0 < ε) :
     ∃ A : InternalSet U X,
-      loebMeasure U X (s ∆ A.carrier) < ε
+      loebMeasure hU hX (s ∆ A.carrier) < ε
 ```
 
-The exact symmetric-difference notation must follow pinned mathlib.
+Both carry `hU` even though the σ-algebra does not: the approximation is a statement
+about the *measure*, and the increasing-envelope diagonal argument is where saturation
+is consumed. The exact symmetric-difference notation must follow pinned mathlib.
 
 ## Layer B — bounded internal functions
 
@@ -335,11 +358,13 @@ public results:
 def BoundedInternalFunction.lift :
     Ultraproduct U X → ℝ
 
-theorem BoundedInternalFunction.measurable_lift :
-    Measurable[loebMeasurableSpace U X] f.lift
+theorem BoundedInternalFunction.measurable_lift
+    (hX : ∀ i, Nonempty (X i)) :
+    Measurable[loebMeasurableSpace hX] f.lift
 
-theorem integral_internalFunction :
-    ∫ x, f.lift x ∂loebMeasure U X =
+theorem integral_internalFunction
+    (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i)) :
+    ∫ x, f.lift x ∂loebMeasure hU hX =
       probabilityUltralimit U
         (fun i => ∫ x, f.fn i x ∂normalizedCounting i)
 ```

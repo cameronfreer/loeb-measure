@@ -25,3 +25,4 @@ import LoebMeasure.Measure.Counting
 import LoebMeasure.Measure.Content
 import LoebMeasure.Measure.Packaging
 import LoebMeasure.Measure.Construction
+import LoebMeasure.Measure.Loeb
