@@ -331,6 +331,11 @@ three units rather than one:
 * **C8 — measurable approximation**: nullity by internal covers of small content,
   `exists_internal_symmDiff_lt`, an internal representative modulo null, and
   `loebMeasurable_iff_internal_mod_null`, whose reverse implication uses completeness.
+  The difficulty is uneven. For *measurable* `s`, `exists_internal_symmDiff_lt` is a
+  short corollary of C7b: `exists_internal_superset_content_lt` gives an internal
+  `A ⊇ s`, mathlib's `measure_sdiff_lt_of_lt_add` converts the content bound into
+  `loebMeasure (A.carrier \ s) < ε`, and `symmDiff_of_le` identifies that difference with
+  `s ∆ A.carrier`. The *exact* internal-mod-null characterization is the substantive part.
 
 Downstream working characterizations, the C8 targets:
 

@@ -24,27 +24,39 @@ measure's name.
 
 ## Why the infimum ranges over single sets
 
-Mathlib's induced outer measure is an infimum over **countable covers** by members of the
-generating family — the shape `OuterMeasure.ofFunction` is defined with, and the shape
-`inducedOuterMeasure_eq_iInf` would hand back. Internal carriers form a *ring*, closed
-under finite unions but not countable ones, so a countable cover is not itself internal
-and the two infima are not the same by any formal manipulation.
+Mathlib does prove exactly this shape generically:
+`MeasureTheory.inducedOuterMeasure_eq_iInf` gives the infimum over single supersets from
+the family. It is unavailable here because of its hypothesis `PU`, that the family be
+closed under **countable unions**. Internal carriers form a *ring* — closed under finite
+unions, not countable ones — so `PU` fails and the theorem does not apply.
 
-C7a is exactly what closes that gap: a countable internal cover has an internal
-**envelope** whose content is the supremum of the contents of the finite partial unions,
-hence at most the cover's `tsum`. This module is where that lemma is spent, in
-`loebMeasure_eq_iInf_internal`'s hard direction and nowhere else — the easy direction is
-monotonicity of the measure.
+What the definition supplies unconditionally is the weaker representation as an infimum
+over countable *covers*, via `MeasureTheory.OuterMeasure.ofFunction_eq_iInf_mem`, and
+that is the door used below.
+
+C7a is the Loeb-specific stand-in for the missing closure: a countable internal cover
+need not have an internal union, but it does have an internal **envelope**, whose content
+is the supremum of the contents of the finite partial unions and hence at most the
+cover's `tsum`. That is enough to get from the cover representation to the single-set
+one. This module is where C7a is spent, in `loebMeasure_eq_iInf_internal`'s hard
+direction and nowhere else — the easy direction is monotonicity of the measure.
 
 The raw `MeasureTheory.extend` and cover machinery is confined to the private lemmas
 below and never reaches the public API. Downstream code sees internal sets and contents.
 
 ## Scope
 
-The outer-approximation characterization and its ε-form. Symmetric differences,
-internal representatives modulo null, and approximation of *measurable* sets are C8, and
-are genuinely further work rather than corollaries: they need the two-sided estimate,
-which this one-sided infimum does not provide.
+The outer-approximation characterization and its ε-form. Symmetric differences, internal
+representatives modulo null, and `loebMeasurable_iff_internal_mod_null` are C8.
+
+Their difficulty is uneven, and it is worth being precise about which part is real work.
+For a *measurable* `s` the ε symmetric-difference statement is a short corollary of what
+is here: `exists_internal_superset_content_lt` gives an internal `A ⊇ s` with
+`loebMeasure A.carrier < loebMeasure s + ε`, mathlib's
+`MeasureTheory.measure_sdiff_lt_of_lt_add` turns that into
+`loebMeasure (A.carrier \ s) < ε`, and `symmDiff_of_le` identifies `s ∆ A.carrier` with
+`A.carrier \ s`. It is the *exact* internal-mod-null characterization — in particular
+its reverse implication, which uses completeness — that is substantive.
 -/
 
 namespace Loeb

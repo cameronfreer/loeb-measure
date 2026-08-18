@@ -348,6 +348,17 @@ the operations alone does not establish this — an earlier revision defined eve
 operation and had no instance — so it is tested directly. -/
 example : BooleanAlgebra (InternalSet U X) := inferInstance
 
+/-- `carrier_mono` is registered with `gcongr`, so carrier inclusions close without
+naming it. -/
+example {A B : InternalSet U X} (h : A ≤ B) : carrier A ⊆ carrier B := by
+  gcongr
+
+/-- The same in a compound goal, which is what the attribute is actually for: monotone
+positions inside a larger set expression are discharged together. -/
+example {A B C : InternalSet U X} (h : A ≤ B) :
+    carrier A ∩ carrier C ⊆ carrier B ∩ carrier C := by
+  gcongr
+
 /-- And the instance supports Boolean reasoning, not merely synthesis. -/
 example (A B : InternalSet U X) : (A ⊓ B)ᶜ = Aᶜ ⊔ Bᶜ := compl_inf
 
