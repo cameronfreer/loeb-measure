@@ -11,8 +11,14 @@ import LoebMeasure.Measure.Content
 
 **Elek–Szegedy Lemma 2.4.** Any sequence of internal sets is contained in a *single*
 internal set whose content is exactly the supremum of the contents of the finite partial
-unions. Internality survives a countable union, at no cost in content — which is the
-whole reason a finitely additive internal content extends to a measure.
+unions. A countable union of internal sets need not itself be internal; what this
+supplies is an internal **envelope** costing no extra content, which is what collapses
+an internal cover to one internal set in C7b.
+
+The measure already exists at this point — C5's σ-subadditivity and C6's Carathéodory
+extension build it — so nothing here is needed to *construct* it. What the envelope is
+for is computing with it: recognising the outer measure as an infimum over single
+internal supersets rather than over countable covers.
 
 The statement is for an **arbitrary** sequence, not a monotone one: C7b's outer-measure
 covers are arbitrary, and the finite partial unions are what make the supremum the right
@@ -29,7 +35,9 @@ outer measure rather than merely to bound one.
 
 ## Which hypotheses are used, and which are conspicuously absent
 
-`exists_internal_envelope` takes `hU` and nothing else. Three absences, each structural:
+`hU` is `exists_internal_envelope`'s **only explicit hypothesis**; the module still runs
+under an ambient `[∀ i, MeasurableSpace (X i)]`, without which the content is not even
+defined. Beyond that, three absences, each structural:
 
 * **no `(hX : ∀ i, Nonempty (X i))`.** The diagonal selector is applied with fibers `ℕ`,
   choosing a *level* at each stage rather than a point of `X i`, so the selector's own
@@ -157,8 +165,10 @@ The equality is the substance. The `≥` half is monotonicity, and holds of any 
 the `≤` half is what the diagonal selection buys, and it is what makes the envelope
 usable to *compute* an outer measure rather than merely to bound one.
 
-Takes `hU` and nothing else — in particular no stage nonemptiness, since the selection
-chooses levels in `ℕ` rather than points of the stages. -/
+`hU` is the only explicit hypothesis — in particular there is no stage nonemptiness,
+since the selection chooses levels in `ℕ` rather than points of the stages, and no stage
+finiteness or discreteness. The ambient `[∀ i, MeasurableSpace (X i)]` remains, being
+what makes the content well defined at all. -/
 theorem exists_internal_envelope (hU : (U : Filter ι).IsCountablyIncomplete)
     (A : ℕ → InternalSet U X) :
     ∃ B : InternalSet U X, (∀ n, A n ≤ B) ∧
@@ -206,6 +216,18 @@ theorem exists_internal_envelope_of_monotone (hU : (U : Filter ι).IsCountablyIn
 /-! ### API tests -/
 
 section Tests
+
+/-- `internalContent_mono` is registered with `gcongr`, so content comparisons close
+without naming it. -/
+example {A B : InternalSet U X} (h : A ≤ B) :
+    internalContent U A ≤ internalContent U B := by
+  gcongr
+
+/-- The same inside a larger `ℝ≥0∞` expression, which is where the attribute actually
+earns its keep — this is the shape the envelope proof itself hits. -/
+example {A B : InternalSet U X} (h : A ≤ B) (c : ℝ≥0∞) :
+    internalContent U A + c ≤ internalContent U B + c := by
+  gcongr
 
 /-- **The envelope contains every term**, which is the internality half. -/
 example (hU : (U : Filter ι).IsCountablyIncomplete) (A : ℕ → InternalSet U X) :
