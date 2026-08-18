@@ -27,8 +27,11 @@ measure's name.
 Mathlib does prove exactly this shape generically:
 `MeasureTheory.inducedOuterMeasure_eq_iInf` gives the infimum over single supersets from
 the family. It is unavailable here because of its hypothesis `PU`, that the family be
-closed under **countable unions**. Internal carriers form a *ring* — closed under finite
-unions, not countable ones — so `PU` fails and the theorem does not apply.
+closed under **countable unions**. I3 gives internal carriers only a *ring* — closed
+under finite unions — and they need not be closed under countable ones, so `PU` is not
+available in general. It can hold in degenerate cases: if every stage is a singleton
+there are only two internal sets, and the family is trivially closed. The construction
+here must work without it.
 
 What the definition supplies unconditionally is the weaker representation as an infimum
 over countable *covers*, via `MeasureTheory.OuterMeasure.ofFunction_eq_iInf_mem`, and

@@ -325,9 +325,10 @@ three units rather than one:
   producing one such superset. No measurability hypothesis, since the Loeb measure is the
   induced outer measure on every set. `loebOuterMeasure` became public here and
   `loebMeasure_eq_loebOuterMeasure` is the pointwise bridge, deliberately not `simp` so
-  that `loebMeasure_internal` stays the normal form. `inducedOuterMeasure_eq_iInf` does
-  not apply, because internal carriers form a *ring* rather than a family closed under
-  countable unions — which is exactly what C7a repairs, and where C7a is spent;
+  that `loebMeasure_internal` stays the normal form. `inducedOuterMeasure_eq_iInf` proves
+  this very shape generically but is unavailable, since its hypothesis `PU` asks the
+  family to be closed under countable unions and I3 gives internal carriers only a ring.
+  C7a stands in for that missing closure, and this is where it is spent;
 * **C8 — measurable approximation**: nullity by internal covers of small content,
   `exists_internal_symmDiff_lt`, an internal representative modulo null, and
   `loebMeasurable_iff_internal_mod_null`, whose reverse implication uses completeness.
