@@ -222,9 +222,11 @@ theorem exists_internal_symmDiff_lt (hU : (U : Filter ι).IsCountablyIncomplete)
 /-- **Inner approximation by internal sets.** The complement of C7b's outer approximation
 of `sᶜ`.
 
-Both structural facts are used exactly once: `InternalSet.carrier_compl` — an ultrafilter
-result — to see the complement of an internal set as an internal set, and total mass `1`
-to convert the bound on `sᶜ` into one on `s`. -/
+Two structural facts do the work: `InternalSet.carrier_compl` — an ultrafilter result —
+to see the complement of an internal set as an internal set, and total mass `1` to
+convert the bound on `sᶜ` into one on `s`. Both appear more than once in the proof, since
+the complement identity is needed for the containment and again inside the mass
+computation. -/
 theorem exists_internal_subset_lt_content_add (hU : (U : Filter ι).IsCountablyIncomplete)
     (hX : ∀ i, Nonempty (X i)) {s : Set (Ultraproduct U X)}
     (hs : MeasurableSet[loebMeasurableSpace hX] s) {ε : ℝ≥0∞} (hε : 0 < ε) :
@@ -408,11 +410,21 @@ example (A : InternalSet U X) :
       loebMeasure hU hX (InternalSet.carrier A ∆ InternalSet.carrier A') = 0 :=
   ⟨A, by simp⟩
 
-/-- **A null set is internal modulo null**, via completeness rather than via any
-approximation — the reverse direction is what makes this available. -/
+/-- **A null set is measurable**, from completeness and no approximation at all.
+
+Not to be confused with the characterization: a null set is internal modulo null for the
+trivial reason that `⊥` works, and that direction needs nothing. What completeness
+supplies is the *measurability*, which is exactly the content of the reverse implication
+of `loebMeasurable_iff_internal_mod_null`. -/
 example (s : Set (Ultraproduct U X)) (h : loebMeasure hU hX s = 0) :
     MeasurableSet[loebMeasurableSpace hX] s :=
   measurableSet_of_null h
+
+/-- The trivial direction, for contrast with the one above: a null set is internal modulo
+null with `A = ⊥`, no completeness involved. -/
+example (s : Set (Ultraproduct U X)) (h : loebMeasure hU hX s = 0) :
+    ∃ A : InternalSet U X, loebMeasure hU hX (s ∆ InternalSet.carrier A) = 0 :=
+  ⟨⊥, by rw [InternalSet.carrier_bot, ← Set.bot_eq_empty, symmDiff_bot]; exact h⟩
 
 /-- Inner approximation, the two-sided half. Needs measurability, unlike its outer
 counterpart. -/
