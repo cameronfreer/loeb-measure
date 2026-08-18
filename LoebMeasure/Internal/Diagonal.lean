@@ -14,17 +14,17 @@ The exact hypothesis behind Loeb-measure diagonalization, and the content-free d
 lemma itself. Accepted as ADR-0001 after the D0.1 spike (#1); the **proofs** are
 promoted unchanged, while the prose below was corrected on the way in.
 
-* `Filter.CountablyIncomplete`: some countable family of members has empty
+* `Filter.IsCountablyIncomplete`: some countable family of members has empty
   intersection. This is ADR-0001's accepted choice — its option 3, refined to the
   `Filter` level — and not a claim to be weakest among the candidates, since option 4
   was broader and incomparable. What it buys concretely: the diagonal lemma below needs
   only a filter carrying such a witness, not an ultrafilter, not `ℕ`-indexing, and not
   `Filter.hyperfilter` specifically.
-* `Filter.countablyIncomplete_of_le_cofinite`: on a countable index type, any filter
+* `Filter.isCountablyIncomplete_of_le_cofinite`: on a countable index type, any filter
   at least as fine as `cofinite` qualifies. In particular every nonprincipal
-  ultrafilter on `ℕ` qualifies, and `Filter.hyperfilter_countablyIncomplete` records
+  ultrafilter on `ℕ` qualifies, and `Filter.hyperfilter_isCountablyIncomplete` records
   the canonical instance required by the ADR.
-* `Filter.CountablyIncomplete.exists_forall_eventually_mem`: the content-free
+* `Filter.IsCountablyIncomplete.exists_forall_eventually_mem`: the content-free
   countable diagonalization. Given a stagewise family `A : ℕ → ∀ i, Set (X i)` that is
   eventually decreasing and eventually nonempty at every level, there is a single
   choice function `x` lying eventually in every level. In M2 language the conclusion
@@ -40,11 +40,20 @@ the ultrafilter dichotomy and nonempty fibers but **no** incompleteness, while t
 selection theorem below uses incompleteness and nonempty fibers but **no** ultrafilter
 property. Nothing here mentions `InternalSet`, quotients, or measure theory.
 
-This material is a mathlib upstream candidate but is deliberately **not** under
-`LoebMeasure/Mathlib/`: #12 records that its name and its properness convention are
-unsettled, and that directory holds only declarations whose upstream shape is decided.
-#12 asks for downstream consumers before freezing those choices; defining the API here
-is not itself a use of it, so that condition is still open.
+This material is a mathlib upstream candidate. #12 deferred its name and its properness
+convention until a genuine downstream consumer existed — defining the API is not itself
+a use of it — and C7a's internal envelope is that consumer. Both are now settled:
+
+* the name is `Filter.IsCountablyIncomplete`, matching `Filter.IsCountablyGenerated`
+  rather than the bare-adjective form it briefly carried;
+* properness stays **separate**. Neither direct consumer benefits from bundling
+  `Filter.NeBot`: C5's σ-subadditivity carries its ultrafilter independently, and C7a's
+  selection uses only the incompleteness witness. Keeping them apart also preserves the
+  hypothesis stratification this module exists to make visible.
+
+It remains outside `LoebMeasure/Mathlib/` until the upstream packaging in #12 is
+prepared; what that directory requires is a decided *shape*, which this now has, plus
+the minimal-import packaging work that has not been done.
 -/
 
 open Set
@@ -56,11 +65,11 @@ variable {ι : Type*}
 /-- A filter is *countably incomplete* if some countable family of its members has
 empty intersection. This is the exact hypothesis consumed by Loeb-measure
 diagonalization. -/
-def CountablyIncomplete (F : Filter ι) : Prop :=
+def IsCountablyIncomplete (F : Filter ι) : Prop :=
   ∃ I : ℕ → Set ι, (∀ k, I k ∈ F) ∧ ⋂ k, I k = ∅
 
 /-- The witness family of a countably incomplete filter can be taken antitone. -/
-theorem CountablyIncomplete.exists_antitone {F : Filter ι} (h : F.CountablyIncomplete) :
+theorem IsCountablyIncomplete.exists_antitone {F : Filter ι} (h : F.IsCountablyIncomplete) :
     ∃ J : ℕ → Set ι, Antitone J ∧ (∀ k, J k ∈ F) ∧ ⋂ k, J k = ∅ := by
   obtain ⟨I, hmem, hempty⟩ := h
   refine ⟨fun k ↦ ⋂ j ∈ Finset.range (k + 1), I j, fun a b hab x hx ↦
@@ -73,8 +82,8 @@ theorem CountablyIncomplete.exists_antitone {F : Filter ι} (h : F.CountablyInco
 
 /-- On a countable index type, every filter at least as fine as the cofinite filter is
 countably incomplete. In particular every nonprincipal ultrafilter on `ℕ` is. -/
-theorem countablyIncomplete_of_le_cofinite [Countable ι] {F : Filter ι}
-    (hF : F ≤ cofinite) : F.CountablyIncomplete := by
+theorem isCountablyIncomplete_of_le_cofinite [Countable ι] {F : Filter ι}
+    (hF : F ≤ cofinite) : F.IsCountablyIncomplete := by
   rcases isEmpty_or_nonempty ι with hι | hι
   · exact ⟨fun _ ↦ univ, fun _ ↦ univ_mem, by
       rw [iInter_const]; exact univ_eq_empty_iff.2 hι⟩
@@ -88,9 +97,9 @@ theorem countablyIncomplete_of_le_cofinite [Countable ι] {F : Filter ι}
 
 /-- The canonical free ultrafilter on `ℕ` is countably incomplete: the hypothesis
 required by ADR-0001 is satisfied by `Filter.hyperfilter ℕ`. -/
-theorem hyperfilter_countablyIncomplete :
-    (hyperfilter ℕ : Filter ℕ).CountablyIncomplete :=
-  countablyIncomplete_of_le_cofinite hyperfilter_le_cofinite
+theorem hyperfilter_isCountablyIncomplete :
+    (hyperfilter ℕ : Filter ℕ).IsCountablyIncomplete :=
+  isCountablyIncomplete_of_le_cofinite hyperfilter_le_cofinite
 
 section Diagonal
 
@@ -118,8 +127,8 @@ This is the content-free form of the Loeb saturation lemma: the conclusion
 `∀ᶠ i in F, x i ∈ A k i` is, in M2 language, exactly `[x] ∈ carrier (A k)`. Only the
 filter structure and the incompleteness witness are used — no ultrafilter property,
 no measure, and no quotients. -/
-theorem CountablyIncomplete.exists_forall_eventually_mem
-    (hF : F.CountablyIncomplete) [∀ i, Nonempty (X i)] {A : ℕ → ∀ i, Set (X i)}
+theorem IsCountablyIncomplete.exists_forall_eventually_mem
+    (hF : F.IsCountablyIncomplete) [∀ i, Nonempty (X i)] {A : ℕ → ∀ i, Set (X i)}
     (hdec : ∀ k, ∀ᶠ i in F, A (k + 1) i ⊆ A k i)
     (hne : ∀ k, ∀ᶠ i in F, (A k i).Nonempty) :
     ∃ x : ∀ i, X i, ∀ k, ∀ᶠ i in F, x i ∈ A k i := by
@@ -172,8 +181,8 @@ theorem CountablyIncomplete.exists_forall_eventually_mem
 decreasing family of eventually nonempty levels has a common eventual member. Stated
 separately because downstream proofs sometimes have genuinely pointwise-decreasing
 representatives. -/
-theorem CountablyIncomplete.exists_forall_eventually_mem_of_antitone
-    (hF : F.CountablyIncomplete) [∀ i, Nonempty (X i)] {A : ℕ → ∀ i, Set (X i)}
+theorem IsCountablyIncomplete.exists_forall_eventually_mem_of_antitone
+    (hF : F.IsCountablyIncomplete) [∀ i, Nonempty (X i)] {A : ℕ → ∀ i, Set (X i)}
     (hdec : ∀ i, Antitone fun k ↦ A k i) (hne : ∀ k, ∀ᶠ i in F, (A k i).Nonempty) :
     ∃ x : ∀ i, X i, ∀ k, ∀ᶠ i in F, x i ∈ A k i :=
   hF.exists_forall_eventually_mem
