@@ -123,6 +123,19 @@ hypotheses. -/
 theorem internalContent_ne_top (A : InternalSet U X) : internalContent U A ≠ ∞ :=
   ((internalContent_le_one A).trans_lt (Ne.lt_top ENNReal.one_ne_top)).ne
 
+omit [∀ i, Finite (X i)] in
+/-- **The content is monotone.** Ordinary stagewise monotonicity of the stage measures,
+transported by `Ultrafilter.ultralimit_mono`; the order on `InternalSet` unfolds to
+eventual stagewise inclusion by `le_ofFun_iff`, so no ultrafilter property is used and
+no nonemptiness or discreteness is needed. -/
+@[gcongr]
+theorem internalContent_mono {A B : InternalSet U X} (h : A ≤ B) :
+    internalContent U A ≤ internalContent U B := by
+  induction A, B using Filter.Product.inductionOn₂ with
+  | _ A' B' =>
+    rw [InternalSet.le_ofFun_iff] at h
+    exact Ultrafilter.ultralimit_mono (h.mono fun i hi ↦ measure_mono hi)
+
 /-! ### Finite additivity
 
 The first result making the content measure-like rather than merely bounded.
