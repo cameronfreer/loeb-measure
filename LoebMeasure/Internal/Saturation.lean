@@ -47,7 +47,7 @@ nonempty carriers has nonempty intersection.
 Adds nothing to the diagonal selection theorem beyond translating between carriers and
 stagewise data: no ultrafilter dichotomy is used, because `carrier_ofFun_nonempty_iff`
 supplies eventual stagewise nonemptiness directly from a nonempty carrier. -/
-theorem nonempty_iInter_carrier_of_antitone (hU : (U : Filter ι).CountablyIncomplete)
+theorem nonempty_iInter_carrier_of_antitone (hU : (U : Filter ι).IsCountablyIncomplete)
     (hX : ∀ i, Nonempty (X i)) (hanti : Antitone A)
     (hne : ∀ n, (carrier (A n)).Nonempty) :
     (⋂ n, carrier (A n)).Nonempty := by
@@ -76,7 +76,7 @@ This is the rung where the **ultrafilter dichotomy** enters, and it enters throu
 carrier faithfulness: `A n ≠ ⊥` gives `carrier (A n) ≠ ∅` only because `carrier` is
 injective, which is `carrier_injective` from I2 — whose proof is where the dichotomy
 does its work. -/
-theorem nonempty_iInter_carrier_of_ne_bot (hU : (U : Filter ι).CountablyIncomplete)
+theorem nonempty_iInter_carrier_of_ne_bot (hU : (U : Filter ι).IsCountablyIncomplete)
     (hX : ∀ i, Nonempty (X i)) (hanti : Antitone A) (hne : ∀ n, A n ≠ ⊥) :
     (⋂ n, carrier (A n)).Nonempty := by
   refine nonempty_iInter_carrier_of_antitone hU hX hanti fun n ↦ ?_
@@ -91,7 +91,7 @@ sequence is *eventually* `⊥` — not merely small. This is the exact form M3's
 sigma-subadditivity argument consumes, and it is the contrapositive of the previous
 result, adding nothing to its hypotheses. -/
 theorem eventually_eq_bot_of_antitone_iInter_carrier_eq_empty
-    (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i))
+    (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i))
     (hanti : Antitone A) (hempty : ⋂ n, carrier (A n) = ∅) :
     ∀ᶠ n in atTop, A n = ⊥ := by
   by_contra hcon
@@ -108,14 +108,14 @@ theorem eventually_eq_bot_of_antitone_iInter_carrier_eq_empty
 section Tests
 
 /-- The carrier form, applied. -/
-example (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i))
+example (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i))
     (hanti : Antitone A) (hne : ∀ n, (carrier (A n)).Nonempty) :
     (⋂ n, carrier (A n)).Nonempty :=
   nonempty_iInter_carrier_of_antitone hU hX hanti hne
 
 /-- **The form M3 consumes**: empty intersection forces eventual `⊥`, which is
 continuity at `∅` for the internal content. -/
-example (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i))
+example (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i))
     (hanti : Antitone A) (hempty : ⋂ n, carrier (A n) = ∅) :
     ∃ N, ∀ n ≥ N, A n = ⊥ :=
   (eventually_eq_bot_of_antitone_iInter_carrier_eq_empty hU hX hanti hempty).exists_forall_of_atTop
@@ -125,7 +125,7 @@ example (X : ℕ → Type) (hX : ∀ i, Nonempty (X i))
     (A : ℕ → InternalSet (Filter.hyperfilter ℕ) X) (hanti : Antitone A)
     (hne : ∀ n, A n ≠ ⊥) :
     (⋂ n, carrier (A n)).Nonempty :=
-  nonempty_iInter_carrier_of_ne_bot Filter.hyperfilter_countablyIncomplete hX hanti hne
+  nonempty_iInter_carrier_of_ne_bot Filter.hyperfilter_isCountablyIncomplete hX hanti hne
 
 end Tests
 

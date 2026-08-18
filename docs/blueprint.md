@@ -148,7 +148,7 @@ realization, never inside the alias.
 
 ## Layer D — diagonalization
 
-**Implemented**: `Filter.CountablyIncomplete` and the selection theorem in
+**Implemented**: `Filter.IsCountablyIncomplete` and the selection theorem in
 `LoebMeasure/Internal/Diagonal.lean`, and the content-free saturation consequences in
 `LoebMeasure/Internal/Saturation.lean` — including the eventual-emptiness form that is
 continuity at `∅` for the internal content. Their docstrings are the reference. The hypothesis
@@ -254,7 +254,7 @@ It is passed as an explicit argument, not an instance, to keep that visible.
 ADR-0003's accepted route: M2's saturation gives continuity at `∅` — the contents are
 eventually *equal* to zero, not merely convergent — then
 `addContent_iUnion_eq_sum_of_tendsto_zero` and
-`isSigmaSubadditive_of_addContent_iUnion_eq_tsum`. `CountablyIncomplete` enters the
+`isSigmaSubadditive_of_addContent_iUnion_eq_tsum`. `IsCountablyIncomplete` enters the
 measure layer there, as an explicit argument.
 
 The construction itself is **implemented**, in `LoebMeasure/Measure/Loeb.lean`: the last
@@ -268,7 +268,7 @@ argument occurs there. The stable user-facing declarations:
     MeasurableSpace (Ultraproduct U X)
 
 noncomputable def loebMeasure
-    (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i)) :
+    (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i)) :
     @Measure (Ultraproduct U X) (loebMeasurableSpace hX)
 
 @[simp] theorem loebMeasure_internal
@@ -314,14 +314,14 @@ Downstream working characterizations:
 
 ```lean
 theorem loebMeasurable_iff_internal_mod_null
-    (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i))
+    (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i))
     (s : Set (Ultraproduct U X)) :
     MeasurableSet[loebMeasurableSpace hX] s ↔
       ∃ A : InternalSet U X,
         loebMeasure hU hX (s ∆ A.carrier) = 0
 
 theorem exists_internal_symmDiff_lt
-    (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i))
+    (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i))
     (hs : MeasurableSet[loebMeasurableSpace hX] s) (hε : 0 < ε) :
     ∃ A : InternalSet U X,
       loebMeasure hU hX (s ∆ A.carrier) < ε
@@ -363,7 +363,7 @@ theorem BoundedInternalFunction.measurable_lift
     Measurable[loebMeasurableSpace hX] f.lift
 
 theorem integral_internalFunction
-    (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i)) :
+    (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i)) :
     ∫ x, f.lift x ∂loebMeasure hU hX =
       probabilityUltralimit U
         (fun i => ∫ x, f.fn i x ∂normalizedCounting i)

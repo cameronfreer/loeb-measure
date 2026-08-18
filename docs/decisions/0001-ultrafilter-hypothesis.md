@@ -39,29 +39,31 @@ predicate and the lemma naturally live on `Filter`, not `Ultrafilter`.
 The diagonal layer is parameterized by
 
 ```lean
-Filter.CountablyIncomplete (F : Filter ι) : Prop
+Filter.IsCountablyIncomplete (F : Filter ι) : Prop
 -- some countable family of members of F has empty intersection
 ```
 
 — option 3, refined to the `Filter` level. The content-free diagonal lemma
-(`CountablyIncomplete.exists_forall_eventually_mem`) is proved from this hypothesis
+(`IsCountablyIncomplete.exists_forall_eventually_mem`) is proved from this hypothesis
 alone plus nonempty fibers for choosing a stagewise witness or default value; **no
 ultrafilter property is consumed by the diagonalization**.
 M1 and the elementary part of M2 stay generic in a filter or ultrafilter; only the
 diagonal layer takes the predicate.
 
-Coverage of the concrete applications: `countablyIncomplete_of_le_cofinite` shows any
+Coverage of the concrete applications: `isCountablyIncomplete_of_le_cofinite` shows any
 filter refining `cofinite` on a countable index type qualifies — in particular every
-nonprincipal ultrafilter on `ℕ` — and `hyperfilter_countablyIncomplete` records the
+nonprincipal ultrafilter on `ℕ` — and `hyperfilter_isCountablyIncomplete` records the
 canonical instance.
 
 ## Consequences
 
-- **Properness is separate.** `CountablyIncomplete` does not include `Filter.NeBot`;
+- **Properness is separate.** `IsCountablyIncomplete` does not include `Filter.NeBot`;
   the bottom filter satisfies it vacuously (and its diagonal conclusion is trivial).
   This is harmless and gives the weakest operational diagonal hypothesis; properness
-  is supplied automatically by the eventual `Ultrafilter` in applications. Promotion
-  of the generic predicate should revisit its final name and properness convention.
+  is supplied automatically by the eventual `Ultrafilter` in applications. #12 revisited
+  both once C7a supplied a real consumer, and confirmed the separation: neither C5's
+  σ-subadditivity nor C7a's envelope selection benefits from bundling `NeBot`. The name
+  settled as `Filter.IsCountablyIncomplete`, matching `Filter.IsCountablyGenerated`.
 - **Where the ultrafilter genuinely enters — at M2, not the diagonal layer.** With
   nonempty fibers, `carrier(A).Nonempty ↔ ∀ᶠ i in F, (A i).Nonempty` holds for *any*
   filter. The ultrafilter dichotomy is needed to pass from the quotient-level
