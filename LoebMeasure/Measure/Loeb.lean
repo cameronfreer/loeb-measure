@@ -122,7 +122,7 @@ noncomputable def loebMeasurableSpace (hX : ∀ i, Nonempty (X i)) :
 Both hypotheses are consumed exactly once each: `hX` packages the content
 (`internalAddContent`), and `hU` supplies σ-subadditivity
 (`internalAddContent_isSigmaSubadditive`). -/
-noncomputable def loebMeasure (hU : (U : Filter ι).CountablyIncomplete)
+noncomputable def loebMeasure (hU : (U : Filter ι).IsCountablyIncomplete)
     (hX : ∀ i, Nonempty (X i)) :
     @Measure (Ultraproduct U X) (loebMeasurableSpace hX) :=
   (internalAddContent hX).measureCaratheodory isSetSemiring_carriers
@@ -134,7 +134,7 @@ The defining property, and the only one that mentions internal sets. Every reali
 internal set lies in the semiring, where `AddContent.measureCaratheodory_eq` says the
 extension agrees with the content. -/
 @[simp]
-theorem loebMeasure_internal (hU : (U : Filter ι).CountablyIncomplete)
+theorem loebMeasure_internal (hU : (U : Filter ι).IsCountablyIncomplete)
     (hX : ∀ i, Nonempty (X i)) (A : InternalSet U X) :
     loebMeasure hU hX (InternalSet.carrier A) = internalContent U A :=
   (AddContent.measureCaratheodory_eq _ isSetSemiring_carriers _
@@ -156,7 +156,7 @@ This is where the total mass of the stagewise normalized counting measures is ca
 `⊤` realizes all of the ultraproduct, and its content is the ultralimit of the constant
 `1`. Nonemptiness of the fibers is genuinely used — on empty stages the stage measures
 have total mass `0`, not `1` (ADR-0002). -/
-instance isProbabilityMeasure_loebMeasure (hU : (U : Filter ι).CountablyIncomplete)
+instance isProbabilityMeasure_loebMeasure (hU : (U : Filter ι).IsCountablyIncomplete)
     (hX : ∀ i, Nonempty (X i)) : IsProbabilityMeasure (loebMeasure hU hX) := by
   haveI : ∀ i, Nonempty (X i) := hX
   refine ⟨?_⟩
@@ -168,7 +168,7 @@ A wrapper, not a proof: the argument is the generic
 `MeasureTheory.AddContent.measureCaratheodory_isComplete`, which needs no finiteness or
 probability hypotheses. See the module docstring and ADR-0003 for why duplicating it
 here would be a mistake. -/
-instance isComplete_loebMeasure (hU : (U : Filter ι).CountablyIncomplete)
+instance isComplete_loebMeasure (hU : (U : Filter ι).IsCountablyIncomplete)
     (hX : ∀ i, Nonempty (X i)) : (loebMeasure hU hX).IsComplete :=
   (internalAddContent hX).measureCaratheodory_isComplete isSetSemiring_carriers
     (internalAddContent_isSigmaSubadditive hU hX)
@@ -177,7 +177,7 @@ instance isComplete_loebMeasure (hU : (U : Filter ι).CountablyIncomplete)
 
 section Tests
 
-variable (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i))
+variable (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i))
 
 /-- **The defining property**, by `simp`. -/
 example (A : InternalSet U X) :
@@ -213,7 +213,7 @@ example (A : InternalSet U X) : loebMeasure hU hX (InternalSet.carrier A) ≤ 1 
 
 /-- **A genuinely dependent family** of stage spaces, with the hyperfilter on `ℕ`
 supplying countable incompleteness. -/
-example (U : Ultrafilter ℕ) (hU : (U : Filter ℕ).CountablyIncomplete)
+example (U : Ultrafilter ℕ) (hU : (U : Filter ℕ).IsCountablyIncomplete)
     (A : InternalSet U fun i ↦ Fin (i + 1)) :
     loebMeasure hU (fun _ ↦ ⟨0⟩) (InternalSet.carrier A)
       = internalContent U A := by

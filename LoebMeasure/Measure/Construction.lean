@@ -30,7 +30,7 @@ theorem provides, and it is why the M2/M3 scope boundary was drawn where it was.
 ## Hypotheses
 
 Countable incompleteness enters the measure layer here for the first time, as an
-explicit argument `(hU : (U : Filter ι).CountablyIncomplete)` matching M2's convention,
+explicit argument `(hU : (U : Filter ι).IsCountablyIncomplete)` matching M2's convention,
 alongside `(hX : ∀ i, Nonempty (X i))` from the carrier transport.
 
 Note this consumes I6's saturation *consequence*, not I5's diagonal-selection API: the
@@ -71,7 +71,7 @@ private theorem le_of_carrier_subset (hX : ∀ i, Nonempty (X i)) {A B : Interna
 
 /-- **Continuity at `∅`.** A decreasing sequence in the ring with empty intersection has
 contents tending to zero — and, by saturation, they are eventually *equal* to zero. -/
-theorem internalAddContent_tendsto_zero (hU : (U : Filter ι).CountablyIncomplete)
+theorem internalAddContent_tendsto_zero (hU : (U : Filter ι).IsCountablyIncomplete)
     (hX : ∀ i, Nonempty (X i)) (hs : ∀ n, s n ∈ InternalSet.carriers U X)
     (hanti : Antitone s) (hempty : ⋂ n, s n = ∅) :
     Tendsto (fun n ↦ internalAddContent hX (s n)) atTop (𝓝 0) := by
@@ -90,7 +90,7 @@ theorem internalAddContent_tendsto_zero (hU : (U : Filter ι).CountablyIncomplet
   rw [← hA n, internalAddContent_carrier, hn, internalContent_bot]
 
 /-- Countable additivity on the ring, from continuity at `∅`. -/
-theorem internalAddContent_iUnion_eq_tsum (hU : (U : Filter ι).CountablyIncomplete)
+theorem internalAddContent_iUnion_eq_tsum (hU : (U : Filter ι).IsCountablyIncomplete)
     (hX : ∀ i, Nonempty (X i)) ⦃f : ℕ → Set (Ultraproduct U X)⦄
     (hf : ∀ i, f i ∈ InternalSet.carriers U X)
     (hUf : (⋃ i, f i) ∈ InternalSet.carriers U X) (hdisj : Pairwise (Function.onFun Disjoint f)) :
@@ -102,7 +102,7 @@ theorem internalAddContent_iUnion_eq_tsum (hU : (U : Filter ι).CountablyIncompl
 
 /-- **The internal content is σ-subadditive** — the last input the Carathéodory
 extension needs. -/
-theorem internalAddContent_isSigmaSubadditive (hU : (U : Filter ι).CountablyIncomplete)
+theorem internalAddContent_isSigmaSubadditive (hU : (U : Filter ι).IsCountablyIncomplete)
     (hX : ∀ i, Nonempty (X i)) :
     (internalAddContent (U := U) (X := X) hX).IsSigmaSubadditive :=
   isSigmaSubadditive_of_addContent_iUnion_eq_tsum InternalSet.isSetRing_carriers
@@ -114,12 +114,12 @@ section Tests
 
 /-- **The interface C6 needs**: the σ-subadditivity hypothesis of
 `AddContent.measureCaratheodory`. -/
-example (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i)) :
+example (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i)) :
     (internalAddContent (U := U) (X := X) hX).IsSigmaSubadditive :=
   internalAddContent_isSigmaSubadditive hU hX
 
 /-- Continuity at `∅`, the substance of the route. -/
-example (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i))
+example (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i))
     (hs : ∀ n, s n ∈ InternalSet.carriers U X) (hanti : Antitone s)
     (hempty : ⋂ n, s n = ∅) :
     Tendsto (fun n ↦ internalAddContent hX (s n)) atTop (𝓝 0) :=
@@ -128,7 +128,7 @@ example (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i))
 /-- **Countable additivity on the ring**, tested directly rather than only through its
 σ-subadditive consequence: it is the milestone's countable-additivity result and part of
 the public surface. -/
-example (hU : (U : Filter ι).CountablyIncomplete) (hX : ∀ i, Nonempty (X i))
+example (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i))
     (f : ℕ → Set (Ultraproduct U X)) (hf : ∀ i, f i ∈ InternalSet.carriers U X)
     (hUf : (⋃ i, f i) ∈ InternalSet.carriers U X)
     (hdisj : Pairwise (Function.onFun Disjoint f)) :
@@ -145,7 +145,7 @@ incompleteness is available rather than hypothetical. -/
 example (hX : ∀ i, Nonempty (Fin (i + 1))) :
     (internalAddContent (U := Filter.hyperfilter ℕ) (X := fun i ↦ Fin (i + 1))
       hX).IsSigmaSubadditive :=
-  internalAddContent_isSigmaSubadditive Filter.hyperfilter_countablyIncomplete hX
+  internalAddContent_isSigmaSubadditive Filter.hyperfilter_isCountablyIncomplete hX
 
 end Tests
 
