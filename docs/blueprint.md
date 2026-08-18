@@ -222,11 +222,10 @@ needs the mirror directory's `OfAddContent`, which σ-subadditivity does not.
 A `Measure/Completion.lean` is no longer a candidate — completeness is a two-line
 wrapper around the generic mirror theorem and lives beside the construction. C7a took
 `LoebMeasure/Measure/Envelope.lean`, kept separate from the approximation work because
-it mentions no outer measure and no `loebMeasure`. Remaining module candidate:
-
-```text
-LoebMeasure/Measure/Approximation.lean
-```
+it mentions no outer measure and no `loebMeasure`, and C7b took
+`LoebMeasure/Measure/Approximation.lean`. No module candidates remain outstanding; C8
+extends the approximation module, which is scoped to internal approximation rather than
+to the one-sided outer bound specifically.
 
 **Implemented**: `normalizedCounting` in `LoebMeasure/Measure/Counting.lean` (a wrapper
 around mathlib's `uniformOn univ`), and `internalContent` with its elementary values and
@@ -320,14 +319,24 @@ three units rather than one:
   and it consumes `Filter.IsCountablyIncomplete.exists_forall_eventually_mem` directly
   rather than routing through M2's saturation. Its docstring is the reference, including
   why it needs neither stage nonemptiness nor stage finiteness;
-* **C7b — internal outer approximation**: make `loebOuterMeasure` public, bridge it to
-  `loebMeasure`, and hide mathlib's raw `extend`/cover representation behind
-  `loebMeasure_eq_iInf_internal`. `inducedOuterMeasure_eq_iInf` does not apply directly,
-  because internal carriers form a *ring*, not a family closed under countable unions —
-  which is exactly what C7a repairs;
+* **C7b — internal outer approximation**, **implemented** in
+  `LoebMeasure/Measure/Approximation.lean`: the Loeb measure of an **arbitrary** set is
+  the infimum of the contents of the internal sets containing it, with an ε-form
+  producing one such superset. No measurability hypothesis, since the Loeb measure is the
+  induced outer measure on every set. `loebOuterMeasure` became public here and
+  `loebMeasure_eq_loebOuterMeasure` is the pointwise bridge, deliberately not `simp` so
+  that `loebMeasure_internal` stays the normal form. `inducedOuterMeasure_eq_iInf` proves
+  this very shape generically but is unavailable, since its hypothesis `PU` asks the
+  family to be closed under countable unions and I3 gives internal carriers only a ring.
+  C7a stands in for that missing closure, and this is where it is spent;
 * **C8 — measurable approximation**: nullity by internal covers of small content,
   `exists_internal_symmDiff_lt`, an internal representative modulo null, and
   `loebMeasurable_iff_internal_mod_null`, whose reverse implication uses completeness.
+  The difficulty is uneven. For *measurable* `s`, `exists_internal_symmDiff_lt` is a
+  short corollary of C7b: `exists_internal_superset_content_lt` gives an internal
+  `A ⊇ s`, mathlib's `measure_sdiff_lt_of_lt_add` converts the content bound into
+  `loebMeasure (A.carrier \ s) < ε`, and `symmDiff_of_le` identifies that difference with
+  `s ∆ A.carrier`. The *exact* internal-mod-null characterization is the substantive part.
 
 Downstream working characterizations, the C8 targets:
 

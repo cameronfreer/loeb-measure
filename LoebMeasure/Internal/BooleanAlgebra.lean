@@ -165,6 +165,20 @@ theorem le_ofFun_iff (A B : (i : ι) → Set (X i)) :
   simp only [sup_ofFun, Filter.Product.ofFun_eq_ofFun]
   exact eventually_congr (Eventually.of_forall fun i ↦ Set.union_eq_right)
 
+/-- **Carriers are monotone.** Ordinary filter laws only.
+
+Worth stating separately rather than deriving from `carrier_sup`: that route would go
+through `sup_eq_right` and so inherit the **ultrafilter dichotomy**, which monotonicity
+does not need. Both eventual statements are simply intersected. -/
+@[gcongr]
+theorem carrier_mono {A B : InternalSet U X} (h : A ≤ B) : carrier A ⊆ carrier B := by
+  induction A, B using Filter.Product.inductionOn₂ with
+  | _ A' B' =>
+    rw [le_ofFun_iff] at h
+    intro x hx
+    induction x using Filter.Product.inductionOn with
+    | _ x' => exact ((mem_carrier_ofFun x' A').1 hx).mp (h.mono fun _ hsub hmem ↦ hsub hmem)
+
 /-! ### Carriers of the operations
 
 This is where the ultrafilter structure enters, and only here. Each statement records
@@ -333,6 +347,17 @@ section Tests
 the operations alone does not establish this — an earlier revision defined every
 operation and had no instance — so it is tested directly. -/
 example : BooleanAlgebra (InternalSet U X) := inferInstance
+
+/-- `carrier_mono` is registered with `gcongr`, so carrier inclusions close without
+naming it. -/
+example {A B : InternalSet U X} (h : A ≤ B) : carrier A ⊆ carrier B := by
+  gcongr
+
+/-- The same in a compound goal, which is what the attribute is actually for: monotone
+positions inside a larger set expression are discharged together. -/
+example {A B C : InternalSet U X} (h : A ≤ B) :
+    carrier A ∩ carrier C ⊆ carrier B ∩ carrier C := by
+  gcongr
 
 /-- And the instance supports Boolean reasoning, not merely synthesis. -/
 example (A B : InternalSet U X) : (A ⊓ B)ᶜ = Aᶜ ⊔ Bᶜ := compl_inf
