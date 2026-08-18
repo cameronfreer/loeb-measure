@@ -165,6 +165,20 @@ theorem le_ofFun_iff (A B : (i : ι) → Set (X i)) :
   simp only [sup_ofFun, Filter.Product.ofFun_eq_ofFun]
   exact eventually_congr (Eventually.of_forall fun i ↦ Set.union_eq_right)
 
+/-- **Carriers are monotone.** Ordinary filter laws only.
+
+Worth stating separately rather than deriving from `carrier_sup`: that route would go
+through `sup_eq_right` and so inherit the **ultrafilter dichotomy**, which monotonicity
+does not need. Both eventual statements are simply intersected. -/
+@[gcongr]
+theorem carrier_mono {A B : InternalSet U X} (h : A ≤ B) : carrier A ⊆ carrier B := by
+  induction A, B using Filter.Product.inductionOn₂ with
+  | _ A' B' =>
+    rw [le_ofFun_iff] at h
+    intro x hx
+    induction x using Filter.Product.inductionOn with
+    | _ x' => exact ((mem_carrier_ofFun x' A').1 hx).mp (h.mono fun _ hsub hmem ↦ hsub hmem)
+
 /-! ### Carriers of the operations
 
 This is where the ultrafilter structure enters, and only here. Each statement records

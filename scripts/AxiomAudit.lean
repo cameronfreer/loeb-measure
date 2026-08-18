@@ -134,6 +134,7 @@ assert_standard_axioms Loeb.InternalSet.carrier_symmDiff
 assert_standard_axioms Loeb.InternalSet.carrier_sup
 assert_standard_axioms Loeb.InternalSet.carrier_compl
 assert_standard_axioms Loeb.InternalSet.carrier_sdiff
+assert_standard_axioms Loeb.InternalSet.carrier_mono
 assert_standard_axioms Loeb.InternalSet.carriers
 assert_standard_axioms Loeb.InternalSet.isSetAlgebra_carriers
 assert_standard_axioms Loeb.InternalSet.isSetRing_carriers
@@ -173,6 +174,7 @@ assert_standard_axioms Loeb.internalContent_top
 assert_standard_axioms Loeb.internalContent_le_one
 assert_standard_axioms Loeb.internalContent_ne_top
 assert_standard_axioms Loeb.internalContent_mono
+assert_standard_axioms Loeb.internalContent_sup_le
 assert_standard_axioms Loeb.internalContent_sup_of_disjoint
 
 -- The internal envelope
@@ -196,6 +198,12 @@ assert_standard_axioms Loeb.loebMeasure_internal
 assert_standard_axioms Loeb.measurableSet_internal
 assert_standard_axioms Loeb.isProbabilityMeasure_loebMeasure
 assert_standard_axioms Loeb.isComplete_loebMeasure
+assert_standard_axioms Loeb.loebOuterMeasure
+assert_standard_axioms Loeb.loebMeasure_eq_loebOuterMeasure
+
+-- Internal outer approximation
+assert_standard_axioms Loeb.loebMeasure_eq_iInf_internal
+assert_standard_axioms Loeb.exists_internal_superset_content_lt
 
 -- Normalized counting measure
 assert_standard_axioms Loeb.normalizedCounting

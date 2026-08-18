@@ -136,6 +136,20 @@ theorem internalContent_mono {A B : InternalSet U X} (h : A ≤ B) :
     rw [InternalSet.le_ofFun_iff] at h
     exact Ultrafilter.ultralimit_mono (h.mono fun i hi ↦ measure_mono hi)
 
+omit [∀ i, Finite (X i)] in
+/-- **The content is subadditive on joins.** Unlike `internalContent_sup_of_disjoint`
+this is an *inequality*, and correspondingly cheaper: it is stagewise
+`measure_union_le`, which needs no measurability of the stagewise sets and so no
+discreteness — the reason it sits here among the elementary values rather than in the
+additivity section below. -/
+theorem internalContent_sup_le (A B : InternalSet U X) :
+    internalContent U (A ⊔ B) ≤ internalContent U A + internalContent U B := by
+  induction A, B using Filter.Product.inductionOn₂ with
+  | _ A' B' =>
+    rw [InternalSet.sup_ofFun, internalContent_ofFun, internalContent_ofFun,
+      internalContent_ofFun, ← ultralimit_add]
+    exact Ultrafilter.ultralimit_mono' fun i ↦ measure_union_le _ _
+
 /-! ### Finite additivity
 
 The first result making the content measure-like rather than merely bounded.

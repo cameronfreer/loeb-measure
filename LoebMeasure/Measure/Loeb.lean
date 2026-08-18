@@ -89,14 +89,17 @@ private theorem isSetSemiring_carriers :
     IsSetSemiring (InternalSet.carriers U X) :=
   InternalSet.isSetRing_carriers.isSetSemiring
 
-/-- The outer measure induced by the internal content.
+/-- **The Loeb outer measure**: the outer measure induced by the internal content on the
+realized internal sets.
 
-`private`: nothing outside this module names it yet, and its only role here is to let
-`loebMeasurableSpace` be stated without repeating the induced-outer-measure expression.
-C7 will unfold this outer measure's infimum over countable covers by internal sets; when
-it does, give it a public name at that point rather than reaching through
-`loebMeasurableSpace`. -/
-private noncomputable def loebOuterMeasure (hX : ∀ i, Nonempty (X i)) :
+Public as of C7b, which is the consumer this definition's earlier `private` note
+anticipated: C7b unfolds the infimum over countable internal covers and, using C7a's
+envelope, rewrites it as an infimum over *single* internal supersets. Reaching that
+representation through `loebMeasurableSpace` instead would be an abstraction leak.
+
+Takes `hX` and not `hU`, for the same reason `loebMeasurableSpace` does: an induced outer
+measure exists whether or not the content is σ-subadditive. -/
+noncomputable def loebOuterMeasure (hX : ∀ i, Nonempty (X i)) :
     OuterMeasure (Ultraproduct U X) :=
   inducedOuterMeasure (fun s (_ : s ∈ InternalSet.carriers U X) ↦ internalAddContent hX s)
     isSetSemiring_carriers.empty_mem addContent_empty
@@ -127,6 +130,18 @@ noncomputable def loebMeasure (hU : (U : Filter ι).IsCountablyIncomplete)
     @Measure (Ultraproduct U X) (loebMeasurableSpace hX) :=
   (internalAddContent hX).measureCaratheodory isSetSemiring_carriers
     (internalAddContent_isSigmaSubadditive hU hX)
+
+/-- **The Loeb measure agrees with the Loeb outer measure on every set** — including
+non-measurable ones, since `measureCaratheodory` is the induced outer measure verbatim
+and only its σ-algebra is cut down.
+
+Deliberately **not** `@[simp]`: `loebMeasure_internal` is the preferred normal form, and
+rewriting every `loebMeasure` into an outer measure would defeat it. This is the door
+into the cover representation, opened by hand where C7b needs it. -/
+theorem loebMeasure_eq_loebOuterMeasure (hU : (U : Filter ι).IsCountablyIncomplete)
+    (hX : ∀ i, Nonempty (X i)) (s : Set (Ultraproduct U X)) :
+    loebMeasure hU hX s = loebOuterMeasure hX s :=
+  rfl
 
 /-- **The Loeb measure extends the internal content.**
 
