@@ -205,6 +205,13 @@ assert_standard_axioms Loeb.loebMeasure_eq_loebOuterMeasure
 assert_standard_axioms Loeb.loebMeasure_eq_iInf_internal
 assert_standard_axioms Loeb.exists_internal_superset_content_lt
 
+-- Measurable approximation and the internal-mod-null characterization
+assert_standard_axioms Loeb.loebMeasure_eq_zero_iff
+assert_standard_axioms Loeb.exists_internal_symmDiff_lt
+assert_standard_axioms Loeb.exists_internal_subset_lt_content_add
+assert_standard_axioms Loeb.exists_internal_symmDiff_eq_zero
+assert_standard_axioms Loeb.loebMeasurable_iff_internal_mod_null
+
 -- Normalized counting measure
 assert_standard_axioms Loeb.normalizedCounting
 assert_standard_axioms Loeb.normalizedCounting_apply
