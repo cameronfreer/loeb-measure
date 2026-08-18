@@ -46,7 +46,7 @@ outer measure rather than merely to bound one.
 order-theoretic statement about representatives of an increasing sequence.
 
 The countable incompleteness is consumed **directly**, through
-`Filter.CountablyIncomplete.exists_forall_eventually_mem`. M2's saturation results are
+`Filter.IsCountablyIncomplete.exists_forall_eventually_mem`. M2's saturation results are
 not used, and cannot be: this module does not import `Internal/Saturation.lean`. Those
 results are about descending internal sets with empty intersection, whereas this is an
 ascending selection, so routing through them would be a detour.
@@ -159,7 +159,7 @@ usable to *compute* an outer measure rather than merely to bound one.
 
 Takes `hU` and nothing else — in particular no stage nonemptiness, since the selection
 chooses levels in `ℕ` rather than points of the stages. -/
-theorem exists_internal_envelope (hU : (U : Filter ι).CountablyIncomplete)
+theorem exists_internal_envelope (hU : (U : Filter ι).IsCountablyIncomplete)
     (A : ℕ → InternalSet U X) :
     ∃ B : InternalSet U X, (∀ n, A n ≤ B) ∧
       internalContent U B = ⨆ n, internalContent U (partialSups A n) := by
@@ -196,7 +196,7 @@ theorem exists_internal_envelope (hU : (U : Filter ι).CountablyIncomplete)
 sequence itself, so the envelope's content is the supremum of the sequence's own
 contents. Stated as a corollary rather than as the primary form: C7b's covers are
 arbitrary. -/
-theorem exists_internal_envelope_of_monotone (hU : (U : Filter ι).CountablyIncomplete)
+theorem exists_internal_envelope_of_monotone (hU : (U : Filter ι).IsCountablyIncomplete)
     {A : ℕ → InternalSet U X} (hA : Monotone A) :
     ∃ B : InternalSet U X, (∀ n, A n ≤ B) ∧
       internalContent U B = ⨆ n, internalContent U (A n) := by
@@ -208,33 +208,33 @@ theorem exists_internal_envelope_of_monotone (hU : (U : Filter ι).CountablyInco
 section Tests
 
 /-- **The envelope contains every term**, which is the internality half. -/
-example (hU : (U : Filter ι).CountablyIncomplete) (A : ℕ → InternalSet U X) :
+example (hU : (U : Filter ι).IsCountablyIncomplete) (A : ℕ → InternalSet U X) :
     ∃ B : InternalSet U X, ∀ n, A n ≤ B :=
   let ⟨B, hle, _⟩ := exists_internal_envelope hU A; ⟨B, hle⟩
 
 /-- **The content is preserved exactly**, not merely bounded — the half the diagonal
 selection buys, and the reason `⊤` is not an acceptable envelope. -/
-example (hU : (U : Filter ι).CountablyIncomplete) (A : ℕ → InternalSet U X) :
+example (hU : (U : Filter ι).IsCountablyIncomplete) (A : ℕ → InternalSet U X) :
     ∃ B : InternalSet U X,
       internalContent U B = ⨆ n, internalContent U (partialSups A n) :=
   let ⟨B, _, hval⟩ := exists_internal_envelope hU A; ⟨B, hval⟩
 
 /-- **No stage nonemptiness is needed**: the statement applies to a family with an empty
 stage, where the stage measures have total mass `0`. -/
-example (U : Ultrafilter ℕ) (hU : (U : Filter ℕ).CountablyIncomplete)
+example (U : Ultrafilter ℕ) (hU : (U : Filter ℕ).IsCountablyIncomplete)
     (A : ℕ → InternalSet U fun _ : ℕ ↦ (Empty : Type)) :
     ∃ B, ∀ n, A n ≤ B :=
   let ⟨B, hle, _⟩ := exists_internal_envelope hU A; ⟨B, hle⟩
 
 /-- **No stage finiteness is needed** either: the stages here are infinite. -/
-example (U : Ultrafilter ℕ) (hU : (U : Filter ℕ).CountablyIncomplete)
+example (U : Ultrafilter ℕ) (hU : (U : Filter ℕ).IsCountablyIncomplete)
     (A : ℕ → InternalSet U fun _ : ℕ ↦ ℕ) :
     ∃ B : InternalSet U fun _ : ℕ ↦ ℕ, (∀ n, A n ≤ B) ∧
       internalContent U B = ⨆ n, internalContent U (partialSups A n) :=
   exists_internal_envelope hU A
 
 /-- **A genuinely dependent family** of finite stages, the setting M3 actually uses. -/
-example (U : Ultrafilter ℕ) (hU : (U : Filter ℕ).CountablyIncomplete)
+example (U : Ultrafilter ℕ) (hU : (U : Filter ℕ).IsCountablyIncomplete)
     (A : ℕ → InternalSet U fun i ↦ Fin (i + 1)) :
     ∃ B : InternalSet U fun i ↦ Fin (i + 1), (∀ n, A n ≤ B) ∧
       internalContent U B = ⨆ n, internalContent U (partialSups A n) :=
@@ -245,7 +245,7 @@ example (A : ℕ → InternalSet (hyperfilter ℕ) fun i ↦ Fin (i + 1)) (hA : 
     ∃ B : InternalSet (hyperfilter ℕ) fun i ↦ Fin (i + 1), (∀ n, A n ≤ B) ∧
       internalContent (hyperfilter ℕ) B
         = ⨆ n, internalContent (hyperfilter ℕ) (A n) :=
-  exists_internal_envelope_of_monotone Filter.hyperfilter_countablyIncomplete hA
+  exists_internal_envelope_of_monotone Filter.hyperfilter_isCountablyIncomplete hA
 
 end Tests
 

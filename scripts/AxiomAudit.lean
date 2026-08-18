@@ -172,7 +172,12 @@ assert_standard_axioms Loeb.internalContent_bot
 assert_standard_axioms Loeb.internalContent_top
 assert_standard_axioms Loeb.internalContent_le_one
 assert_standard_axioms Loeb.internalContent_ne_top
+assert_standard_axioms Loeb.internalContent_mono
 assert_standard_axioms Loeb.internalContent_sup_of_disjoint
+
+-- The internal envelope
+assert_standard_axioms Loeb.exists_internal_envelope
+assert_standard_axioms Loeb.exists_internal_envelope_of_monotone
 
 -- The content packaged as an AddContent
 assert_standard_axioms Loeb.internalAddContent

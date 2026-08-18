@@ -220,8 +220,9 @@ planned: that module's docstring scopes it to σ-subadditivity, and the construc
 needs the mirror directory's `OfAddContent`, which σ-subadditivity does not.
 
 A `Measure/Completion.lean` is no longer a candidate — completeness is a two-line
-wrapper around the generic mirror theorem and lives beside the construction. Remaining
-module candidate:
+wrapper around the generic mirror theorem and lives beside the construction. C7a took
+`LoebMeasure/Measure/Envelope.lean`, kept separate from the approximation work because
+it mentions no outer measure and no `loebMeasure`. Remaining module candidate:
 
 ```text
 LoebMeasure/Measure/Approximation.lean
@@ -308,9 +309,27 @@ probability hypotheses — so the Loeb instance *wraps* that theorem rather than
 reproducing its argument (ADR-0003).
 
 The characterizations below are the genuinely substantive part: they use finite total
-mass and the Layer D diagonal lemma, not just the construction.
+mass and the Layer D diagonal lemma, not just the construction. They are reached in
+three units rather than one:
 
-Downstream working characterizations:
+* **C7a — the internal envelope**, **implemented** in `LoebMeasure/Measure/Envelope.lean`:
+  Elek–Szegedy Lemma 2.4, that an arbitrary sequence of internal sets has a single
+  internal superset whose content *equals* the supremum of the contents of the finite
+  partial unions. The equality is the point; a mere upper bound would be satisfied by
+  `⊤`. This is the unit that collapses a countable internal cover to one internal set,
+  and it consumes `Filter.IsCountablyIncomplete.exists_forall_eventually_mem` directly
+  rather than routing through M2's saturation. Its docstring is the reference, including
+  why it needs neither stage nonemptiness nor stage finiteness;
+* **C7b — internal outer approximation**: make `loebOuterMeasure` public, bridge it to
+  `loebMeasure`, and hide mathlib's raw `extend`/cover representation behind
+  `loebMeasure_eq_iInf_internal`. `inducedOuterMeasure_eq_iInf` does not apply directly,
+  because internal carriers form a *ring*, not a family closed under countable unions —
+  which is exactly what C7a repairs;
+* **C8 — measurable approximation**: nullity by internal covers of small content,
+  `exists_internal_symmDiff_lt`, an internal representative modulo null, and
+  `loebMeasurable_iff_internal_mod_null`, whose reverse implication uses completeness.
+
+Downstream working characterizations, the C8 targets:
 
 ```lean
 theorem loebMeasurable_iff_internal_mod_null
