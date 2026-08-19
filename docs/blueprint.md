@@ -329,16 +329,15 @@ three units rather than one:
   this very shape generically but is unavailable, since its hypothesis `PU` asks the
   family to be closed under countable unions and I3 gives internal carriers only a ring.
   C7a stands in for that missing closure, and this is where it is spent;
-* **C8 — measurable approximation**: nullity by internal covers of small content,
-  `exists_internal_symmDiff_lt`, an internal representative modulo null, and
-  `loebMeasurable_iff_internal_mod_null`, whose reverse implication uses completeness.
-  The difficulty is uneven. For *measurable* `s`, `exists_internal_symmDiff_lt` is a
-  short corollary of C7b: `exists_internal_superset_content_lt` gives an internal
-  `A ⊇ s`, mathlib's `measure_sdiff_lt_of_lt_add` converts the content bound into
-  `loebMeasure (A.carrier \ s) < ε`, and `symmDiff_of_le` identifies that difference with
-  `s ∆ A.carrier`. The *exact* internal-mod-null characterization is the substantive part.
+* **C8 — measurable approximation**, **implemented** in the same module: nullity by
+  internal covers of small content, `exists_internal_symmDiff_lt`, an internal
+  representative modulo null, and `loebMeasurable_iff_internal_mod_null`. The difficulty
+  is uneven: the first two are short, while `exists_internal_symmDiff_eq_zero` is the
+  real work and is where **C7a is spent a second time**, in the increasing direction.
+  The reverse implication of the characterization is the only theorem in the library
+  whose proof consumes completeness.
 
-Downstream working characterizations, the C8 targets:
+The characterizations, as implemented:
 
 ```lean
 theorem loebMeasurable_iff_internal_mod_null
@@ -351,13 +350,20 @@ theorem loebMeasurable_iff_internal_mod_null
 theorem exists_internal_symmDiff_lt
     (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i))
     (hs : MeasurableSet[loebMeasurableSpace hX] s) (hε : 0 < ε) :
-    ∃ A : InternalSet U X,
+    ∃ A : InternalSet U X, s ⊆ A.carrier ∧
       loebMeasure hU hX (s ∆ A.carrier) < ε
 ```
 
+`exists_internal_symmDiff_lt` also returns `s ⊆ A.carrier`, which its proof produces for
+free and which callers wanting a one-sided approximation would otherwise re-derive.
+
 Both carry `hU` even though the σ-algebra does not: the approximation is a statement
 about the *measure*, and the increasing-envelope diagonal argument is where saturation
-is consumed. The exact symmetric-difference notation must follow pinned mathlib.
+is consumed.
+
+Measurability is what makes the two-sided estimate available at all:
+`exists_internal_subset_lt_content_add` complements C7b's outer approximation of `sᶜ`,
+using the Boolean algebra on internal sets and total mass `1`.
 
 ## Layer B — bounded internal functions
 
