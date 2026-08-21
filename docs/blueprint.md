@@ -365,6 +365,35 @@ Measurability is what makes the two-sided estimate available at all:
 `exists_internal_subset_lt_content_add` complements C7b's outer approximation of `sᶜ`,
 using the Boolean algebra on internal sets and total mass `1`.
 
+### Atomlessness
+
+**C9, implemented** in `LoebMeasure/Measure/Atomless.lean`, and cheaper than expected: it
+uses none of C7 or C8. A singleton of the ultraproduct is *already* the carrier of an
+internal set, since eventual stagewise equality is equality in the ultraproduct
+(`InternalSet.carrier_ofFun_singleton`, which needs no hypotheses at all). So
+`loebMeasure_internal` computes a point's measure directly:
+
+```lean
+theorem loebMeasure_singleton
+    (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i))
+    (x : Ultraproduct U X) :
+    loebMeasure hU hX {x} = U.ultralimit fun i ↦ ((Nat.card (X i) : ℝ≥0∞))⁻¹
+```
+
+The measure is **not** atomless in general, and that is not a technicality: on
+subsingleton stages the ultraproduct is a point of mass `1`, recorded as the compiled
+`loebMeasure_singleton_eq_one_of_subsingleton`. Atomlessness takes `StagesUnbounded U X`,
+that every `n` is eventually a lower bound on the stage cardinalities — phrased that way
+rather than as a vanishing ultralimit because it is what applications can check.
+
+`nullSingletonClass_loebMeasure` is a **theorem, not an instance**: `StagesUnbounded U X`
+does not appear in `loebMeasure hU hX`, so typeclass inference cannot recover it, unlike
+`hU` and `hX` which do appear. Callers introduce it with `haveI`.
+
+The **range** of the measure — that internal sets of positive content split, and the
+Lyapunov statement that the range is an interval — is about the measure as a whole rather
+than about points, is harder, and is not part of M3.
+
 ## Layer B — bounded internal functions
 
 Module candidates:

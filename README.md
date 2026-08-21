@@ -19,7 +19,8 @@ applications are still in progress.
 | Layer | Available now | Next boundary |
 | --- | --- | --- |
 | Dependent ultraproducts | Representatives and eliminators; coordinatewise maps; binary and finite-power equivalences; reindexing and permutations | — |
-| Internal sets | Faithful carriers; Boolean algebra and the realized set ring; internal maps, preimages, and relations; countable saturation | Internal content and Loeb measure |
+| Internal sets | Faithful carriers; Boolean algebra and the realized set ring; internal maps, preimages, and relations; countable saturation | — |
+| Loeb measure | Internal content on ultraproducts of finite counting spaces; the Carathéodory extension as a complete probability measure agreeing with the content on internal sets; internal envelopes; outer approximation and the internal-modulo-null characterization; atomlessness under growing stage cardinalities | Bounded internal integration |
 
 The [roadmap](ROADMAP.md) describes the capability sequence; GitHub milestones and
 issues are the live development record.

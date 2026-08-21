@@ -125,6 +125,7 @@ assert_standard_axioms Loeb.InternalSet.carrier
 assert_standard_axioms Loeb.InternalSet.mem_carrier_ofFun
 assert_standard_axioms Loeb.InternalSet.carrier_ofFun_nonempty_iff
 assert_standard_axioms Loeb.InternalSet.carrier_injective
+assert_standard_axioms Loeb.InternalSet.carrier_ofFun_singleton
 assert_standard_axioms Loeb.InternalSet.instBooleanAlgebra
 assert_standard_axioms Loeb.InternalSet.le_ofFun_iff
 assert_standard_axioms Loeb.InternalSet.carrier_bot
@@ -211,6 +212,14 @@ assert_standard_axioms Loeb.exists_internal_symmDiff_lt
 assert_standard_axioms Loeb.exists_internal_subset_lt_content_add
 assert_standard_axioms Loeb.exists_internal_symmDiff_eq_zero
 assert_standard_axioms Loeb.loebMeasurable_iff_internal_mod_null
+
+-- Points and atomlessness
+assert_standard_axioms Loeb.normalizedCounting_singleton
+assert_standard_axioms Loeb.loebMeasure_singleton
+assert_standard_axioms Loeb.StagesUnbounded
+assert_standard_axioms Loeb.StagesUnbounded.ultralimit_inv_card_eq_zero
+assert_standard_axioms Loeb.nullSingletonClass_loebMeasure
+assert_standard_axioms Loeb.loebMeasure_singleton_eq_one_of_subsingleton
 
 -- Normalized counting measure
 assert_standard_axioms Loeb.normalizedCounting
