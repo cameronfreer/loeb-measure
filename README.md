@@ -13,7 +13,10 @@ universal star map, automatic transfer, or hyperreal calculus.
 
 ## Status
 
-This project is under active development. The Loeb measure construction and its
+This project is under active development. The Loeb measure construction is available:
+ultraproducts of finite counting spaces carry a complete, atomless Loeb probability
+measure, with the internal-modulo-null characterization. Bounded internal integration,
+the graded structure and its Fubini theorem, and the exchangeability and graph-limit
 applications are still in progress.
 
 | Layer | Available now | Next boundary |

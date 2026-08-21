@@ -367,11 +367,13 @@ using the Boolean algebra on internal sets and total mass `1`.
 
 ### Atomlessness
 
-**C9, implemented** in `LoebMeasure/Measure/Atomless.lean`, and cheaper than expected: it
-uses none of C7 or C8. A singleton of the ultraproduct is *already* the carrier of an
+**C9, implemented** in `LoebMeasure/Measure/Atomless.lean`. Three results of increasing
+strength, and the distinction between them matters.
+
+**Points are cheap.** A singleton of the ultraproduct is *already* the carrier of an
 internal set, since eventual stagewise equality is equality in the ultraproduct
 (`InternalSet.carrier_ofFun_singleton`, which needs no hypotheses at all). So
-`loebMeasure_internal` computes a point's measure directly:
+`loebMeasure_internal` computes a point's measure directly, using none of C7 or C8:
 
 ```lean
 theorem loebMeasure_singleton
@@ -380,19 +382,35 @@ theorem loebMeasure_singleton
     loebMeasure hU hX {x} = U.ultralimit fun i ↦ ((Nat.card (X i) : ℝ≥0∞))⁻¹
 ```
 
-The measure is **not** atomless in general, and that is not a technicality: on
-subsingleton stages the ultraproduct is a point of mass `1`, recorded as the compiled
-`loebMeasure_singleton_eq_one_of_subsingleton`. Atomlessness takes `StagesUnbounded U X`,
-that every `n` is eventually a lower bound on the stage cardinalities — phrased that way
-rather than as a vanishing ultralimit because it is what applications can check.
+**Null singletons are not atomlessness.** Mathlib's own note records that its planned
+`NoAtoms` — every measurable set of positive measure has a measurable subset of strictly
+smaller positive measure — implies `NullSingletonClass` but not conversely; the
+countable–cocountable probability measure is the standard separating example. M3 promised
+atomlessness, so `exists_measurableSet_subset_measure_lt` is the milestone result and
+`nullSingletonClass_loebMeasure` is the weaker companion.
 
-`nullSingletonClass_loebMeasure` is a **theorem, not an instance**: `StagesUnbounded U X`
-does not appear in `loebMeasure hU hX`, so typeclass inference cannot recover it, unlike
-`hU` and `hX` which do appear. Callers introduce it with `haveI`.
+**Splitting is what costs.** `exists_internal_le_content_eq_half` gives every internal
+set an internal half: stagewise subsets of `⌊n / 2⌋` points, where the floor is harmless
+because `2⌊n/2⌋ ≤ n ≤ 2⌊n/2⌋ + 1` differs by one point of the stage, worth
+`(Nat.card (X i))⁻¹`. Atomlessness then combines this with C8 — a measurable set of
+positive measure agrees a.e. with an internal set, whose half meets it in a set of half
+the measure.
 
-The **range** of the measure — that internal sets of positive content split, and the
-Lyapunov statement that the range is an interval — is about the measure as a whole rather
-than about points, is harder, and is not part of M3.
+The **growth hypothesis is not bookkeeping**: on subsingleton stages the ultraproduct is
+a point of mass `1`, an atom, recorded as the compiled
+`loebMeasure_singleton_eq_one_of_subsingleton`. `StagesUnbounded U X` asks that every `n`
+be eventually a lower bound on the stage cardinalities, phrased that way rather than as a
+vanishing ultralimit because it is what applications can check. Only the *sufficient*
+direction is proved; the subsingleton theorem is a counterexample to dropping the
+hypothesis, not a converse.
+
+These are **theorems, not instances**: `StagesUnbounded U X` does not appear in
+`loebMeasure hU hX`, so typeclass inference cannot recover it, unlike `hU` and `hX` which
+do appear. Callers introduce the conclusion with `haveI`.
+
+The full **Lyapunov** statement — that the range of the measure is all of `[0, 1]`, not
+merely that it contains a strictly intermediate value — needs iterating the split and a
+limit argument, and is not part of M3.
 
 ## Layer B — bounded internal functions
 

@@ -83,6 +83,20 @@ theorem normalizedCounting_le_one (s : Set X) : normalizedCounting X s ≤ 1 := 
   rw [normalizedCounting_eq_uniformOn]
   exact prob_le_one
 
+/-- The value formula in `Nat.card` form, which is what the ultraproduct layer wants:
+the stage spaces carry `[Finite]`, not `[Fintype]`, so a `Fintype.card` statement forces
+a `Fintype.ofFinite` at every call site. -/
+theorem normalizedCounting_apply' [Finite X] [MeasurableSingletonClass X] (s : Set X) :
+    normalizedCounting X s = (s.ncard : ℝ≥0∞) / (Nat.card X : ℝ≥0∞) := by
+  classical
+  haveI := Fintype.ofFinite X
+  rw [normalizedCounting_apply, Nat.card_eq_fintype_card]
+
+/-- The measure of a point: one over the cardinality. -/
+theorem normalizedCounting_singleton [Finite X] [MeasurableSingletonClass X] (a : X) :
+    normalizedCounting X ({a} : Set X) = ((Nat.card X : ℝ≥0∞))⁻¹ := by
+  rw [normalizedCounting_apply', Set.ncard_singleton, Nat.cast_one, one_div]
+
 /-- The normalized-average form, as a `Finset` sum over the whole type — the shape the
 stagewise content computations use. -/
 theorem normalizedCounting_apply_eq_sum [Fintype X] [MeasurableSingletonClass X]
