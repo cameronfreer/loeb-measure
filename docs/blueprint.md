@@ -365,15 +365,16 @@ Measurability is what makes the two-sided estimate available at all:
 `exists_internal_subset_lt_content_add` complements C7b's outer approximation of `sᶜ`,
 using the Boolean algebra on internal sets and total mass `1`.
 
-### Atomlessness
+### Points, and atomlessness
 
-**C9, implemented** in `LoebMeasure/Measure/Atomless.lean`. Three results of increasing
-strength, and the distinction between them matters.
+**C9, implemented**, in two modules whose separation is mathematical rather than
+organizational.
 
-**Points are cheap.** A singleton of the ultraproduct is *already* the carrier of an
-internal set, since eventual stagewise equality is equality in the ultraproduct
-(`InternalSet.carrier_ofFun_singleton`, which needs no hypotheses at all). So
-`loebMeasure_internal` computes a point's measure directly, using none of C7 or C8:
+`LoebMeasure/Measure/Points.lean` has the **measure of a point**. A singleton of the
+ultraproduct is *already* the carrier of an internal set — eventual stagewise equality is
+equality in the ultraproduct — so the computation factors one step per layer,
+`InternalSet.singleton → internalContent_singleton → loebMeasure_singleton`, using none of
+C7 or C8:
 
 ```lean
 theorem loebMeasure_singleton
@@ -382,31 +383,41 @@ theorem loebMeasure_singleton
     loebMeasure hU hX {x} = U.ultralimit fun i ↦ ((Nat.card (X i) : ℝ≥0∞))⁻¹
 ```
 
-**Null singletons are not atomlessness.** Mathlib's own note records that its planned
-`NoAtoms` — every measurable set of positive measure has a measurable subset of strictly
-smaller positive measure — implies `NullSingletonClass` but not conversely; the
-countable–cocountable probability measure is the standard separating example. M3 promised
-atomlessness, so `exists_measurableSet_subset_measure_lt` is the milestone result and
-`nullSingletonClass_loebMeasure` is the weaker companion.
+`LoebMeasure/Measure/Atomless.lean` has **atomlessness**, which is what M3 promised:
 
-**Splitting is what costs.** `exists_internal_le_content_eq_half` gives every internal
-set an internal half: stagewise subsets of `⌊n / 2⌋` points, where the floor is harmless
-because `2⌊n/2⌋ ≤ n ≤ 2⌊n/2⌋ + 1` differs by one point of the stage, worth
-`(Nat.card (X i))⁻¹`. Atomlessness then combines this with C8 — a measurable set of
-positive measure agrees a.e. with an internal set, whose half meets it in a set of half
-the measure.
+```lean
+theorem exists_measurableSet_subset_measure_lt (hU) (hX)
+    (hcard : Tendsto (fun i ↦ Nat.card (X i)) (U : Filter ι) atTop)
+    (hs : MeasurableSet[loebMeasurableSpace hX] s) (hpos : 0 < loebMeasure hU hX s) :
+    ∃ t ⊆ s, MeasurableSet[loebMeasurableSpace hX] t ∧
+      0 < loebMeasure hU hX t ∧ loebMeasure hU hX t < loebMeasure hU hX s
+```
 
-The **growth hypothesis is not bookkeeping**: on subsingleton stages the ultraproduct is
-a point of mass `1`, an atom, recorded as the compiled
-`loebMeasure_singleton_eq_one_of_subsingleton`. `StagesUnbounded U X` asks that every `n`
-be eventually a lower bound on the stage cardinalities, phrased that way rather than as a
-vanishing ultralimit because it is what applications can check. Only the *sufficient*
-direction is proved; the subsingleton theorem is a counterexample to dropping the
-hypothesis, not a converse.
+**The two are different properties**, and the module boundary exists to keep them apart.
+Mathlib's note on `NullSingletonClass` records that its planned `NoAtoms` — the shape
+above — implies null singletons and that the converse fails; the countable–cocountable
+probability measure has every singleton null while the whole space is an atom. So the
+point-mass package does not close the milestone on its own, and the weaker property does
+not get to occupy the name "atomless".
 
-These are **theorems, not instances**: `StagesUnbounded U X` does not appear in
-`loebMeasure hU hX`, so typeclass inference cannot recover it, unlike `hU` and `hX` which
-do appear. Callers introduce the conclusion with `haveI`.
+**Splitting is what costs.** `exists_internal_le_content_eq_half` gives every internal set
+an internal half, stagewise via `Set.exists_subset_card_eq`. The floor is what needs the
+hypothesis: `2⌊n/2⌋ ≤ n ≤ 2⌊n/2⌋ + 1` differ by one point of the stage, worth
+`(Nat.card (X i))⁻¹`, which vanishes by `ultralimit_inv_natCast_eq_zero`. The halving is
+therefore exact *in the limit* while exact at no stage, and the estimates run on
+`2 * internalContent` so no `ℝ≥0∞` division or truncated subtraction appears. Atomlessness
+then combines this with C8.
+
+Divergence of the stage cardinalities is written as mathlib's `Tendsto _ atTop` rather
+than a bespoke predicate — the two say the same thing, and a new name would only add
+conversion lemmas. It is genuinely needed: on subsingleton stages the ultraproduct is a
+single atom, recorded as the compiled
+`loebMeasure_singleton_eq_one_of_subsingleton`. Only the sufficient direction is proved;
+that theorem is a counterexample to dropping the hypothesis, not a converse.
+
+Both conclusions are **theorems, not instances**: the divergence hypothesis does not
+appear in `loebMeasure hU hX`, so typeclass inference cannot recover it, unlike `hU` and
+`hX` which do appear. Callers use `haveI`.
 
 The full **Lyapunov** statement — that the range of the measure is all of `[0, 1]`, not
 merely that it contains a strictly intermediate value — needs iterating the split and a

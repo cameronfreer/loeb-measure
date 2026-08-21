@@ -92,6 +92,23 @@ theorem ultralimit_ne_top_of_le {b : ℝ≥0∞} (hb : b ≠ ∞) (h : ∀ᶠ i 
 theorem ultralimit_ne_top (h : ∀ᶠ i in U, f i ≤ 1) : U.ultralimit f ≠ ∞ :=
   ultralimit_ne_top_of_le ENNReal.one_ne_top h
 
+/-! ### Vanishing reciprocals -/
+
+/-- **Reciprocals of a diverging natural family vanish in the limit.**
+
+Stated for an arbitrary `n : ι → ℕ` rather than for stage cardinalities: the measure
+layer uses it twice, once for the mass of a point and once for the rounding error in the
+internal halving, and neither use is about the stages as such. -/
+theorem ultralimit_inv_natCast_eq_zero {n : ι → ℕ}
+    (hn : Tendsto n (U : Filter ι) atTop) :
+    U.ultralimit (fun i ↦ ((n i : ℝ≥0∞))⁻¹) = 0 := by
+  refine le_antisymm (ENNReal.le_of_forall_pos_le_add fun ε hε _ ↦ ?_) zero_le
+  obtain ⟨k, hk⟩ := ENNReal.exists_inv_nat_lt (a := (ε : ℝ≥0∞)) (by exact_mod_cast hε.ne')
+  rw [zero_add]
+  refine ultralimit_le_of_le ?_
+  filter_upwards [hn.eventually_ge_atTop k] with i hi
+  exact (ENNReal.inv_le_inv.2 (by exact_mod_cast hi)).trans hk.le
+
 /-! ### API tests -/
 
 section Tests
