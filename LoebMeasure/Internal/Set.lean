@@ -100,6 +100,24 @@ theorem mem_carrier_ofFun (x : (i : ι) → X i) (A : (i : ι) → Set (X i)) :
       ∀ᶠ i in (U : Filter ι), x i ∈ A i :=
   Iff.rfl
 
+/-- **A stagewise singleton realizes a singleton.** The carrier of the stagewise family
+of singletons at `x` is exactly `{x}`, because eventual stagewise equality *is* equality
+in the ultraproduct.
+
+Needs no hypotheses at all — not nonemptiness, not the dichotomy — since it is
+`Filter.Product.ofFun_eq_ofFun` read through the membership rule. It is what makes the
+measure of a point computable from the stage measures without any approximation
+argument. -/
+@[simp]
+theorem carrier_ofFun_singleton (x : (i : ι) → X i) :
+    carrier (Filter.Product.ofFun fun i ↦ ({x i} : Set (X i)) : InternalSet U X)
+      = {(Filter.Product.ofFun x : Ultraproduct U X)} := by
+  ext y
+  induction y using Filter.Product.inductionOn with
+  | _ y' =>
+    rw [Set.mem_singleton_iff, Filter.Product.ofFun_eq_ofFun, mem_carrier_ofFun]
+    rfl
+
 /-! ### Nonemptiness and injectivity
 
 The two facts that make `carrier` a *faithful* embedding of internal-set data into
