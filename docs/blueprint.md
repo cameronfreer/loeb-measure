@@ -383,7 +383,19 @@ theorem loebMeasure_singleton
     loebMeasure hU hX {x} = U.ultralimit fun i ↦ ((Nat.card (X i) : ℝ≥0∞))⁻¹
 ```
 
-`LoebMeasure/Measure/Atomless.lean` has **atomlessness**, which is what M3 promised:
+`LoebMeasure/Measure/Atomless.lean` has **exact bisection** and the **atomlessness** M3
+promised. The bisection is stated first because the proof establishes it before positivity
+is used anywhere:
+
+```lean
+theorem exists_measurableSet_subset_measure_eq_half (hU) (hX) (hcard)
+    (hs : MeasurableSet[loebMeasurableSpace hX] s) :
+    ∃ t ⊆ s, MeasurableSet[loebMeasurableSpace hX] t ∧
+      loebMeasure hU hX t = loebMeasure hU hX s / 2
+```
+
+and atomlessness is then a corollary, half of a positive finite measure being positive and
+strictly smaller:
 
 ```lean
 theorem exists_measurableSet_subset_measure_lt (hU) (hX)
@@ -401,12 +413,15 @@ point-mass package does not close the milestone on its own, and the weaker prope
 not get to occupy the name "atomless".
 
 **Splitting is what costs.** `exists_internal_le_content_eq_half` gives every internal set
-an internal half, stagewise via `Set.exists_subset_card_eq`. The floor is what needs the
-hypothesis: `2⌊n/2⌋ ≤ n ≤ 2⌊n/2⌋ + 1` differ by one point of the stage, worth
-`(Nat.card (X i))⁻¹`, which vanishes by `ultralimit_inv_natCast_eq_zero`. The halving is
-therefore exact *in the limit* while exact at no stage, and the estimates run on
-`2 * internalContent` so no `ℝ≥0∞` division or truncated subtraction appears. Atomlessness
-then combines this with C8.
+an internal half, stagewise via `Set.exists_subset_card_eq`. Where the represented set has
+even cardinality the stagewise halving is exact; where it is odd, one point is discarded.
+The growth hypothesis is what makes that vanish: `2⌊n/2⌋ ≤ n ≤ 2⌊n/2⌋ + 1` differ by at
+most one point of the stage, worth `(Nat.card (X i))⁻¹`, which tends to `0` by
+`ultralimit_inv_natCast_eq_zero`. So the halving is exact in the limit whatever the
+stagewise parities do. The estimates run on `2 * internalContent` rather than
+`internalContent / 2`, so division appears only in the statement and the final
+rearrangement, never inside the inequalities, and truncated subtraction never appears.
+Bisection then combines this with C8.
 
 Divergence of the stage cardinalities is written as mathlib's `Tendsto _ atTop` rather
 than a bespoke predicate — the two say the same thing, and a new name would only add
@@ -415,9 +430,11 @@ single atom, recorded as the compiled
 `loebMeasure_singleton_eq_one_of_subsingleton`. Only the sufficient direction is proved;
 that theorem is a counterexample to dropping the hypothesis, not a converse.
 
-Both conclusions are **theorems, not instances**: the divergence hypothesis does not
-appear in `loebMeasure hU hX`, so typeclass inference cannot recover it, unlike `hU` and
-`hX` which do appear. Callers use `haveI`.
+`nullSingletonClass_loebMeasure` is a **theorem, not an instance**: the divergence
+hypothesis does not appear in `loebMeasure hU hX`, so typeclass inference cannot recover
+it, unlike `hU` and `hX` which do appear. Callers use `haveI`. The bisection and
+atomlessness results are simply invoked directly — there is no class to populate, since
+mathlib's `NoAtoms` in the splitting sense is still only a TODO.
 
 The full **Lyapunov** statement — that the range of the measure is all of `[0, 1]`, not
 merely that it contains a strictly intermediate value — needs iterating the split and a

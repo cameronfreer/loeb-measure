@@ -6,10 +6,11 @@ Authors: Cameron Freer
 import LoebMeasure.Measure.Approximation
 
 /-!
-# Atomlessness
+# Exact bisection and atomlessness
 
-Every Loeb measurable set of positive measure has a measurable subset of strictly smaller
-positive measure, when the stage cardinalities diverge.
+When the stage cardinalities diverge, every Loeb measurable set has a measurable subset of
+exactly half its measure — so in particular every set of positive measure has a measurable
+subset of strictly smaller positive measure.
 
 ## What atomlessness is, and is not
 
@@ -29,18 +30,20 @@ different modules so the weaker one cannot occupy the name.
 ## Splitting is the content
 
 The work is `exists_internal_le_content_eq_half`: every internal set has an internal
-*half*. Stagewise, `Set.exists_subset_card_eq` supplies a subset of `⌊n / 2⌋` points. The
-floor is what needs the growth hypothesis — `2⌊n/2⌋ ≤ n ≤ 2⌊n/2⌋ + 1` differ by one point
-of the stage, worth `(Nat.card (X i))⁻¹`, which vanishes in the limit by
-`Loeb.ultralimit_inv_natCast_eq_zero`. So the halving is *exact in the limit* while being
-exact at no stage.
+*half*. Stagewise, `Set.exists_subset_card_eq` supplies a subset of `⌊n / 2⌋` points. Where
+the represented set has even cardinality this is exact; where it is odd, one point is
+discarded. The growth hypothesis is what makes that discrepancy vanish — the bounds
+`2⌊n/2⌋ ≤ n ≤ 2⌊n/2⌋ + 1` differ by at most one point of the stage, worth
+`(Nat.card (X i))⁻¹`, which tends to `0` by `Loeb.ultralimit_inv_natCast_eq_zero`. So the
+halving is exact in the limit whatever the stagewise parities do.
 
-The estimates run on `2 * internalContent`, so no `ℝ≥0∞` division appears until the final
-rearrangement — truncated subtraction never enters.
+The estimates run on `2 * internalContent` rather than on `internalContent / 2`, so `ℝ≥0∞`
+division appears only in the statement and the final rearrangement, never inside the
+inequalities — and truncated subtraction never appears at all.
 
-The measurable statement then combines this with C8: a measurable set of positive measure
-agrees almost everywhere with an internal set, and half of that internal set meets it in a
-set of half the measure.
+The measurable statements then combine this with C8: a measurable set agrees almost
+everywhere with an internal set, and half of that internal set meets it in a set of half
+the measure.
 
 ## Hypotheses
 
@@ -52,13 +55,14 @@ It is genuinely needed: on subsingleton stages the ultraproduct is a single atom
 `Loeb.loebMeasure_singleton_eq_one_of_subsingleton` records. Only the sufficient direction
 is proved; that theorem is a counterexample to dropping the hypothesis, not a converse.
 
-`exists_measurableSet_subset_measure_lt` is a theorem, not an instance, for the same
-reason as its companion in `Points.lean`: the divergence hypothesis does not appear in
-`loebMeasure hU hX`, so typeclass inference cannot recover it.
+Both results here are plain theorems and are invoked directly. Unlike
+`Points.lean`'s `nullSingletonClass_loebMeasure`, there is no class to populate: mathlib's
+`NoAtoms` in the splitting sense does not exist yet, only a TODO for it, so there is
+nothing for a `haveI` to introduce.
 
 ## Scope
 
-Splitting into halves, and the resulting atomlessness. The full **Lyapunov** statement —
+Bisection, and the atomlessness that follows. The full **Lyapunov** statement —
 that the range of the measure is all of `[0, 1]`, not merely that it contains a strictly
 intermediate value — needs iterating the split and a limit argument, and is not attempted
 here.
@@ -95,7 +99,7 @@ theorem exists_internal_le_content_eq_half
         ← ultralimit_const_mul (U := U) (by simp : (2 : ℝ≥0∞) ≠ ∞)]
       refine le_antisymm (Ultrafilter.ultralimit_mono (Eventually.of_forall fun i ↦ ?_)) ?_
       · -- `2 * ⌊n / 2⌋ ≤ n`
-        rw [normalizedCounting_apply', normalizedCounting_apply', hcardt i,
+        rw [normalizedCounting_apply_natCard, normalizedCounting_apply_natCard, hcardt i,
           ← mul_div_assoc]
         gcongr
         exact_mod_cast Nat.mul_div_le (A' i).ncard 2
@@ -103,7 +107,7 @@ theorem exists_internal_le_content_eq_half
         have hstep : ∀ i, normalizedCounting (X i) (A' i)
             ≤ 2 * normalizedCounting (X i) (t i) + ((Nat.card (X i) : ℝ≥0∞))⁻¹ := by
           intro i
-          rw [normalizedCounting_apply', normalizedCounting_apply', hcardt i,
+          rw [normalizedCounting_apply_natCard, normalizedCounting_apply_natCard, hcardt i,
             ← mul_div_assoc, inv_eq_one_div, ENNReal.div_add_div_same]
           gcongr
           have : (A' i).ncard ≤ 2 * ((A' i).ncard / 2) + 1 := by omega
@@ -116,15 +120,35 @@ theorem exists_internal_le_content_eq_half
               rw [ultralimit_add, ultralimit_inv_natCast_eq_zero hcard, add_zero]
     rw [ENNReal.eq_div_iff two_ne_zero (by simp : (2 : ℝ≥0∞) ≠ ∞), hkey]
 
+/-- **Measurable sets bisect exactly.**
+
+Stronger than atomlessness and proved first, since the argument establishes it before
+positivity is used anywhere: *every* measurable set has a measurable subset of exactly
+half its measure. Both inputs are used once — C8 replaces `s` by an almost-everywhere
+equal internal set, and `exists_internal_le_content_eq_half` splits that. -/
+theorem exists_measurableSet_subset_measure_eq_half
+    (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i))
+    (hcard : Tendsto (fun i ↦ Nat.card (X i)) (U : Filter ι) atTop)
+    {s : Set (Ultraproduct U X)} (hs : MeasurableSet[loebMeasurableSpace hX] s) :
+    ∃ t ⊆ s, MeasurableSet[loebMeasurableSpace hX] t ∧
+      loebMeasure hU hX t = loebMeasure hU hX s / 2 := by
+  obtain ⟨A, hA⟩ := (loebMeasurable_iff_internal_mod_null hU hX s).1 hs
+  have hae : s =ᵐ[loebMeasure hU hX] InternalSet.carrier A :=
+    measure_symmDiff_eq_zero_iff.1 hA
+  have hAmeas : loebMeasure hU hX (InternalSet.carrier A) = loebMeasure hU hX s :=
+    (measure_congr hae).symm
+  obtain ⟨B, hBA, hBval⟩ := exists_internal_le_content_eq_half hcard A
+  refine ⟨s ∩ InternalSet.carrier B, Set.inter_subset_left,
+    hs.inter (measurableSet_internal hX B), ?_⟩
+  rw [measure_congr (hae.inter (ae_eq_refl (InternalSet.carrier B))),
+    Set.inter_eq_right.2 (InternalSet.carrier_mono hBA), loebMeasure_internal, hBval,
+    ← loebMeasure_internal hU hX A, hAmeas]
+
 /-- **The Loeb measure is atomless when the stage cardinalities diverge.**
 
-The statement M3 promised, in mathlib's planned `NoAtoms` shape, and strictly stronger
-than the null singletons of `LoebMeasure/Measure/Points.lean`.
-
-Both inputs are used once: C8 replaces `s` by an almost-everywhere equal internal set, and
-`exists_internal_le_content_eq_half` splits that. The witness `s ∩ B.carrier` has exactly
-half the measure of `s`, which is positive and strictly smaller because a probability
-measure is finite. -/
+A corollary of exact bisection: half of a positive finite measure is positive and strictly
+smaller. Positivity is used only here, which is why the bisection above is stated without
+it. -/
 theorem exists_measurableSet_subset_measure_lt (hU : (U : Filter ι).IsCountablyIncomplete)
     (hX : ∀ i, Nonempty (X i))
     (hcard : Tendsto (fun i ↦ Nat.card (X i)) (U : Filter ι) atTop)
@@ -132,19 +156,8 @@ theorem exists_measurableSet_subset_measure_lt (hU : (U : Filter ι).IsCountably
     (hpos : 0 < loebMeasure hU hX s) :
     ∃ t ⊆ s, MeasurableSet[loebMeasurableSpace hX] t ∧
       0 < loebMeasure hU hX t ∧ loebMeasure hU hX t < loebMeasure hU hX s := by
-  obtain ⟨A, hA⟩ := (loebMeasurable_iff_internal_mod_null hU hX s).1 hs
-  have hae : s =ᵐ[loebMeasure hU hX] InternalSet.carrier A :=
-    measure_symmDiff_eq_zero_iff.1 hA
-  have hAmeas : loebMeasure hU hX (InternalSet.carrier A) = loebMeasure hU hX s :=
-    (measure_congr hae).symm
-  obtain ⟨B, hBA, hBval⟩ := exists_internal_le_content_eq_half hcard A
-  have hval : loebMeasure hU hX (s ∩ InternalSet.carrier B) = loebMeasure hU hX s / 2 := by
-    rw [measure_congr (hae.inter (ae_eq_refl (InternalSet.carrier B))),
-      Set.inter_eq_right.2 (InternalSet.carrier_mono hBA), loebMeasure_internal, hBval,
-      ← loebMeasure_internal hU hX A, hAmeas]
-  exact ⟨s ∩ InternalSet.carrier B, Set.inter_subset_left,
-    hs.inter (measurableSet_internal hX B),
-    hval ▸ ENNReal.div_pos hpos.ne' (by simp),
+  obtain ⟨t, hts, hmeas, hval⟩ := exists_measurableSet_subset_measure_eq_half hU hX hcard hs
+  exact ⟨t, hts, hmeas, hval ▸ ENNReal.div_pos hpos.ne' (by simp),
     hval ▸ ENNReal.half_lt_self hpos.ne' (measure_ne_top _ _)⟩
 
 /-! ### API tests -/
@@ -174,9 +187,9 @@ example (A : InternalSet U X) :
     ∃ B : InternalSet U X, B ≤ A ∧ internalContent U B = internalContent U A / 2 :=
   exists_internal_le_content_eq_half hcard A
 
-/-- **A genuinely dependent family** of stages, where the split is not uniform across
-stages — `Fin (i + 1)` alternates between odd and even cardinality, so the floor in
-`⌊n / 2⌋` is discarding a point at infinitely many stages. -/
+/-- **A genuinely dependent family** of stages. Whether the floor in `⌊n / 2⌋` discards a
+point depends on the parity of the represented set at each stage, not on the ambient
+`Fin (i + 1)`, and the statement holds for an arbitrary `A` either way. -/
 example (U : Ultrafilter ℕ)
     (hcard : Tendsto (fun i ↦ Nat.card (Fin (i + 1))) (U : Filter ℕ) atTop)
     (A : InternalSet U fun i ↦ Fin (i + 1)) :

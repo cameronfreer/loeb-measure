@@ -14,16 +14,17 @@ universal star map, automatic transfer, or hyperreal calculus.
 ## Status
 
 This project is under active development. The Loeb measure construction is available:
-ultraproducts of finite counting spaces carry a complete, atomless Loeb probability
-measure, with the internal-modulo-null characterization. Bounded internal integration,
-the graded structure and its Fubini theorem, and the exchangeability and graph-limit
-applications are still in progress.
+ultraproducts of finite counting spaces carry a complete Loeb probability measure, with
+the internal-modulo-null characterization. When the stage cardinalities additionally tend
+to infinity, that measure is atomless — indeed every measurable set bisects exactly.
+Bounded internal integration, the graded structure and its Fubini theorem, and the
+exchangeability and graph-limit applications are still in progress.
 
 | Layer | Available now | Next boundary |
 | --- | --- | --- |
 | Dependent ultraproducts | Representatives and eliminators; coordinatewise maps; binary and finite-power equivalences; reindexing and permutations | — |
 | Internal sets | Faithful carriers; Boolean algebra and the realized set ring; internal maps, preimages, and relations; countable saturation | — |
-| Loeb measure | Internal content on ultraproducts of finite counting spaces; the Carathéodory extension as a complete probability measure agreeing with the content on internal sets; internal envelopes; outer approximation and the internal-modulo-null characterization; atomlessness under growing stage cardinalities | Bounded internal integration |
+| Loeb measure | Internal content on ultraproducts of finite counting spaces; the Carathéodory extension as a complete probability measure agreeing with the content on internal sets; internal envelopes; outer approximation and the internal-modulo-null characterization; exact measurable bisection and atomlessness, under stage cardinalities tending to infinity | Bounded internal integration |
 
 The [roadmap](ROADMAP.md) describes the capability sequence; GitHub milestones and
 issues are the live development record.
