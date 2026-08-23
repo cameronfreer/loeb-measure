@@ -515,8 +515,15 @@ The degree-`m+n` measurable-space hypothesis is the graded space's own `mspace
 
 ## First application seam
 
-`LoebMeasure/GraphLimit/HomDensity.lean`. Layer M now exists, so this seam is unblocked
-on the measure side; what it still waits on is Layer B's bounded internal integration:
+`LoebMeasure/GraphLimit/HomDensity.lean`. **Layer M's completion unblocks this**, and it
+deliberately does *not* wait on Layer B: the ROADMAP places M4 "before building the harder
+integration and Fubini layers", its gate requires the proof to use only the public M1–M3
+API, and ARCHITECTURE's dependency graph branches `Measure → GraphLimit/HomDensity`
+*before* `Measure → Integral`.
+
+The route is through the Loeb measure of the internal homomorphism event and its finite
+counting identity — a measure of a set, not an integral of a function — which is exactly
+why no bounded integration is needed:
 
 ```lean
 theorem homDensity_internalGraph
