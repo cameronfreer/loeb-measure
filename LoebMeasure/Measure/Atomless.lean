@@ -79,8 +79,9 @@ variable {ι : Type*} {X : ι → Type*} [∀ i, MeasurableSpace (X i)] [∀ i, 
 /-- **Every internal set has an internal half.**
 
 Stagewise and elementary, apart from the rounding: `Set.exists_subset_card_eq` supplies
-`⌊n / 2⌋` points of each stagewise set, and the growth hypothesis is exactly what makes
-the discarded point per stage negligible in the limit.
+`⌊n / 2⌋` points of each stagewise set, exactly half where the cardinality is even and one
+short where it is odd. The growth hypothesis is what makes the possible discarded point
+negligible in the limit.
 
 Note this is a statement about internal sets and their content alone — no measurable sets,
 no `loebMeasure`, and no approximation. -/
@@ -167,7 +168,23 @@ section Tests
 variable (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i))
   (hcard : Tendsto (fun i ↦ Nat.card (X i)) (U : Filter ι) atTop)
 
-/-- **Atomlessness in mathlib's planned `NoAtoms` shape** — the statement M3 promised. -/
+/-- **Exact measurable bisection**, the primary statement: no positivity hypothesis, and
+an equality rather than a pair of inequalities. -/
+example {s : Set (Ultraproduct U X)} (hs : MeasurableSet[loebMeasurableSpace hX] s) :
+    ∃ t ⊆ s, MeasurableSet[loebMeasurableSpace hX] t ∧
+      loebMeasure hU hX t = loebMeasure hU hX s / 2 :=
+  exists_measurableSet_subset_measure_eq_half hU hX hcard hs
+
+/-- Bisection applies to **null** sets too, where atomlessness says nothing — a check that
+the stronger statement is genuinely being used and not silently assuming positivity. -/
+example {s : Set (Ultraproduct U X)} (hs : MeasurableSet[loebMeasurableSpace hX] s)
+    (hnull : loebMeasure hU hX s = 0) :
+    ∃ t ⊆ s, MeasurableSet[loebMeasurableSpace hX] t ∧ loebMeasure hU hX t = 0 := by
+  obtain ⟨t, hts, hmeas, hval⟩ := exists_measurableSet_subset_measure_eq_half hU hX hcard hs
+  exact ⟨t, hts, hmeas, by rw [hval, hnull, ENNReal.zero_div]⟩
+
+/-- **Atomlessness in mathlib's planned `NoAtoms` shape** — the statement M3 promised,
+now a corollary of bisection. -/
 example {s : Set (Ultraproduct U X)} (hs : MeasurableSet[loebMeasurableSpace hX] s)
     (hpos : 0 < loebMeasure hU hX s) :
     ∃ t ⊆ s, MeasurableSet[loebMeasurableSpace hX] t ∧
