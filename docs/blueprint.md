@@ -102,27 +102,17 @@ convention above.
 
 ## Layer I — internal sets
 
-**Implemented**: `InternalSet`, `carrier`, the membership rule, and the nonemptiness
-and injectivity facts that make `carrier` faithful all live in
-`LoebMeasure/Internal/Set.lean`, whose docstrings are the reference. By the rule above,
-no sketch of them is kept here. The remaining Layer I units — the Boolean algebra and
-set ring, internal maps and relations — are still unimplemented and sketched below.
+**Layer I is implemented.** By the rule above the modules are the reference:
+`LoebMeasure/Internal/Set.lean` for the type, `carrier`, the membership rule, and the
+faithfulness facts; `Singleton.lean`, `BooleanAlgebra.lean`, `SetRing.lean`,
+`Function.lean`, and `Relation.lean` for the rest. No declaration sketch is kept here.
 
-Module candidates for the unimplemented units:
+What remains recorded is the design content not derivable from the code.
 
-```text
-LoebMeasure/Internal/Relation.lean
-LoebMeasure/Internal/Diagonal.lean
-```
-
-Two recorded caveats:
-
-- Carrier nonemptiness and injectivity are **implemented**; see
-  `LoebMeasure/Internal/Set.lean`, whose docstrings record which hypothesis each one
-  consumes. The durable rule they establish: nonempty fibers, the ultrafilter
-  dichotomy, and countable incompleteness are three separate assumptions and must be
-  introduced separately — freeness or countable incompleteness first becomes essential
-  in the Layer D diagonal lemma, and nowhere earlier.
+- **Three hypotheses, kept separate.** Nonempty fibers, the ultrafilter dichotomy, and
+  countable incompleteness are three assumptions and must be introduced one at a time;
+  the module docstrings record which each result consumes. Countable incompleteness
+  first becomes essential in the Layer D diagonal lemma and nowhere earlier.
 - `InternalSet` deliberately quantifies over *all* stagewise subsets and should stay
   that way. General measured families will add a separate `InternalMeasurableSet`
   with a forgetful map to `InternalSet`; finite counting stages identify the two
@@ -130,21 +120,18 @@ Two recorded caveats:
   in the domain of `internalContent`, not in the basic internal-set layer, and the
   M2/M3 issues should record that boundary explicitly.
 
-The Boolean operations, their carrier laws, and the realized carrier algebra are
-**implemented**: see `LoebMeasure/Internal/BooleanAlgebra.lean` and
-`LoebMeasure/Internal/SetRing.lean`. The durable design points they establish: the
-carriers form a set *algebra*, from which the ring `MeasureTheory.AddContent` consumes
-is derived; and the structure each law needs is not uniform — `⊥` uses properness, `⊤`
-and intersection ordinary filter laws, union and complement the ultrafilter dichotomy,
-and none of them nonempty fibers or countable incompleteness.
-
-Internal maps, preimages, and relations are **implemented**: see
-`LoebMeasure/Internal/Function.lean` and `LoebMeasure/Internal/Relation.lean`. The
-durable design points they fix: quotient data and its realization stay separate (no
-`CoeFun`, as with `carrier`); an internal relation is an *alias* for an internal set on
-the stagewise finite powers, so internality and later Loeb measure are defined on that
-side; and `finPowerEquiv` appears only in the separately named `tupleCarrier`
-realization, never inside the alias.
+- **Carriers form a set algebra**, from which the ring `MeasureTheory.AddContent`
+  consumes is derived. The structure each carrier law needs is not uniform: `⊥` uses
+  properness, `⊤` and intersection ordinary filter laws, union and complement the
+  ultrafilter dichotomy, monotonicity nothing beyond filter laws — and none of them
+  nonempty fibers or countable incompleteness.
+- **Quotient data and its realization stay separate**: no `CoeFun`, as with `carrier`.
+- **An internal relation is an alias** for an internal set on the stagewise finite
+  powers, so internality and the Loeb measure are defined on that side;
+  `finPowerEquiv` appears only in the separately named `tupleCarrier` realization,
+  never inside the alias.
+- **Points are internal**: `InternalSet.singleton` lives in its own module rather than
+  in the core seam, which keeps `Internal/Set.lean`'s representative-only import intact.
 
 ## Layer D — diagonalization
 
@@ -156,24 +143,18 @@ was settled by ADR-0001 — a predicate on `Filter` rather than on `Ultrafilter`
 properness deliberately separate — and the diagonalization consumes no ultrafilter
 property.
 
-Required mathematical forms:
+Four mathematical forms were planned, and all four have landed — but in **two different
+layers**, which is the durable point. The split was by whether a form mentions content:
 
-1. an increasing-envelope lemma for a sequence of internal sets, matching
-   Elek–Szegedy Lemma 2.4;
-2. a decreasing nonempty-intersection lemma when convenient;
-3. a null-cover lemma for countable unions; and
-4. a version usable to prove sigma-subadditivity of internal content.
+| Form | Where it landed |
+| --- | --- |
+| decreasing nonempty intersection | M2, `Internal/Saturation.lean` |
+| the form giving sigma-subadditivity | M2, `Internal/Saturation.lean` — eventual emptiness, continuity at `∅` in combinatorial dress |
+| increasing envelope (Elek–Szegedy Lemma 2.4) | M3, `Measure/Envelope.lean` — it preserves *limiting content*, so it could not be stated at M2 |
+| null cover for countable unions | M3, `Measure/Approximation.lean` as `loebMeasure_eq_zero_iff` |
 
-**Only the content-free forms belong to M2**, and both are now implemented in
-`LoebMeasure/Internal/Saturation.lean`: form 2 as the two nonempty-intersection
-theorems, and form 4 as the eventual-emptiness theorem — continuity at `∅` in
-combinatorial dress, and what makes `addContent_iUnion_eq_sum_of_tendsto_zero`
-applicable at M3. Their docstrings are the reference.
-
-Forms 1 and 3 mention content and remain deferred: the increasing envelope —
-Elek–Szegedy Lemma 2.4, which preserves the *limiting internal content* — moves to M3
-once `internalContent` exists, provisionally owned by C7/C8, and the null-cover lemma
-later still, with the null-set/approximation layer.
+That boundary is worth keeping in mind for later layers: a saturation statement belongs
+to the diagonal layer exactly when it can be phrased without a measure.
 
 Carrier-level equivalences belong to Layer I, not here: with nonempty fibers,
 `carrier(A).Nonempty ↔ ∀ᶠ i, (A i).Nonempty` holds for any filter, while passing from
@@ -183,34 +164,26 @@ carrier injectivity — use the ultrafilter dichotomy and no countable incomplet
 
 ## Layer L — compact probability ultralimits
 
-Module candidates:
+**Layer L is implemented**, and not where this section originally planned. The generic
+compact-Hausdorff wrapper turned out to be entirely about mathlib objects, so it went to
+the mirror directory as
+`LoebMeasure/Mathlib/Topology/Compactness/Ultralimit.lean` rather than to a
+`LoebMeasure/Ultralimit/Compact.lean`, which never existed. The `ℝ≥0∞` specialization is
+`LoebMeasure/Ultralimit/Probability.lean`. Both docstrings are the reference.
 
-```text
-LoebMeasure/Ultralimit/Compact.lean
-LoebMeasure/Ultralimit/Probability.lean
-```
+The durable conclusions:
 
-The foundational wrapper should expose:
-
-```lean
-def ultralimit (U : Ultrafilter ι) (f : ι → K) : K
-
-theorem tendsto_ultralimit :
-    Tendsto f U (𝓝 (ultralimit U f))
-
-theorem ultralimit_congr
-    (h : f =ᶠ[U] g) :
-    ultralimit U f = ultralimit U g
-
-theorem ultralimit_const ...
-theorem ultralimit_comp
-    (hg : Continuous g) :
-    ultralimit U (g ∘ f) = g (ultralimit U f)
-```
-
-Here `K` is nonempty compact Hausdorff. The probability-specific wrapper should add
-order bounds and the finite-additivity operations needed by content, without exposing
-irrelevant topological choice details.
+- **Hypotheses are per-result, not per-module.** `ultralimit_const` needs only
+  `[T2Space K]`, and `ultralimit_comp` needs compactness on the *source* alone. Stating
+  the whole file under one blanket assumption would have been the easy mistake.
+- **`ℝ≥0∞` throughout, with no conversion layer** (ADR-0002). It is compact Hausdorff
+  with continuous addition at the pinned revision, and is already the
+  `MeasureTheory.AddContent` codomain.
+- **The specialization never unfolds `Ultrafilter.lim`.** Everything in the probability
+  module goes through the generic API, so a change there propagates rather than breaks.
+- **Scaling needs `c ≠ ∞`, not `0 < c < ∞`** — `(∞ * ·)` is discontinuous at `0`, while
+  at `c = 0` the map is constant. That asymmetry is easy to get wrong and is recorded in
+  `ultralimit_const_mul`.
 
 ## Layer M — content and Loeb measure
 
@@ -445,10 +418,13 @@ limit argument, and is not part of M3.
 Module candidates:
 
 ```text
-LoebMeasure/Internal/Function.lean
 LoebMeasure/Integral/Bounded.lean
 LoebMeasure/Integral/InternalFunction.lean
 ```
+
+Not `LoebMeasure/Internal/Function.lean`, which this list once named: that module exists
+and holds *internal maps* between ultraproducts — a different notion from a bounded
+real-valued internal function, and one this layer will consume rather than extend.
 
 Initial functions are uniformly bounded and real-valued:
 
@@ -539,7 +515,15 @@ The degree-`m+n` measurable-space hypothesis is the graded space's own `mspace
 
 ## First application seam
 
-`LoebMeasure/GraphLimit/HomDensity.lean` should be implementable once Layer M exists:
+`LoebMeasure/GraphLimit/HomDensity.lean`. **Layer M's completion unblocks this**, and it
+deliberately does *not* wait on Layer B: the ROADMAP places M4 "before building the harder
+integration and Fubini layers", its gate requires the proof to use only the public M1–M3
+API, and ARCHITECTURE's dependency graph branches `Measure → GraphLimit/HomDensity`
+*before* `Measure → Integral`.
+
+The route is through the Loeb measure of the internal homomorphism event and its finite
+counting identity — a measure of a set, not an integral of a function — which is exactly
+why no bounded integration is needed:
 
 ```lean
 theorem homDensity_internalGraph
