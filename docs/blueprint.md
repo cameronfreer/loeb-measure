@@ -534,9 +534,27 @@ theorem homDensity_internalGraph
         (fun i => finiteHomDensity F (G i))
 ```
 
-The exact representation of `G` may use a sigma type or dependent family. The issue
-closes only when the theorem works for varying finite vertex types and the proof uses
-the public internal finite-power API.
+E4 froze the commitments this sketch left open: `F` is a *fixed* `SimpleGraph (Fin k)`;
+`G` varies over finite nonempty stages; density counts **all** edge-preserving vertex
+maps — neither induced nor injective — normalized by `|X i| ^ k`; and the homomorphism
+event lives on `InternalSet U (fun i ↦ Fin k → X i)`, the stagewise-power side.
+
+**G1 is implemented** in `LoebMeasure/GraphLimit/InternalGraph.lean`, and supersedes this
+sketch's `internalGraph`. It gives two deliberately distinct objects rather than one:
+`internalEdgeRelation U G : InternalRelation U X 2` on the stagewise-pair side, and
+`ultraproductGraph U G : SimpleGraph (Ultraproduct U X)` on the realized side, related by
+the computation rule `Adj (ofFun x) (ofFun y) ↔ ∀ᶠ i in U, (G i).Adj (x i) (y i)`. The
+naming keeps the realized graph from being confused with its internal relation.
+
+Two durable points from it. Symmetry and irreflexivity are **transported** from the stage
+graphs rather than imposed by `SimpleGraph.fromRel`, which would symmetrize any relation
+handed to it and so conceal whether the transport works; irreflexivity is where
+properness of the ultrafilter enters. And `finPowerEquiv` appears only in a private bridge
+lemma — no definition in that module mentions it. G1 needs **no** hypotheses at all and
+imports nothing from the measure layer.
+
+The homomorphism event is G2, and is where `InternalRelation.comap` and finite
+intersections first enter.
 
 ## Stability policy
 
