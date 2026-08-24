@@ -3,6 +3,7 @@ Copyright (c) 2026 Cameron Freer. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Cameron Freer
 -/
+import LoebMeasure.Internal.BooleanAlgebra
 import LoebMeasure.Internal.Function
 import LoebMeasure.Ultraproduct.Permutation
 
@@ -109,6 +110,25 @@ theorem tupleCarrier_comap (σ : Fin m → Fin n) (R : InternalRelation U X m) :
   ext x
   simp only [mem_tupleCarrier, carrier_comap, Set.mem_preimage,
     Filter.Product.reindex_finPowerEquiv_symm]
+
+/-! ### Realized conjunction
+
+The two rules needed to realize a *finite intersection* of relations, which is how a
+homomorphism condition over several edges is assembled. Both are immediate: `tupleCarrier`
+is a preimage, and preimages preserve `univ` and `∩`.
+
+Deliberately just these two. `tupleCarrier` versions of the whole Boolean API would be
+speculative — union and complement have no consumer, and would additionally inherit the
+ultrafilter dichotomy that `carrier_sup` and `carrier_compl` need. -/
+
+@[simp]
+theorem tupleCarrier_top : tupleCarrier (⊤ : InternalRelation U X k) = Set.univ := by
+  rw [tupleCarrier, InternalSet.carrier_top, Set.preimage_univ]
+
+@[simp]
+theorem tupleCarrier_inf (R S : InternalRelation U X k) :
+    tupleCarrier (R ⊓ S) = tupleCarrier R ∩ tupleCarrier S := by
+  rw [tupleCarrier, tupleCarrier, tupleCarrier, InternalSet.carrier_inf, Set.preimage_inter]
 
 /-! ### API tests -/
 

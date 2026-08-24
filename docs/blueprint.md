@@ -558,8 +558,27 @@ G1 takes **no additional hypotheses** — no finiteness, nonemptiness, measurabi
 countable incompleteness, and no measure-layer import. What the ultrafilter supplies and
 G1 genuinely uses is **properness**, for looplessness; the dichotomy is not used.
 
-The homomorphism event is G2, and is where `InternalRelation.comap` and finite
-intersections first enter.
+**G2 is implemented** too, in `LoebMeasure/GraphLimit/HomEvent.lean`. `internalHomEvent`
+is built **only** as a finite intersection of coordinate pullbacks of
+`internalEdgeRelation` — the construction `InternalRelation.comap` exists for — with the
+direct stagewise description appearing as a theorem rather than as a competing definition,
+so there is one object and two ways of computing with it.
+
+The intersection is indexed by **ordered** adjacent pairs in `Fin k × Fin k` rather than
+by `F.edgeFinset : Finset (Sym2 _)`: `Sym2` would force a non-canonical choice of
+orientation to build the coordinate map, while duplicating each undirected edge is harmless
+since `F` and every `G i` are symmetric.
+
+Where finiteness of the pattern is used is worth remembering: **only** in the
+representative rule, to move the edge quantifier through `∀ᶠ` via
+`Filter.eventually_all_finset`. The realized rule needs none, because `tupleCarrier` is a
+preimage and so takes the finite intersection to an intersection of sets without any
+quantifier crossing a filter. `InternalRelation.tupleCarrier_top` and `tupleCarrier_inf`
+were added for exactly that — the realized semantics of conjunction, and nothing more
+speculative.
+
+G3, the density identity, is next, and is where counting and the Loeb measure first
+enter.
 
 ## Stability policy
 
