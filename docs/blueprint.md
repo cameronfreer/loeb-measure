@@ -558,8 +558,31 @@ G1 takes **no additional hypotheses** — no finiteness, nonemptiness, measurabi
 countable incompleteness, and no measure-layer import. What the ultrafilter supplies and
 G1 genuinely uses is **properness**, for looplessness; the dichotomy is not used.
 
-The homomorphism event is G2, and is where `InternalRelation.comap` and finite
-intersections first enter.
+**G2 is implemented** too, in `LoebMeasure/GraphLimit/HomEvent.lean`. `internalHomEvent`
+is built **only** as a finite intersection of coordinate pullbacks of
+`internalEdgeRelation` — the construction `InternalRelation.comap` exists for — with the
+direct stagewise description appearing as `internalHomEvent_eq_ofFun`, an **equality of
+internal sets** rather than a competing definition. That it is an equality and not a
+carrier characterization is the load-bearing part: without nonempty fibers `carrier` is
+not known to be injective, so agreeing carriers would not give agreeing internal sets.
+
+The intersection is indexed by **ordered** adjacent pairs in `Fin k × Fin k` rather than
+by `F.edgeFinset : Finset (Sym2 _)`: `Sym2` would force a non-canonical choice of
+orientation to build the coordinate map, while duplicating each undirected edge is harmless
+since `F` and every `G i` are symmetric.
+
+Finiteness of the pattern is discharged in **one place**, where `adjPairs` enumerates
+`Fin k × Fin k` with `Finset.univ`; the two `Finset` inductions are generic over an
+already-given `Finset`. From there *no filter-level finite-intersection argument is needed
+anywhere*: the equality collapses the intersection at the level of representative
+functions — literally equal as functions, so the quotient step is `congrArg` — leaving
+representative membership as just `mem_carrier_ofFun`, and the realized rule needs no such
+argument either since `tupleCarrier` is a preimage.
+`InternalRelation.tupleCarrier_top` and `tupleCarrier_inf` were added for exactly that —
+the realized semantics of conjunction, and nothing more speculative.
+
+G3, the density identity, is next, and is where counting and the Loeb measure first
+enter.
 
 ## Stability policy
 

@@ -32,3 +32,4 @@ import LoebMeasure.Measure.Approximation
 import LoebMeasure.Measure.Points
 import LoebMeasure.Measure.Atomless
 import LoebMeasure.GraphLimit.InternalGraph
+import LoebMeasure.GraphLimit.HomEvent

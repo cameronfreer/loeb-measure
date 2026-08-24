@@ -234,6 +234,10 @@ assert_standard_axioms Loeb.mem_carrier_internalEdgeRelation_ofFun
 assert_standard_axioms Loeb.ultraproductGraph
 assert_standard_axioms Loeb.ultraproductGraph_adj_ofFun
 assert_standard_axioms Loeb.ultraproductGraph_adj_iff_mem
+assert_standard_axioms Loeb.internalHomEvent
+assert_standard_axioms Loeb.internalHomEvent_eq_ofFun
+assert_standard_axioms Loeb.mem_carrier_internalHomEvent_ofFun
+assert_standard_axioms Loeb.mem_tupleCarrier_internalHomEvent
 
 -- Normalized counting measure
 assert_standard_axioms Loeb.normalizedCounting
@@ -269,6 +273,8 @@ assert_standard_axioms Loeb.InternalSet.preimage_comp
 assert_standard_axioms Loeb.InternalRelation.tupleCarrier
 assert_standard_axioms Loeb.InternalRelation.carrier_comap
 assert_standard_axioms Loeb.InternalRelation.tupleCarrier_comap
+assert_standard_axioms Loeb.InternalRelation.tupleCarrier_top
+assert_standard_axioms Loeb.InternalRelation.tupleCarrier_inf
 
 -- Coordinate layer
 assert_standard_axioms Filter.Product.eval
