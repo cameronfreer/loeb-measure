@@ -547,11 +547,16 @@ the computation rule `Adj (ofFun x) (ofFun y) ↔ ∀ᶠ i in U, (G i).Adj (x i)
 naming keeps the realized graph from being confused with its internal relation.
 
 Two durable points from it. Symmetry and irreflexivity are **transported** from the stage
-graphs rather than imposed by `SimpleGraph.fromRel`, which would symmetrize any relation
-handed to it and so conceal whether the transport works; irreflexivity is where
-properness of the ultrafilter enters. And `finPowerEquiv` appears only in a private bridge
-lemma — no definition in that module mentions it. G1 needs **no** hypotheses at all and
-imports nothing from the measure layer.
+graphs rather than imposed by `SimpleGraph.fromRel`. That is not a correctness question —
+the wrapper would give the identical graph here, the relation being already symmetric and
+irreflexive — but a question of where the obligation lives: building the fields directly
+makes the elaborator demand the transport proofs instead of manufacturing the structure.
+And `finPowerEquiv` appears only in a private bridge lemma; no definition in that module
+mentions it.
+
+G1 takes **no additional hypotheses** — no finiteness, nonemptiness, measurability, or
+countable incompleteness, and no measure-layer import. What the ultrafilter supplies and
+G1 genuinely uses is **properness**, for looplessness; the dichotomy is not used.
 
 The homomorphism event is G2, and is where `InternalRelation.comap` and finite
 intersections first enter.

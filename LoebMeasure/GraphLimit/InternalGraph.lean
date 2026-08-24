@@ -35,20 +35,28 @@ edge relations are symmetric, so nothing downstream would complain.
 
 ## Symmetry and irreflexivity are transported, not imposed
 
-`SimpleGraph.fromRel` would symmetrize and de-loop *whatever* relation it is given,
-including a wrong one, and would therefore hide whether the transport works. The `symm` and
-`loopless` fields below are instead proved from `(G i).symm` and `(G i).loopless`
-stagewise, so the structure genuinely comes from the stage graphs.
+`SimpleGraph.fromRel r` is `a ≠ b ∧ (r a b ∨ r b a)`: it symmetrizes and de-loops
+*whatever* relation it is given. Applied to the edge relation below it would in fact
+produce the very same graph, since that relation is already symmetric and irreflexive — so
+this is not a correctness question, and no test can distinguish the two.
 
-That transport needs only ordinary filter reasoning: `Filter.Eventually.mono` over the
-stage proofs, plus properness of the ultrafilter for `loopless` — an eventually-false
-statement is false.
+What it changes is where the obligation lives. With `fromRel`, the structure would come
+from the wrapper and nothing in this module would witness that the stage graphs'
+symmetry and looplessness transport at all; the same wrapper would produce a well-formed
+graph from a relation with neither property. Building the fields directly makes the
+elaborator demand those transport proofs, so they are checked rather than assumed.
+
+The transport needs only ordinary filter reasoning: `Filter.Eventually.mono` over the
+stage proofs, plus properness for `loopless` — an eventually false statement is false.
 
 ## Hypotheses
 
-**None.** No finiteness, no nonemptiness, no measurability, no countable incompleteness,
-and nothing from the measure layer is imported. A graph structure on an ultraproduct is
-combinatorics, and the Loeb measure enters only at G2 and beyond.
+No *additional* ones: no finiteness, no nonemptiness, no measurability, no countable
+incompleteness, and nothing from the measure layer is imported. A graph structure on an
+ultraproduct is combinatorics, and the Loeb measure enters only at G2 and beyond.
+
+What `U : Ultrafilter ι` does supply, and what is genuinely used, is **properness** —
+`Filter.NeBot` — for looplessness. The ultrafilter *dichotomy* is not used anywhere here.
 
 ## Scope
 
@@ -77,7 +85,7 @@ def internalEdgeRelation (U : Ultrafilter ι) (G : ∀ i, SimpleGraph (X i)) :
 
 /-- Membership in the internal edge relation is eventual stagewise adjacency. -/
 @[simp]
-theorem mem_carrier_internalEdgeRelation (G : ∀ i, SimpleGraph (X i))
+theorem mem_carrier_internalEdgeRelation_ofFun (G : ∀ i, SimpleGraph (X i))
     (p : (i : ι) → Fin 2 → X i) :
     (Filter.Product.ofFun p : Ultraproduct U fun i ↦ Fin 2 → X i)
         ∈ InternalSet.carrier (internalEdgeRelation U G) ↔
@@ -112,7 +120,7 @@ private theorem edgeRel_ofFun (G : ∀ i, SimpleGraph (X i)) (x y : (i : ι) →
     edgeRel U G (Filter.Product.ofFun x) (Filter.Product.ofFun y) ↔
       ∀ᶠ i in (U : Filter ι), (G i).Adj (x i) (y i) := by
   rw [edgeRel, InternalRelation.mem_tupleCarrier, finPowerEquiv_symm_pair,
-    mem_carrier_internalEdgeRelation]
+    mem_carrier_internalEdgeRelation_ofFun]
   simp
 
 /-- **The ultraproduct graph.**
@@ -209,10 +217,13 @@ example (U : Ultrafilter ℕ) (G : ∀ i : ℕ, SimpleGraph (Fin (i + 1)))
     (ultraproductGraph U G).Adj (Filter.Product.ofFun x) (Filter.Product.ofFun y) := by
   simp [h]
 
-/-- **Nonadjacency transfers too**, through the ultrafilter dichotomy: if the stage graphs
-are eventually *non*-adjacent then the ultraproduct graph is non-adjacent. This is the
-direction that would silently fail if the relation had been symmetrized by
-`SimpleGraph.fromRel`. -/
+/-- **Nonadjacency transfers**: eventually non-adjacent stages give a non-adjacent pair in
+the ultraproduct graph.
+
+The proof uses **properness**, not the ultrafilter dichotomy — an eventually false
+statement cannot also be eventually true. Note this test does *not* detect a `fromRel`
+wrapper: since the edge relation is already symmetric and irreflexive, wrapping it would
+give the same graph and the test would still pass. -/
 example (G : ∀ i, SimpleGraph (X i)) (x y : (i : ι) → X i)
     (h : ∀ᶠ i in (U : Filter ι), ¬ (G i).Adj (x i) (y i)) :
     ¬ (ultraproductGraph U G).Adj (Filter.Product.ofFun x) (Filter.Product.ofFun y) := by
