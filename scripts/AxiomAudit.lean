@@ -228,6 +228,13 @@ assert_standard_axioms Loeb.exists_internal_le_content_eq_half
 assert_standard_axioms Loeb.exists_measurableSet_subset_measure_eq_half
 assert_standard_axioms Loeb.exists_measurableSet_subset_measure_lt
 
+-- Internal graphs
+assert_standard_axioms Loeb.internalEdgeRelation
+assert_standard_axioms Loeb.mem_carrier_internalEdgeRelation_ofFun
+assert_standard_axioms Loeb.ultraproductGraph
+assert_standard_axioms Loeb.ultraproductGraph_adj_ofFun
+assert_standard_axioms Loeb.ultraproductGraph_adj_iff_mem
+
 -- Normalized counting measure
 assert_standard_axioms Loeb.normalizedCounting
 assert_standard_axioms Loeb.normalizedCounting_apply

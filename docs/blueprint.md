@@ -534,9 +534,32 @@ theorem homDensity_internalGraph
         (fun i => finiteHomDensity F (G i))
 ```
 
-The exact representation of `G` may use a sigma type or dependent family. The issue
-closes only when the theorem works for varying finite vertex types and the proof uses
-the public internal finite-power API.
+E4 froze the commitments this sketch left open: `F` is a *fixed* `SimpleGraph (Fin k)`;
+`G` varies over finite nonempty stages; density counts **all** edge-preserving vertex
+maps — neither induced nor injective — normalized by `|X i| ^ k`; and the homomorphism
+event lives on `InternalSet U (fun i ↦ Fin k → X i)`, the stagewise-power side.
+
+**G1 is implemented** in `LoebMeasure/GraphLimit/InternalGraph.lean`, and supersedes this
+sketch's `internalGraph`. It gives two deliberately distinct objects rather than one:
+`internalEdgeRelation U G : InternalRelation U X 2` on the stagewise-pair side, and
+`ultraproductGraph U G : SimpleGraph (Ultraproduct U X)` on the realized side, related by
+the computation rule `Adj (ofFun x) (ofFun y) ↔ ∀ᶠ i in U, (G i).Adj (x i) (y i)`. The
+naming keeps the realized graph from being confused with its internal relation.
+
+Two durable points from it. Symmetry and irreflexivity are **transported** from the stage
+graphs rather than imposed by `SimpleGraph.fromRel`. That is not a correctness question —
+the wrapper would give the identical graph here, the relation being already symmetric and
+irreflexive — but a question of where the obligation lives: building the fields directly
+makes the elaborator demand the transport proofs instead of manufacturing the structure.
+And `finPowerEquiv` appears only in a private bridge lemma; no definition in that module
+mentions it.
+
+G1 takes **no additional hypotheses** — no finiteness, nonemptiness, measurability, or
+countable incompleteness, and no measure-layer import. What the ultrafilter supplies and
+G1 genuinely uses is **properness**, for looplessness; the dichotomy is not used.
+
+The homomorphism event is G2, and is where `InternalRelation.comap` and finite
+intersections first enter.
 
 ## Stability policy
 
