@@ -11,13 +11,18 @@ import LoebMeasure.GraphLimit.InternalGraph
 For a fixed pattern `F : SimpleGraph (Fin k)` and stage graphs `G : ∀ i, SimpleGraph (X i)`,
 the internal set of `k`-tuples that preserve edges.
 
-## One definition, one alternative description
+## One definition, one proved-equal description
 
 `internalHomEvent` is built **only** as a finite intersection of coordinate pullbacks of
 `internalEdgeRelation`, which is what `InternalRelation.comap` exists for and what
-exercises the coordinate layer. The direct stagewise description appears as a theorem,
-`carrier_internalHomEvent_ofFun`, not as a competing definition — so there is one object
-and two ways of computing with it.
+exercises the coordinate layer.
+
+The direct stagewise description appears as `internalHomEvent_eq_ofFun`, an **equality of
+internal sets** and not merely a carrier characterization. The distinction matters here:
+without nonempty fibers `InternalSet.carrier` is not known to be injective, so two internal
+sets with the same carrier need not be equal, and this module assumes no nonemptiness. So
+there is one object with two descriptions, proved the same as elements of
+`InternalRelation`.
 
 ## Indexing by ordered pairs
 
@@ -28,17 +33,19 @@ canonical instead. Each undirected edge is therefore intersected twice, once per
 orientation, which is harmless: the two pullbacks realize the same condition because both
 `F` and each `G i` are symmetric.
 
-## Where finiteness is used, and where it is not
+## Where finiteness is used
 
-Exactly once, in `carrier_internalHomEvent_ofFun`, to move a universal quantifier through
-`∀ᶠ` via `Filter.eventually_all_finset`. Stagewise, each edge separately gives an eventual
-condition; turning "for every edge, eventually" into "eventually, for every edge" is a
-finite-intersection step and nothing else. `Fin k × Fin k` being a `Fintype` is what makes
-it available.
+**Structurally, throughout.** `adjPairs` is a `Finset` and the definition is a
+`Finset.inf`, so finiteness of `Fin k × Fin k` is built into the object itself; the two
+`Finset` inductions below (`finset_inf_ofFun` and `tupleCarrier_finset_inf`) are where it
+is discharged.
 
-The **realized** rule needs no such move. `tupleCarrier` is a preimage, so it takes the
-finite intersection to a finite intersection of sets outright, and the quantifier never
-has to cross a filter.
+What is worth noting is that **no filter-level finite-intersection argument is needed
+anywhere**. `internalHomEvent_eq_ofFun` collapses the intersection at the representative
+level, purely set-theoretically, so the representative membership rule is then just
+`InternalSet.mem_carrier_ofFun` — the edge quantifier never has to be commuted through
+`∀ᶠ`. The realized rule likewise needs none: `tupleCarrier` is a preimage, so it takes the
+finite infimum to an intersection of sets outright.
 
 ## Hypotheses
 
@@ -46,10 +53,10 @@ No additional stage hypotheses: no finiteness, no nonemptiness, no measurability
 countable incompleteness, and no measure-layer import. Counting and the Loeb measure enter
 at G3.
 
-The event itself and its representative computation are pure internal-relation
-constructions and use no ultrafilter property at all. **Properness** enters only through
-`ultraproductGraph`, which G1 already built with it, and so appears only in the realized
-rule by way of that graph's looplessness.
+Nothing here uses an ultrafilter property, **properness included**. The realized rule
+mentions `ultraproductGraph`, whose *construction* in G1 needed properness for
+looplessness, but no proof in this module consumes it: the realized rule goes through
+`ultraproductGraph_adj_iff_mem`, which is `Iff.rfl`.
 
 ## Scope
 
@@ -84,24 +91,30 @@ preserve every edge of `F`.
 
 Built as a finite intersection of coordinate pullbacks — one per *ordered* adjacent pair —
 of the internal edge relation. This is the construction `InternalRelation.comap` was built
-for; `carrier_internalHomEvent_ofFun` gives the equivalent direct stagewise description. -/
+for; `mem_carrier_internalHomEvent_ofFun` gives the equivalent direct stagewise description. -/
 noncomputable def internalHomEvent (U : Ultrafilter ι) (F : SimpleGraph (Fin k))
     (G : ∀ i, SimpleGraph (X i)) : InternalRelation U X k :=
   (adjPairs F).inf fun e ↦
     InternalRelation.comap ![e.1, e.2] (internalEdgeRelation U G)
 
-/-- Carriers take a finite infimum to a finite intersection.
+/-- A finite infimum of represented internal sets is represented by the pointwise finite
+intersection.
 
-`private`, and stated by `Finset` induction over `InternalSet.carrier_top` and
-`InternalSet.carrier_inf`. It is generic, but has a single consumer, so it stays here
-rather than enlarging the Boolean API speculatively. -/
-private theorem carrier_finset_inf {Y : ι → Type*} {κ : Type*} (E : Finset κ)
-    (f : κ → InternalSet U Y) :
-    InternalSet.carrier (E.inf f) = ⋂ e ∈ E, InternalSet.carrier (f e) := by
+`private`, by `Finset` induction over `InternalSet.top_def` and `InternalSet.inf_ofFun`.
+Generic, but with a single consumer, so it stays here rather than enlarging the Boolean
+API speculatively. -/
+private theorem finset_inf_ofFun {Y : ι → Type*} {κ : Type*} (E : Finset κ)
+    (f : κ → (i : ι) → Set (Y i)) :
+    (E.inf fun e ↦ (Filter.Product.ofFun (f e) : InternalSet U Y))
+      = Filter.Product.ofFun fun i ↦ ⋂ e ∈ E, f e i := by
   classical
   induction E using Finset.induction_on with
-  | empty => rw [Finset.inf_empty, InternalSet.carrier_top]; simp
-  | insert a E ha ih => rw [Finset.inf_insert, InternalSet.carrier_inf, ih]; simp
+  | empty =>
+    rw [Finset.inf_empty, InternalSet.top_def]
+    exact Filter.Product.ofFun_congr (Eventually.of_forall fun _ ↦ by simp)
+  | insert a E ha ih =>
+    rw [Finset.inf_insert, ih, InternalSet.inf_ofFun]
+    exact Filter.Product.ofFun_congr (Eventually.of_forall fun _ ↦ by simp)
 
 /-- The same for realized tuples, through `tupleCarrier_top` and `tupleCarrier_inf`. -/
 private theorem tupleCarrier_finset_inf {κ : Type*} (E : Finset κ)
@@ -114,34 +127,50 @@ private theorem tupleCarrier_finset_inf {κ : Type*} (E : Finset κ)
   | insert a E ha ih =>
     rw [Finset.inf_insert, InternalRelation.tupleCarrier_inf, ih]; simp
 
-/-- Pulling the edge relation back along `![u, v]` reads off coordinates `u` and `v`. -/
-private theorem mem_carrier_comap_pair (G : ∀ i, SimpleGraph (X i)) (u v : Fin k)
-    (p : (i : ι) → Fin k → X i) :
-    (Filter.Product.ofFun p : Ultraproduct U fun i ↦ Fin k → X i)
-        ∈ InternalSet.carrier
-          (InternalRelation.comap ![u, v] (internalEdgeRelation U G)) ↔
-      ∀ᶠ i in (U : Filter ι), (G i).Adj (p i u) (p i v) := by
-  rw [InternalRelation.carrier_comap, Set.mem_preimage,
-    Filter.Product.reindex_ofFun, mem_carrier_internalEdgeRelation_ofFun]
-  rfl
+/-- **The direct stagewise description.**
 
-/-- **The representative computation rule.**
+The equality the module docstring promises: the intersection-of-pullbacks definition *is*
+the internal set of stagewise edge-preserving tuples, as elements of `InternalRelation`
+and not merely as sets with the same carrier.
 
-A represented tuple family lies in the event exactly when it eventually preserves every
-edge stagewise. This is the only place finiteness of the pattern is used: it is what lets
-`Filter.eventually_all_finset` move the edge quantifier through `∀ᶠ`. -/
+Stated as an equality rather than as a carrier characterization on purpose. Without
+nonempty fibers `InternalSet.carrier` is not known to be injective, so agreeing on
+carriers would not give agreeing internal sets — and this module assumes no nonemptiness.
+
+Everything here is representative-level and set-theoretic; no filter reasoning occurs. -/
+theorem internalHomEvent_eq_ofFun (F : SimpleGraph (Fin k))
+    (G : ∀ i, SimpleGraph (X i)) :
+    internalHomEvent U F G
+      = Filter.Product.ofFun fun i ↦
+          {p : Fin k → X i | ∀ ⦃u v⦄, F.Adj u v → (G i).Adj (p u) (p v)} := by
+  rw [internalHomEvent, show (fun e : Fin k × Fin k ↦
+      InternalRelation.comap ![e.1, e.2] (internalEdgeRelation U G))
+    = fun e ↦ (Filter.Product.ofFun fun i ↦
+        {p : Fin k → X i | (G i).Adj (p e.1) (p e.2)} : InternalRelation U X k) from ?_,
+    finset_inf_ofFun]
+  · refine Filter.Product.ofFun_congr (Eventually.of_forall fun i ↦ ?_)
+    ext p
+    simp only [Set.mem_iInter, Set.mem_setOf_eq, mem_adjPairs]
+    exact ⟨fun h _ _ huv ↦ h ⟨_, _⟩ huv, fun h e he ↦ h he⟩
+  · funext e
+    rw [InternalRelation.comap, internalEdgeRelation, InternalSet.preimage_ofFun]
+    rfl
+
+/-- **The representative membership rule**, an immediate consequence of the equality: a
+represented tuple family lies in the carrier exactly when it eventually preserves every
+edge stagewise.
+
+Note what this does *not* need — no commuting of the edge quantifier through `∀ᶠ`. The
+finite intersection was already discharged at the representative level by
+`internalHomEvent_eq_ofFun`, so this is just `InternalSet.mem_carrier_ofFun`. -/
 @[simp]
-theorem carrier_internalHomEvent_ofFun (F : SimpleGraph (Fin k))
+theorem mem_mem_carrier_internalHomEvent_ofFun (F : SimpleGraph (Fin k))
     (G : ∀ i, SimpleGraph (X i)) (p : (i : ι) → Fin k → X i) :
     (Filter.Product.ofFun p : Ultraproduct U fun i ↦ Fin k → X i)
         ∈ InternalSet.carrier (internalHomEvent U F G) ↔
       ∀ᶠ i in (U : Filter ι), ∀ ⦃u v⦄, F.Adj u v → (G i).Adj (p i u) (p i v) := by
-  rw [internalHomEvent, carrier_finset_inf]
-  simp only [Set.mem_iInter, mem_carrier_comap_pair]
-  -- Finiteness enters here, and only here.
-  rw [← Finset.eventually_all (I := adjPairs F)]
-  exact eventually_congr (Eventually.of_forall fun _ ↦
-    ⟨fun h _ _ huv ↦ h ⟨_, _⟩ (mem_adjPairs.2 huv), fun h _ he ↦ h (mem_adjPairs.1 he)⟩)
+  rw [internalHomEvent_eq_ofFun, InternalSet.mem_carrier_ofFun]
+  rfl
 
 /-- **The realized computation rule.**
 

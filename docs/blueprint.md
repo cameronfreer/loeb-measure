@@ -561,21 +561,23 @@ G1 genuinely uses is **properness**, for looplessness; the dichotomy is not used
 **G2 is implemented** too, in `LoebMeasure/GraphLimit/HomEvent.lean`. `internalHomEvent`
 is built **only** as a finite intersection of coordinate pullbacks of
 `internalEdgeRelation` — the construction `InternalRelation.comap` exists for — with the
-direct stagewise description appearing as a theorem rather than as a competing definition,
-so there is one object and two ways of computing with it.
+direct stagewise description appearing as `internalHomEvent_eq_ofFun`, an **equality of
+internal sets** rather than a competing definition. That it is an equality and not a
+carrier characterization is the load-bearing part: without nonempty fibers `carrier` is
+not known to be injective, so agreeing carriers would not give agreeing internal sets.
 
 The intersection is indexed by **ordered** adjacent pairs in `Fin k × Fin k` rather than
 by `F.edgeFinset : Finset (Sym2 _)`: `Sym2` would force a non-canonical choice of
 orientation to build the coordinate map, while duplicating each undirected edge is harmless
 since `F` and every `G i` are symmetric.
 
-Where finiteness of the pattern is used is worth remembering: **only** in the
-representative rule, to move the edge quantifier through `∀ᶠ` via
-`Filter.eventually_all_finset`. The realized rule needs none, because `tupleCarrier` is a
-preimage and so takes the finite intersection to an intersection of sets without any
-quantifier crossing a filter. `InternalRelation.tupleCarrier_top` and `tupleCarrier_inf`
-were added for exactly that — the realized semantics of conjunction, and nothing more
-speculative.
+Finiteness of the pattern is used **structurally throughout** — `adjPairs` is a `Finset`
+and the definition a `Finset.inf` — but *no filter-level finite-intersection argument is
+needed anywhere*. The equality collapses the intersection at the representative level
+set-theoretically, so representative membership is then just `mem_carrier_ofFun`, and the
+realized rule needs none either since `tupleCarrier` is a preimage.
+`InternalRelation.tupleCarrier_top` and `tupleCarrier_inf` were added for exactly that —
+the realized semantics of conjunction, and nothing more speculative.
 
 G3, the density identity, is next, and is where counting and the Loeb measure first
 enter.
