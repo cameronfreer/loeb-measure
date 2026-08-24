@@ -91,7 +91,7 @@ preserve every edge of `F`.
 
 Built as a finite intersection of coordinate pullbacks — one per *ordered* adjacent pair —
 of the internal edge relation. This is the construction `InternalRelation.comap` was built
-for; `mem_carrier_internalHomEvent_ofFun` gives the equivalent direct stagewise description. -/
+for; `internalHomEvent_eq_ofFun` proves it equal to the direct stagewise description. -/
 noncomputable def internalHomEvent (U : Ultrafilter ι) (F : SimpleGraph (Fin k))
     (G : ∀ i, SimpleGraph (X i)) : InternalRelation U X k :=
   (adjPairs F).inf fun e ↦
@@ -164,7 +164,7 @@ Note what this does *not* need — no commuting of the edge quantifier through `
 finite intersection was already discharged at the representative level by
 `internalHomEvent_eq_ofFun`, so this is just `InternalSet.mem_carrier_ofFun`. -/
 @[simp]
-theorem mem_mem_carrier_internalHomEvent_ofFun (F : SimpleGraph (Fin k))
+theorem mem_carrier_internalHomEvent_ofFun (F : SimpleGraph (Fin k))
     (G : ∀ i, SimpleGraph (X i)) (p : (i : ι) → Fin k → X i) :
     (Filter.Product.ofFun p : Ultraproduct U fun i ↦ Fin k → X i)
         ∈ InternalSet.carrier (internalHomEvent U F G) ↔
