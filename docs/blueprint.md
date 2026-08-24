@@ -571,11 +571,13 @@ by `F.edgeFinset : Finset (Sym2 _)`: `Sym2` would force a non-canonical choice o
 orientation to build the coordinate map, while duplicating each undirected edge is harmless
 since `F` and every `G i` are symmetric.
 
-Finiteness of the pattern is used **structurally throughout** — `adjPairs` is a `Finset`
-and the definition a `Finset.inf` — but *no filter-level finite-intersection argument is
-needed anywhere*. The equality collapses the intersection at the representative level
-set-theoretically, so representative membership is then just `mem_carrier_ofFun`, and the
-realized rule needs none either since `tupleCarrier` is a preimage.
+Finiteness of the pattern is discharged in **one place**, where `adjPairs` enumerates
+`Fin k × Fin k` with `Finset.univ`; the two `Finset` inductions are generic over an
+already-given `Finset`. From there *no filter-level finite-intersection argument is needed
+anywhere*: the equality collapses the intersection at the level of representative
+functions — literally equal as functions, so the quotient step is `congrArg` — leaving
+representative membership as just `mem_carrier_ofFun`, and the realized rule needs no such
+argument either since `tupleCarrier` is a preimage.
 `InternalRelation.tupleCarrier_top` and `tupleCarrier_inf` were added for exactly that —
 the realized semantics of conjunction, and nothing more speculative.
 

@@ -35,17 +35,18 @@ orientation, which is harmless: the two pullbacks realize the same condition bec
 
 ## Where finiteness is used
 
-**Structurally, throughout.** `adjPairs` is a `Finset` and the definition is a
-`Finset.inf`, so finiteness of `Fin k × Fin k` is built into the object itself; the two
-`Finset` inductions below (`finset_inf_ofFun` and `tupleCarrier_finset_inf`) are where it
-is discharged.
+**Structurally, in one place.** Finiteness of the pattern is discharged where `adjPairs`
+enumerates `Fin k × Fin k` with `Finset.univ`; from there on the object is a `Finset.inf`
+and the two inductions below (`finset_inf_ofFun` and `tupleCarrier_finset_inf`) are
+generic over an already-given `Finset`, using no finiteness of `Fin k` themselves.
 
 What is worth noting is that **no filter-level finite-intersection argument is needed
-anywhere**. `internalHomEvent_eq_ofFun` collapses the intersection at the representative
-level, purely set-theoretically, so the representative membership rule is then just
-`InternalSet.mem_carrier_ofFun` — the edge quantifier never has to be commuted through
-`∀ᶠ`. The realized rule likewise needs none: `tupleCarrier` is a preimage, so it takes the
-finite infimum to an intersection of sets outright.
+anywhere**. `internalHomEvent_eq_ofFun` collapses the intersection at the level of
+representative functions — the two sides are equal as functions, so even the quotient
+congruence is `congrArg`, not an eventual-equality step — and the representative
+membership rule is then just `InternalSet.mem_carrier_ofFun`. The edge quantifier is never
+commuted through `∀ᶠ`. The realized rule likewise needs no such argument: `tupleCarrier`
+is a preimage, so it takes the finite infimum to an intersection of sets outright.
 
 ## Hypotheses
 
@@ -111,10 +112,10 @@ private theorem finset_inf_ofFun {Y : ι → Type*} {κ : Type*} (E : Finset κ)
   induction E using Finset.induction_on with
   | empty =>
     rw [Finset.inf_empty, InternalSet.top_def]
-    exact Filter.Product.ofFun_congr (Eventually.of_forall fun _ ↦ by simp)
+    exact congrArg Filter.Product.ofFun (funext fun _ ↦ by simp)
   | insert a E ha ih =>
     rw [Finset.inf_insert, ih, InternalSet.inf_ofFun]
-    exact Filter.Product.ofFun_congr (Eventually.of_forall fun _ ↦ by simp)
+    exact congrArg Filter.Product.ofFun (funext fun _ ↦ by simp)
 
 /-- The same for realized tuples, through `tupleCarrier_top` and `tupleCarrier_inf`. -/
 private theorem tupleCarrier_finset_inf {κ : Type*} (E : Finset κ)
@@ -137,7 +138,9 @@ Stated as an equality rather than as a carrier characterization on purpose. With
 nonempty fibers `InternalSet.carrier` is not known to be injective, so agreeing on
 carriers would not give agreeing internal sets — and this module assumes no nonemptiness.
 
-Everything here is representative-level and set-theoretic; no filter reasoning occurs. -/
+Everything here happens at the level of representative functions: the two sides are
+literally equal as functions of the stage index, so the quotient step is `congrArg` and no
+filter reasoning enters at all. -/
 theorem internalHomEvent_eq_ofFun (F : SimpleGraph (Fin k))
     (G : ∀ i, SimpleGraph (X i)) :
     internalHomEvent U F G
@@ -148,7 +151,7 @@ theorem internalHomEvent_eq_ofFun (F : SimpleGraph (Fin k))
     = fun e ↦ (Filter.Product.ofFun fun i ↦
         {p : Fin k → X i | (G i).Adj (p e.1) (p e.2)} : InternalRelation U X k) from ?_,
     finset_inf_ofFun]
-  · refine Filter.Product.ofFun_congr (Eventually.of_forall fun i ↦ ?_)
+  · refine congrArg Filter.Product.ofFun (funext fun i ↦ ?_)
     ext p
     simp only [Set.mem_iInter, Set.mem_setOf_eq, mem_adjPairs]
     exact ⟨fun h _ _ huv ↦ h ⟨_, _⟩ huv, fun h e he ↦ h he⟩
@@ -178,8 +181,9 @@ A tuple of ultraproduct points lies in the realized event exactly when it is a g
 homomorphism into `ultraproductGraph U G` — stated as raw adjacency preservation, which is
 what G3's counting will use.
 
-Unlike the representative rule this needs no finiteness: `tupleCarrier` is a preimage, so
-the finite intersection becomes a finite intersection of sets and no quantifier crosses a
+This needs no **filter-level** finite-intersection argument — finiteness is still present
+structurally, in `adjPairs` and the `Finset.inf` — because `tupleCarrier` is a preimage and
+so takes the finite infimum to an intersection of sets, with no quantifier crossing a
 filter.
 
 Deliberately **not** `@[simp]`: `InternalRelation.mem_tupleCarrier` already rewrites the
