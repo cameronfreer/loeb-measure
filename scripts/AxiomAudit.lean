@@ -237,7 +237,15 @@ assert_standard_axioms Loeb.ultraproductGraph_adj_iff_mem
 assert_standard_axioms Loeb.internalHomEvent
 assert_standard_axioms Loeb.internalHomEvent_eq_ofFun
 assert_standard_axioms Loeb.mem_carrier_internalHomEvent_ofFun
+assert_standard_axioms Loeb.homomorphismSet
 assert_standard_axioms Loeb.mem_tupleCarrier_internalHomEvent
+
+-- The homomorphism density identity
+assert_standard_axioms Loeb.finiteHomDensity
+assert_standard_axioms Loeb.finiteHomDensity_bot
+assert_standard_axioms Loeb.finiteHomDensity_of_isEmpty
+assert_standard_axioms Loeb.normalizedCounting_homomorphismSet
+assert_standard_axioms Loeb.loebMeasure_internalHomEvent
 
 -- Normalized counting measure
 assert_standard_axioms Loeb.normalizedCounting

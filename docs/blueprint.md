@@ -581,8 +581,33 @@ argument either since `tupleCarrier` is a preimage.
 `InternalRelation.tupleCarrier_top` and `tupleCarrier_inf` were added for exactly that —
 the realized semantics of conjunction, and nothing more speculative.
 
-G3, the density identity, is next, and is where counting and the Loeb measure first
-enter.
+**G3 is implemented** in `LoebMeasure/GraphLimit/HomDensity.lean`, closing the E4 gate:
+
+```lean
+theorem loebMeasure_internalHomEvent (hU) (hXk : ∀ i, Nonempty (Fin k → X i)) (F) (G) :
+    loebMeasure (X := fun i ↦ Fin k → X i) hU hXk
+        (InternalSet.carrier (internalHomEvent U F G))
+      = U.ultralimit fun i ↦ finiteHomDensity F (G i)
+```
+
+Three durable points. First, `finiteHomDensity` is defined **independently of measure
+theory**, as `(homomorphismSet F G).ncard / (Nat.card X) ^ k` in `ℝ≥0∞`. Defining it as
+the `normalizedCounting` value would have made the stage identity true by definition and
+verified nothing — in particular it would not have checked that the normalization is the
+intended `|X| ^ k`. That check is the content of
+`normalizedCounting_homomorphismSet`, which holds because `Nat.card_fun` and `Nat.card_fin`
+identify `Nat.card (Fin k → X)` with `Nat.card X ^ k`.
+
+Second, the hypotheses stratify cleanly across the three statements: the density needs a
+**finite target only**; the stage identity adds the **discrete measurable structure** and
+still no nonemptiness; the Loeb theorem adds `hU` and nonemptiness. And the nonemptiness it
+adds is of the *powers*, which is weaker than stage nonemptiness and free when `k = 0`.
+
+Third, the Loeb step itself is four rewrites — `internalHomEvent_eq_ofFun`,
+`loebMeasure_internal`, `internalContent_ofFun`, then the stage identity under the
+ultralimit. That cheapness is the point of M4 preceding the integration layers, and the
+measure is taken on the ultraproduct of stagewise powers throughout, so no ordinary product
+measurability is assumed anywhere.
 
 ## Stability policy
 
