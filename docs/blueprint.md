@@ -601,13 +601,16 @@ identify `Nat.card (Fin k → X)` with `Nat.card X ^ k`.
 Second, the hypotheses stratify cleanly across the three statements: the density needs a
 **finite target only**; the stage identity adds the **discrete measurable structure** and
 still no nonemptiness; the Loeb theorem adds `hU` and nonemptiness. And the nonemptiness it
-adds is of the *powers*, which is weaker than stage nonemptiness and free when `k = 0`.
+adds is of the *powers*: equivalent to stage nonemptiness for `k > 0`, and free when
+`k = 0`, which is what lets the theorem apply over stages that are empty everywhere.
 
 Third, the Loeb step itself is four rewrites — `internalHomEvent_eq_ofFun`,
 `loebMeasure_internal`, `internalContent_ofFun`, then the stage identity under the
-ultralimit. That cheapness is the point of M4 preceding the integration layers, and the
-measure is taken on the ultraproduct of stagewise powers throughout, so no ordinary product
-measurability is assumed anywhere.
+ultralimit. That cheapness is the point of M4 preceding the integration layers. The measure
+is taken on the ultraproduct of stagewise powers throughout; the standard
+`MeasurableSpace.pi` structure on each finite stage power is used and is unproblematic,
+while what is avoided — the M4 gate criterion — is product measurability on the **realized**
+space `(Ultraproduct U X) ^ k`.
 
 ## Stability policy
 

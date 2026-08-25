@@ -51,15 +51,25 @@ measurability.
 
 The event lives on `Ultraproduct U (fun i ↦ Fin k → X i)` — the ultraproduct of stagewise
 powers — so this is the Loeb measure of *that* space, not of `Ultraproduct U X`. That is
-the side internality is defined on throughout the project, and keeping the theorem there
-is what avoids any appeal to ordinary product measurability.
+the side internality is defined on throughout the project.
+
+To be precise about what this avoids: the standard `MeasurableSpace.pi` structure on each
+finite stage power `Fin k → X i` is used, and there is nothing delicate about it. What is
+avoided is **product measurability on the realized space** `(Ultraproduct U X) ^ k`, which
+would generally be strictly coarser than the Loeb structure here — that is the M4 gate
+criterion, and it is why the theorem stays on the stagewise-power side.
 
 ## Nonemptiness
 
 `loebMeasure` on the powers needs `∀ i, Nonempty (Fin k → X i)`, which is what the theorem
-takes. That is *weaker* than stage nonemptiness and worth stating that way: it follows from
-`∀ i, Nonempty (X i)`, but for `k = 0` it holds outright, since the empty tuple exists over
-any stage.
+takes rather than stage nonemptiness. The two are **equivalent for `k > 0`** — a tuple
+supplies a point and vice versa — so the difference is confined to `k = 0`, where power
+nonemptiness holds outright because the empty tuple exists over any stage, empty ones
+included. That is exactly the case where taking the weaker hypothesis buys something:
+`loebMeasure_internalHomEvent` applies to a stage family that is empty everywhere.
+
+`loebMeasure_internalHomEvent_of_nonempty` is the convenience form for callers holding the
+usual `∀ i, Nonempty (X i)`.
 
 ## Scope
 
@@ -99,12 +109,16 @@ theorem finiteHomDensity_bot {k : ℕ} {X : Type*} [Finite X] [Nonempty X]
   · exact pow_ne_zero _ (by exact_mod_cast Nat.card_pos.ne')
   · exact ENNReal.pow_ne_top (by simp)
 
-/-- **The empty pattern gives density one**, with no nonemptiness of the target at all:
-over `Fin 0` the only vertex map is the empty tuple, and it is vacuously a homomorphism.
+/-- **A pattern on no vertices gives density one**, with no nonemptiness of the target at
+all: over `Fin 0` the only vertex map is the empty tuple, and it is vacuously a
+homomorphism.
+
+Named for `Fin 0` rather than for an empty vertex type: it is specifically about the
+pattern being `SimpleGraph (Fin 0)`, not a general `[IsEmpty V]` statement.
 
 This is the degenerate case the general theorem must not need a side condition for. -/
 @[simp]
-theorem finiteHomDensity_of_isEmpty {X : Type*} [Finite X] (F : SimpleGraph (Fin 0))
+theorem finiteHomDensity_fin_zero {X : Type*} [Finite X] (F : SimpleGraph (Fin 0))
     (G : SimpleGraph X) : finiteHomDensity F G = 1 := by
   have h : homomorphismSet F G = Set.univ := by
     ext f
@@ -112,6 +126,23 @@ theorem finiteHomDensity_of_isEmpty {X : Type*} [Finite X] (F : SimpleGraph (Fin
     exact fun u ↦ (Fin.elim0 u)
   rw [finiteHomDensity, h, Set.ncard_univ, pow_zero, Nat.card_fun, Nat.card_fin, pow_zero,
     Nat.cast_one, div_one]
+
+/-- **The density is a probability value.**
+
+Pure counting, at the definition's own hypothesis level: the homomorphism set is a subset
+of the `|X| ^ k` vertex maps. No measure theory is needed, which is why this sits here
+rather than being read off the stage identity. -/
+theorem finiteHomDensity_le_one {k : ℕ} {X : Type*} [Finite X] (F : SimpleGraph (Fin k))
+    (G : SimpleGraph X) : finiteHomDensity F G ≤ 1 := by
+  have hcard : Nat.card X ^ k = Nat.card (Fin k → X) := by
+    rw [Nat.card_fun, Nat.card_fin]
+  have h : (homomorphismSet F G).ncard ≤ Nat.card X ^ k := by
+    rw [hcard, ← Set.ncard_univ]
+    exact Set.ncard_le_ncard (Set.subset_univ _) Set.finite_univ
+  rw [finiteHomDensity]
+  refine ENNReal.div_le_of_le_mul ?_
+  rw [one_mul, ← Nat.cast_pow]
+  exact_mod_cast h
 
 /-! ### The stage identity
 
@@ -147,13 +178,16 @@ The Loeb measure of the internal homomorphism event equals the ultralimit of the
 homomorphism densities.
 
 The measure is taken on `Ultraproduct U (fun i ↦ Fin k → X i)`, the ultraproduct of
-stagewise powers, which is the side internality lives on. No ordinary product
-measurability is assumed anywhere, and no integration is used: the proof is
+stagewise powers, which is the side internality lives on. The standard `MeasurableSpace.pi`
+structure *is* used on each finite stage power `Fin k → X i`, where it is unproblematic;
+what is avoided is product measurability on the **realized** space `(Ultraproduct U X) ^ k`,
+which is the M4 gate criterion. No integration is used: the proof is
 `internalHomEvent_eq_ofFun`, then `loebMeasure_internal`, then `internalContent_ofFun`,
 then the stage identity under the ultralimit.
 
-The nonemptiness hypothesis is on the *powers*, which is weaker than stage nonemptiness
-and automatic when `k = 0`. -/
+The nonemptiness hypothesis is on the *powers*. For `k > 0` that is equivalent to stage
+nonemptiness; for `k = 0` it is automatic, which is what lets this apply over stages that
+are empty. -/
 theorem loebMeasure_internalHomEvent (hU : (U : Filter ι).IsCountablyIncomplete)
     (hXk : ∀ i, Nonempty (Fin k → X i)) (F : SimpleGraph (Fin k))
     (G : ∀ i, SimpleGraph (X i)) :
@@ -164,13 +198,18 @@ theorem loebMeasure_internalHomEvent (hU : (U : Filter ι).IsCountablyIncomplete
   exact Ultrafilter.ultralimit_congr
     (Eventually.of_forall fun i ↦ normalizedCounting_homomorphismSet F (G i))
 
-omit [∀ i, MeasurableSpace (X i)] [∀ i, Finite (X i)]
-  [∀ i, MeasurableSingletonClass (X i)] in
-/-- Stage nonemptiness gives nonempty stage powers, which is what the theorem above takes.
-Stated so callers holding the usual `hX` need not build the tuple by hand. -/
-theorem nonempty_pi_of_nonempty (hX : ∀ i, Nonempty (X i)) (i : ι) :
-    Nonempty (Fin k → X i) :=
-  ⟨fun _ ↦ (hX i).some⟩
+/-- The density identity from ordinary **stage** nonemptiness, for callers who hold that
+rather than nonemptiness of the powers.
+
+A convenience corollary rather than a generic `Nonempty` helper: the conversion has one
+consumer and belongs with the theorem it serves. -/
+theorem loebMeasure_internalHomEvent_of_nonempty
+    (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i))
+    (F : SimpleGraph (Fin k)) (G : ∀ i, SimpleGraph (X i)) :
+    loebMeasure (X := fun i ↦ Fin k → X i) hU (fun i ↦ ⟨fun _ ↦ (hX i).some⟩)
+        (InternalSet.carrier (internalHomEvent U F G))
+      = U.ultralimit fun i ↦ finiteHomDensity F (G i) :=
+  loebMeasure_internalHomEvent hU _ F G
 
 /-! ### API tests -/
 
@@ -180,10 +219,10 @@ section Tests
 nonemptiness. -/
 example (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i))
     (F : SimpleGraph (Fin k)) (G : ∀ i, SimpleGraph (X i)) :
-    loebMeasure (X := fun i ↦ Fin k → X i) hU (nonempty_pi_of_nonempty hX)
+    loebMeasure (X := fun i ↦ Fin k → X i) hU (fun i ↦ ⟨fun _ ↦ (hX i).some⟩)
         (InternalSet.carrier (internalHomEvent U F G))
       = U.ultralimit fun i ↦ finiteHomDensity F (G i) :=
-  loebMeasure_internalHomEvent hU _ F G
+  loebMeasure_internalHomEvent_of_nonempty hU hX F G
 
 /-- **`k = 0` gives density one**, computed rather than merely elaborated: the empty tuple
 is the unique vertex map and is vacuously a homomorphism, so the numerator and the
@@ -224,8 +263,9 @@ example (U : Ultrafilter ℕ) (hU : (U : Filter ℕ).IsCountablyIncomplete)
       = U.ultralimit fun i ↦ finiteHomDensity F (G i) :=
   loebMeasure_internalHomEvent hU _ F G
 
-/-- The density is a probability value, as it must be for the identity to be consistent
-with `loebMeasure` being a probability measure. -/
+/-- The bound is consistent with the stage identity and with `loebMeasure` being a
+probability measure — checked by deriving it the *other* way, through the measure, and
+landing on the same statement. -/
 example (Y : Type) [MeasurableSpace Y] [Finite Y] [MeasurableSingletonClass Y]
     (F : SimpleGraph (Fin k)) (G : SimpleGraph Y) : finiteHomDensity F G ≤ 1 := by
   rw [← normalizedCounting_homomorphismSet]
