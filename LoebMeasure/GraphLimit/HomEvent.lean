@@ -73,6 +73,27 @@ open Filter
 
 variable {ι : Type*} {U : Ultrafilter ι} {X : ι → Type*} {k : ℕ}
 
+/-- **The set of graph homomorphisms** `F → G`, as a plain set of vertex maps.
+
+Every edge-preserving map, neither induced nor injective — the count E4 fixed. Kept as a
+bare `Set (V → W)` rather than as `SimpleGraph.Hom`, since both consumers want a set: this
+module to describe `internalHomEvent`, and G3 to count it. -/
+def homomorphismSet {V W : Type*} (F : SimpleGraph V) (G : SimpleGraph W) : Set (V → W) :=
+  {f | ∀ ⦃u v⦄, F.Adj u v → G.Adj (f u) (f v)}
+
+@[simp]
+theorem mem_homomorphismSet {V W : Type*} {F : SimpleGraph V} {G : SimpleGraph W}
+    {f : V → W} :
+    f ∈ homomorphismSet F G ↔ ∀ ⦃u v⦄, F.Adj u v → G.Adj (f u) (f v) :=
+  Iff.rfl
+
+/-- With no edges to preserve, every map is a homomorphism. -/
+@[simp]
+theorem homomorphismSet_bot {V W : Type*} (G : SimpleGraph W) :
+    homomorphismSet (⊥ : SimpleGraph V) G = Set.univ := by
+  ext f
+  simp [homomorphismSet]
+
 /-- The ordered adjacent pairs of the pattern graph, the index set of the intersection.
 
 `private`: it is an implementation detail of the definition, and the public rules quantify
@@ -144,8 +165,7 @@ filter reasoning enters at all. -/
 theorem internalHomEvent_eq_ofFun (F : SimpleGraph (Fin k))
     (G : ∀ i, SimpleGraph (X i)) :
     internalHomEvent U F G
-      = Filter.Product.ofFun fun i ↦
-          {p : Fin k → X i | ∀ ⦃u v⦄, F.Adj u v → (G i).Adj (p u) (p v)} := by
+      = Filter.Product.ofFun fun i ↦ homomorphismSet F (G i) := by
   rw [internalHomEvent, show (fun e : Fin k × Fin k ↦
       InternalRelation.comap ![e.1, e.2] (internalEdgeRelation U G))
     = fun e ↦ (Filter.Product.ofFun fun i ↦
