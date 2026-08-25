@@ -17,14 +17,18 @@ This project is under active development. The Loeb measure construction is avail
 ultraproducts of finite counting spaces carry a complete Loeb probability measure, with
 the internal-modulo-null characterization. When the stage cardinalities additionally tend
 to infinity, that measure is atomless — indeed every measurable set bisects exactly.
+
+The first application is also in place: for a fixed finite simple graph, the Loeb measure
+of the internal homomorphism event is the ultralimit of the finite homomorphism densities.
 Bounded internal integration, the graded structure and its Fubini theorem, and the
-exchangeability and graph-limit applications are still in progress.
+exchangeability and graphon-realization applications are still in progress.
 
 | Layer | Available now | Next boundary |
 | --- | --- | --- |
 | Dependent ultraproducts | Representatives and eliminators; coordinatewise maps; binary and finite-power equivalences; reindexing and permutations | — |
 | Internal sets | Faithful carriers; Boolean algebra and the realized set ring; internal maps, preimages, and relations; countable saturation | — |
 | Loeb measure | Internal content on ultraproducts of finite counting spaces; the Carathéodory extension as a complete probability measure agreeing with the content on internal sets; internal envelopes; outer approximation and the internal-modulo-null characterization; exact measurable bisection and atomlessness, under stage cardinalities tending to infinity | Bounded internal integration |
+| Graph limits | Internal edge relations and the ultraproduct graph; the internal homomorphism event for a fixed finite pattern; the Loeb measure of that event as the ultralimit of the finite homomorphism densities | Graphon realization (needs the graded layer) |
 
 The [roadmap](ROADMAP.md) describes the capability sequence; GitHub milestones and
 issues are the live development record.
