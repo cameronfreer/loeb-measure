@@ -18,10 +18,10 @@ ultraproducts of finite counting spaces carry a complete Loeb probability measur
 the internal-modulo-null characterization. When the stage cardinalities additionally tend
 to infinity, that measure is atomless — indeed every measurable set bisects exactly.
 
-The first application is also in place: for a fixed finite simple graph, the Loeb measure
-of the internal homomorphism event is the ultralimit of the finite homomorphism densities.
-Bounded internal integration, the graded structure and its Fubini theorem, and the
-exchangeability and graphon-realization applications are still in progress.
+The library also proves that, for every fixed finite pattern graph, the Loeb measure of
+the internal homomorphism event is the ultralimit of the finite homomorphism densities.
+Bounded internal integration, the graded structure and its Fubini theorem,
+exchangeability, and graphon realization are still in progress.
 
 | Layer | Available now | Next boundary |
 | --- | --- | --- |
