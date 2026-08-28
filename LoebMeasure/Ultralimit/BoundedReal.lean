@@ -29,8 +29,9 @@ a representative on a `U`-small set changes nothing about the function but destr
 pointwise bound. The eventual form is invariant under exactly that, which is why it is the
 form stated here and the form `Ultrafilter.ultralimit_congr` composes with.
 
-`ultralimit_pure_norm_le_zero_of_unbounded` below makes the difference concrete rather than
-rhetorical: an unbounded family whose ultralimit is nonetheless controlled.
+The tests below make the difference concrete rather than rhetorical: a globally unbounded
+family whose ultralimit is nonetheless controlled, with a companion proving the family
+really is unbounded.
 
 ## Hypotheses
 
@@ -58,8 +59,8 @@ variable {ι : Type*} {U : Ultrafilter ι} {f : ι → ℝ} {C : ℝ}
 
 The bridge that makes `Ultrafilter.ultralimit` usable on `ℝ`: an eventual norm bound puts
 `f` eventually inside a closed ball, which is compact because `ℝ` is proper, and
-`tendsto_ultralimit_of_eventually_mem_compact` does the rest. No Hausdorff hypothesis is
-involved at that step — `ℝ` is of course Hausdorff, but the general theorem does not ask.
+`tendsto_ultralimit_of_eventually_mem_compact` does the rest. `ℝ` is of course Hausdorff,
+but nothing at that step asks for it.
 
 `C` is unconstrained in sign; see the module docstring. -/
 theorem tendsto_ultralimit_of_eventually_norm_le (h : ∀ᶠ i in U, ‖f i‖ ≤ C) :
@@ -69,8 +70,9 @@ theorem tendsto_ultralimit_of_eventually_norm_le (h : ∀ᶠ i in U, ‖f i‖ �
 
 /-- **The bound passes to the ultralimit.**
 
-Derived from the convergence above together with closedness of the ball, not by a separate
-argument: `le_of_tendsto` applied to the composed `‖·‖`. -/
+`le_of_tendsto` applied to the composed norm, using the convergence above and the same
+eventual hypothesis. No closed-set membership argument is involved — the bound is an
+inequality of reals, not a statement about the ball. -/
 theorem norm_ultralimit_le (h : ∀ᶠ i in U, ‖f i‖ ≤ C) : ‖U.ultralimit f‖ ≤ C :=
   le_of_tendsto (tendsto_ultralimit_of_eventually_norm_le h).norm h
 
@@ -87,8 +89,7 @@ section Tests
 The pure ultrafilter at `0` on `ℕ`, with `f n = n`: the family is globally unbounded, yet
 bounded by `0` on the one set that matters, and the ultralimit's norm is bounded
 accordingly. A pointwise hypothesis would prove nothing here. -/
-theorem ultralimit_pure_norm_le_zero_of_unbounded :
-    ‖(pure 0 : Ultrafilter ℕ).ultralimit (fun n ↦ (n : ℝ))‖ ≤ 0 :=
+example : ‖(pure 0 : Ultrafilter ℕ).ultralimit (fun n ↦ (n : ℝ))‖ ≤ 0 :=
   norm_ultralimit_le (by simp)
 
 /-- And the family really is unbounded, so the previous statement is not vacuous. -/
@@ -105,6 +106,14 @@ example (h : ∀ᶠ i in U, ‖f i‖ ≤ C) : Tendsto f U (𝓝 (U.ultralimit f
 the statement below is provable precisely because its hypothesis cannot be met. -/
 example (h : ∀ᶠ i in U, ‖f i‖ ≤ -1) : ‖U.ultralimit f‖ ≤ -1 :=
   norm_ultralimit_le h
+
+/-- And the hypothesis above really is unsatisfiable, so the previous test assumes
+something impossible rather than something merely unusual. Properness of the ultrafilter
+is what rules it out. -/
+example : ¬ ∀ᶠ i in U, ‖f i‖ ≤ (-1 : ℝ) := by
+  intro h
+  obtain ⟨i, hi⟩ := h.exists
+  linarith [norm_nonneg (f i)]
 
 /-- The hypothesis is membership of a large set, so a bound holding on *some* member of
 the ultrafilter suffices — the family is unconstrained off it. -/

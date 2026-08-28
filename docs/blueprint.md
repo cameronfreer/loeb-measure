@@ -177,9 +177,11 @@ The durable conclusions:
   `[T2Space K]`, and `ultralimit_comp` needs compactness on the *source* alone. Stating
   the whole file under one blanket assumption would have been the easy mistake — and M5's
   F0 confirmed it again: `tendsto_ultralimit_of_eventually_mem_compact` derives convergence
-  from eventual containment in a compact *set*, with no hypothesis on the ambient space at
-  all, **Hausdorffness included**. Hausdorffness is only ever needed to say *which* point
-  the limit is.
+  from eventual containment in a compact *set*, under no hypothesis on the ambient space at
+  all. What Hausdorffness would supply is **uniqueness** of the limit — and, with
+  compactness, closedness of the set. Neither is wanted there: the conclusion names the
+  particular point `ultralimit` already denotes, and membership of an already closed set
+  passes to a limit without a separation hypothesis.
 - **The definition is meaningful beyond compact Hausdorff codomains**, which the original
   docstring understated. It is meaningful whenever the pushed-forward ultrafilter has a
   limit; compact Hausdorff is the convenient sufficient condition, not a necessary one.

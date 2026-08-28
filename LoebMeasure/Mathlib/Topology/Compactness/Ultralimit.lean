@@ -31,8 +31,7 @@ uniqueness but no compactness, and composition needs compactness only on the sou
 * `Ultrafilter.tendsto_ultralimit`: `Tendsto f U (𝓝 (U.ultralimit f))` in a compact
   space.
 * `Ultrafilter.tendsto_ultralimit_of_eventually_mem_compact`: the same conclusion from
-  eventual containment in a compact *set*, with no hypothesis on the ambient space —
-  in particular no Hausdorffness.
+  eventual containment in a compact *set*, with no hypothesis on the ambient space at all.
 * `Ultrafilter.ultralimit_congr`: the ultralimit depends only on the `U`-germ of `f`.
 * `Ultrafilter.ultralimit_const`, `Ultrafilter.ultralimit_comp`: computation rules in a
   compact Hausdorff space.
@@ -60,7 +59,7 @@ Meaningful whenever the pushed-forward ultrafilter has a limit at all, and junk 
 A compact Hausdorff codomain is the convenient sufficient condition — it makes the limit
 exist and be unique — but it is not necessary:
 `tendsto_ultralimit_of_eventually_mem_compact` shows that eventual containment in a compact
-*set* already makes this a genuine limit, and needs no Hausdorff hypothesis at all. -/
+*set* already makes this a genuine limit, under no hypothesis on the space at all. -/
 noncomputable def ultralimit (U : Ultrafilter ι) (f : ι → K) : K :=
   (U.map f).lim
 
@@ -83,10 +82,12 @@ theorem tendsto_ultralimit [CompactSpace K] (U : Ultrafilter ι) (f : ι → K) 
 
 The ambient space need be neither compact nor Hausdorff: compactness of `s` supplies a
 cluster point of the pushed-forward ultrafilter, which for an ultrafilter *is* a limit, and
-`le_nhds_lim` then names it. Hausdorffness would only be needed to say *which* point
-that is, or to preserve membership of a closed set — see
-`Ultrafilter.norm_ultralimit_le` in `LoebMeasure/Ultralimit/BoundedReal.lean` for a
-consequence that does use the order structure.
+`le_nhds_lim` then names it.
+
+What Hausdorffness would supply is **uniqueness** of that limit — and, together with
+compactness, closedness of `s`. Neither is wanted here: the conclusion is about the
+particular point `U.ultralimit f`, which the definition already names, and membership of an
+*already closed* set passes to a limit without any separation hypothesis.
 
 This is what makes the ultralimit usable on `ℝ`, which is not compact. -/
 theorem tendsto_ultralimit_of_eventually_mem_compact {s : Set K} (hs : IsCompact s)
