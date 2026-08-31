@@ -27,9 +27,14 @@ descends the real ultrapower `InternalMap.toFun f x` through `Ultrafilter.ultral
 which is itself total — junk where no limit exists, exactly as `Filter.lim` is.
 
 So boundedness is not what makes the lift *definable*; it is what makes the lift a genuine
-limit. That division is deliberate and is visible in the API: `lift_ofFun` is a total
-computation rule with no hypothesis, while every semantic statement below —
-`tendsto_lift_ofFun`, the bounds, the arithmetic — takes `IsUniformlyBounded`.
+limit. That division is visible in the API, at two levels of the quotient:
+
+* `lift_ofFun` is a total computation rule taking no boundedness hypothesis at all;
+* the **representative-level** results `tendsto_lift_ofFun` and `norm_lift_ofFun_le` take
+  an explicit eventual bound `∀ᶠ i in U, ∀ y, ‖g i y‖ ≤ C`, since a named bound is what
+  their conclusions mention;
+* only the **quotient-level** `exists_forall_norm_lift_le` takes `IsUniformlyBounded`
+  itself, which is where the bound must be existentially quantified.
 
 ## One quotient, not two
 
@@ -41,15 +46,26 @@ name, pending a second consumer.
 
 ## Hypotheses
 
-None at all: no Loeb measure, no countable incompleteness, no stage finiteness,
-nonemptiness, or measurability. This layer is quotient-level and analytic. The measure
+No *additional* ones: no Loeb measure, no countable incompleteness, no stage finiteness,
+nonemptiness, or measurability. This layer is quotient-level and analytic, and the measure
 enters at F2.
+
+The `Ultrafilter` structure on `U` is load-bearing, though, and not merely inherited
+notation: F0's convergence theorem obtains a limit from a cluster point of the
+pushed-forward *ultra*filter, so `tendsto_lift_ofFun` would fail for a general filter.
 
 ## Scope
 
-The representation, the lift, and what boundedness buys about it. Measurability against
-`loebMeasurableSpace` is F2 and the integral identity is F3; no normed-space instance is
-built here, since nothing yet asks for one.
+The representation, the lift, and what boundedness buys about it — F1a.
+
+Characteristic functions and cheap algebraic closure (negation, sums) are **F1b**, kept
+separate rather than folded in here or deferred into F2: both are measure-free bridges
+that belong before measurability, and the characteristic-function construction is what
+should decide whether a bundled `ofFun`-style constructor improves the API. Adding one
+speculatively now would prejudge that.
+
+Measurability against `loebMeasurableSpace` is F2 and the integral identity is F3. No
+normed-space instance is built here, since nothing yet asks for one.
 -/
 
 namespace Loeb
@@ -176,6 +192,9 @@ namespace BoundedInternalFunction
 /-- The underlying internal map. -/
 def toInternalMap (f : BoundedInternalFunction U X) : InternalMap U X fun _ ↦ ℝ := f.1
 
+/-- The boundedness proof a bounded internal function carries. Named so callers need not
+project through `Subtype.val`, and so that the `Prop`-valued nature of the field is legible
+at the use site. -/
 theorem isUniformlyBounded (f : BoundedInternalFunction U X) :
     f.toInternalMap.IsUniformlyBounded := f.2
 
@@ -191,6 +210,9 @@ theorem ext {f g : BoundedInternalFunction U X}
 noncomputable def lift (f : BoundedInternalFunction U X) : Ultraproduct U X → ℝ :=
   f.toInternalMap.lift
 
+/-- **A bounded internal function has a uniformly bounded lift.** The bundled form of
+`InternalMap.exists_forall_norm_lift_le`; the bound is existential here because the type
+carries the boundedness as a `Prop` rather than as data. -/
 theorem exists_forall_norm_lift_le (f : BoundedInternalFunction U X) :
     ∃ C : ℝ, ∀ x, ‖f.lift x‖ ≤ C :=
   InternalMap.exists_forall_norm_lift_le f.2
