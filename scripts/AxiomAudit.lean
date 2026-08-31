@@ -150,6 +150,7 @@ assert_standard_axioms MeasureTheory.AddContent.measureCaratheodory_isComplete
 -- Compact ultralimits (mirror directory)
 assert_standard_axioms Ultrafilter.ultralimit
 assert_standard_axioms Ultrafilter.tendsto_ultralimit
+assert_standard_axioms Ultrafilter.tendsto_ultralimit_of_eventually_mem_compact
 assert_standard_axioms Ultrafilter.ultralimit_congr
 assert_standard_axioms Ultrafilter.ultralimit_const
 assert_standard_axioms Ultrafilter.ultralimit_comp
@@ -158,6 +159,11 @@ assert_standard_axioms Ultrafilter.ultralimit_mono'
 assert_standard_axioms Ultrafilter.ultralimit_le
 assert_standard_axioms Ultrafilter.le_ultralimit
 assert_standard_axioms Ultrafilter.ultralimit_eq_limUnder
+
+-- Bounded real ultralimits
+assert_standard_axioms Ultrafilter.tendsto_ultralimit_of_eventually_norm_le
+assert_standard_axioms Ultrafilter.norm_ultralimit_le
+assert_standard_axioms Ultrafilter.abs_ultralimit_le
 
 -- Probability ultralimits
 assert_standard_axioms Loeb.ultralimit_zero

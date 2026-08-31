@@ -175,7 +175,20 @@ The durable conclusions:
 
 - **Hypotheses are per-result, not per-module.** `ultralimit_const` needs only
   `[T2Space K]`, and `ultralimit_comp` needs compactness on the *source* alone. Stating
-  the whole file under one blanket assumption would have been the easy mistake.
+  the whole file under one blanket assumption would have been the easy mistake — and M5's
+  F0 confirmed it again: `tendsto_ultralimit_of_eventually_mem_compact` derives convergence
+  from eventual containment in a compact *set*, under no hypothesis on the ambient space at
+  all. What Hausdorffness would supply is **uniqueness** of the limit — and, with
+  compactness, closedness of the set. Neither is wanted there: the conclusion names the
+  particular point `ultralimit` already denotes, and membership of an already closed set
+  passes to a limit without a separation hypothesis.
+- **The definition is meaningful beyond compact Hausdorff codomains**, which the original
+  docstring understated. It is meaningful whenever the pushed-forward ultrafilter has a
+  limit; compact Hausdorff is the convenient sufficient condition, not a necessary one.
+  `LoebMeasure/Ultralimit/BoundedReal.lean` uses that to put real-valued families under the
+  same `ultralimit`, via an **eventual** norm bound — eventual because a quotient's
+  representatives may be arbitrary off a large set, so a pointwise bound would not survive
+  changing representative.
 - **`ℝ≥0∞` throughout, with no conversion layer** (ADR-0002). It is compact Hausdorff
   with continuous addition at the pinned revision, and is already the
   `MeasureTheory.AddContent` codomain.
