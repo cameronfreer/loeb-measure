@@ -15,7 +15,7 @@ Closes #
 - [ ] `lake build`
 - [ ] No `sorry` in scope
 - [ ] No new nonstandard axioms
-- [ ] If a public module or capability changed, `scripts/AxiomAudit.lean` reviewed and updated
+- [ ] If a public module or capability changed, consider naming new entry points in `scripts/AxiomAudit.lean` (documentation only — coverage is automatic)
 - [ ] If this PR implements blueprint sketches, they are replaced by a pointer to the compiled module
 - [ ] Public declarations and modules have docstrings
 - [ ] Examples use the public API rather than quotient unfolding

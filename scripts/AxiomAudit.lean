@@ -10,30 +10,47 @@ import Lean.Elab.Command
 /-!
 # Axiom audit
 
-Run in CI by `lake env lean scripts/AxiomAudit.lean`. Two jobs:
+Run in CI by `lake env lean scripts/AxiomAudit.lean`. Three jobs:
 
-1. **Axiom hygiene.** Every declaration named below is checked to depend only on the
-   accepted axioms `propext`, `Classical.choice`, and `Quot.sound`. The check is
-   transitive: `Lean.collectAxioms` walks the whole dependency closure, so an axiom
-   introduced anywhere beneath a listed declaration fails the build.
+1. **Whole-library axiom hygiene.** `audit_project_declarations` enumerates *every*
+   public declaration originating in a `LoebMeasure` module — by module provenance, not
+   by a hand-kept list — and checks each depends only on the accepted axioms `propext`,
+   `Classical.choice`, and `Quot.sound`. The check is transitive: `Lean.collectAxioms`
+   walks the whole dependency closure.
 
-2. **Root-surface smoke test.** This file imports `LoebMeasure` and uses `Ultraproduct`
+2. **Documented API surface.** The named `assert_standard_axioms` roots below.
+
+3. **Root-surface smoke test.** This file imports `LoebMeasure` and uses `Ultraproduct`
    *unqualified* after `open Loeb`, which is exactly the entry point the README
    documents. A regression in the facade breaks CI here rather than being discovered by
    a reader. Doing it in this file avoids a separate test library, and is only possible
    because the audit runs outside the `LoebMeasure` target — library modules must not
    import the root (see `CONTRIBUTING.md`).
 
-## Scope
+## What changed, and why (#36)
 
-This audits the **named public boundary declarations** listed below: selected public
-entry points from each module, chosen so that the transitive closure covers the
-substance of the library. It is deliberately *not* a whole-library enumeration, and the
-README says so.
+The named roots used to *be* the coverage mechanism, with a reviewer checklist item
+obliging contributors to extend them. That rule was missed twice in three opportunities
+(#33, #35): new public proofs sat outside every audited closure and only human review
+caught it. A measured failure rate, not a hypothetical one.
 
-Changing a public module or capability obliges you to revisit this list — keeping it
-representative is a semantic judgement that no automated check can make, so it is a
-reviewer checklist item in `CONTRIBUTING.md` and the pull-request template.
+The fix removes the selection step rather than policing it. Coverage is now job 1, which
+has no list to keep and so cannot be forgotten. A weaker design — "at least one audited
+declaration per module" — was rejected during #33's review for a concrete reason: on both
+misses the affected modules were *already* represented, so it would have passed while the
+new declarations went unaudited, manufacturing confidence.
+
+**The named roots remain, with a different job.** They document and smoke-test the
+intended public API surface: a reader can see what the library claims to offer, and a
+rename or removal breaks CI here. That is a communication artifact. It is no longer a
+correctness dependency, so forgetting to extend it can no longer cause an audit gap.
+
+## What is excluded, and why that is safe
+
+Private declarations (`Lean.isPrivateName`) and compiler-internal details
+(`Name.isInternalDetail` — equation lemmas, match auxiliaries, projections) are skipped,
+or the report would be noise. This loses nothing: a private declaration used by a public
+one is inside that public one's dependency closure, so its axioms are still caught.
 -/
 
 open Lean Elab Command
@@ -52,6 +69,45 @@ elab "assert_standard_axioms " n:ident : command => do
   unless unexpected.isEmpty do
     throwError "{name} depends on non-standard axioms: {unexpected.toList}\n\
       accepted: {acceptedAxioms}"
+
+/-- Every public declaration originating in a `LoebMeasure` module.
+
+Provenance is by *module*, via the imported module data, so a declaration counts as the
+project's exactly when a project module declares it — which is the population the old
+checklist rule was trying to describe. Declarations this library states in mathlib
+namespaces (`Filter.Product.ofFun` and the like) are therefore included, correctly:
+they are ours, wherever their name lives. -/
+def projectDeclarations (env : Environment) : Array Name := Id.run do
+  let mut result := #[]
+  for (moduleName, idx) in env.header.moduleNames.zipIdx do
+    unless moduleName == `LoebMeasure || (`LoebMeasure).isPrefixOf moduleName do
+      continue
+    match env.header.moduleData[idx]? with
+    | some data =>
+      for n in data.constNames do
+        unless Lean.isPrivateName n || n.isInternalDetail do
+          result := result.push n
+    | none => pure ()
+  return result
+
+/-- **The coverage check.** Audits every public declaration of every project module.
+
+Unlike the named roots this needs no maintenance: adding a module or a public
+declaration extends what is checked automatically. -/
+elab "audit_project_declarations" : command => do
+  let env ← getEnv
+  let names := projectDeclarations env
+  let mut offenders := #[]
+  for name in names do
+    let axioms ← Lean.collectAxioms name
+    let unexpected := axioms.filter fun a => !(acceptedAxioms.contains a)
+    unless unexpected.isEmpty do
+      offenders := offenders.push m!"{name}: {unexpected.toList}"
+  unless offenders.isEmpty do
+    throwError "public project declarations depending on non-standard axioms:\n\
+      {MessageData.joinSep offenders.toList "\n"}\n\
+      accepted: {acceptedAxioms}"
+  logInfo m!"axiom audit: {names.size} public project declarations checked"
 
 end LoebMeasure.AxiomAudit
 
@@ -88,7 +144,17 @@ example {ι : Type} {U : Ultrafilter ι} {X : ι → Type} (k : ℕ)
       = Filter.Product.ofFun fun i ↦ f i j := by
   simp
 
-/-! ## Audited boundary declarations -/
+/-! ## Whole-library coverage
+
+Job 1: every public declaration of every project module. No list to maintain. -/
+
+audit_project_declarations
+
+/-! ## Documented API surface
+
+Job 2: the named entry points the library offers, which a reader can scan and which CI
+breaks on if one is renamed or removed. Coverage no longer depends on this list being
+complete — that is `audit_project_declarations`' job above. -/
 
 -- Project facade
 assert_standard_axioms Loeb.Ultraproduct
