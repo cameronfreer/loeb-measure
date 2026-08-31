@@ -82,10 +82,19 @@ before the much harder Fubini and realization work.
 
 CI builds the public library against the pinned Lean/mathlib environment with warnings
 treated as errors, which also rejects `sorry`. It additionally runs an axiom audit:
-every **audited boundary declaration** — selected public entry points from each module,
-listed in `scripts/AxiomAudit.lean` — must depend only on `propext`, `Classical.choice`, and
-`Quot.sound`, transitively. That is a boundary audit, not an enumeration of every
-declaration in the library.
+**every public declaration originating in a project module** — enumerated by module
+provenance, not from a hand-kept list — must depend only on `propext`,
+`Classical.choice`, and `Quot.sound`, transitively. Private and compiler-internal
+declarations are skipped, which loses nothing, since a private declaration used by a
+public one lies inside that public one's dependency closure.
+
+The check fails closed: it reads the source tree and rejects any library module the
+umbrella root does not import, so a new module cannot escape the audit by being
+unreachable, and an empty declaration population is an error rather than a pass.
+
+`scripts/AxiomAudit.lean` also names selected entry points explicitly. Those document the
+intended API surface and break CI if one is renamed away; they are not what makes the
+audit complete.
 
 ## Building
 

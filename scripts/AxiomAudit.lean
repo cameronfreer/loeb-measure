@@ -10,30 +10,56 @@ import Lean.Elab.Command
 /-!
 # Axiom audit
 
-Run in CI by `lake env lean scripts/AxiomAudit.lean`. Two jobs:
+Run in CI by `lake env lean scripts/AxiomAudit.lean`. Three jobs:
 
-1. **Axiom hygiene.** Every declaration named below is checked to depend only on the
-   accepted axioms `propext`, `Classical.choice`, and `Quot.sound`. The check is
-   transitive: `Lean.collectAxioms` walks the whole dependency closure, so an axiom
-   introduced anywhere beneath a listed declaration fails the build.
+1. **Whole-library axiom hygiene.** `audit_project_declarations` enumerates *every*
+   public declaration originating in a `LoebMeasure` module — by module provenance, not
+   by a hand-kept list — and checks each depends only on the accepted axioms `propext`,
+   `Classical.choice`, and `Quot.sound`. The check is transitive: `Lean.collectAxioms`
+   walks the whole dependency closure.
 
-2. **Root-surface smoke test.** This file imports `LoebMeasure` and uses `Ultraproduct`
+2. **Documented API surface.** The named `assert_standard_axioms` roots below.
+
+3. **Root-surface smoke test.** This file imports `LoebMeasure` and uses `Ultraproduct`
    *unqualified* after `open Loeb`, which is exactly the entry point the README
    documents. A regression in the facade breaks CI here rather than being discovered by
    a reader. Doing it in this file avoids a separate test library, and is only possible
    because the audit runs outside the `LoebMeasure` target — library modules must not
    import the root (see `CONTRIBUTING.md`).
 
-## Scope
+## What changed, and why (#36)
 
-This audits the **named public boundary declarations** listed below: selected public
-entry points from each module, chosen so that the transitive closure covers the
-substance of the library. It is deliberately *not* a whole-library enumeration, and the
-README says so.
+The named roots used to *be* the coverage mechanism, with a reviewer checklist item
+obliging contributors to extend them. That rule was missed twice in three opportunities
+(#33, #35): new public proofs sat outside every audited closure and only human review
+caught it. A measured failure rate, not a hypothetical one.
 
-Changing a public module or capability obliges you to revisit this list — keeping it
-representative is a semantic judgement that no automated check can make, so it is a
-reviewer checklist item in `CONTRIBUTING.md` and the pull-request template.
+The fix removes the selection step rather than policing it. Coverage is now job 1, which
+has no list to keep and so cannot be forgotten. A weaker design — "at least one audited
+declaration per module" — was rejected during #33's review for a concrete reason: on both
+misses the affected modules were *already* represented, so it would have passed while the
+new declarations went unaudited, manufacturing confidence.
+
+**The named roots remain, with a different job.** They document and smoke-test the
+intended public API surface: a reader can see what the library claims to offer, and a
+rename or removal breaks CI here. That is a communication artifact. It is no longer a
+correctness dependency, so forgetting to extend it can no longer cause an audit gap.
+
+## Failing closed
+
+An environment-only check has a blind spot: it sees only modules the umbrella root
+imports, so a new module whose import was forgotten would contribute nothing and raise no
+complaint — reintroducing the silent drift #36 exists to remove. The check therefore reads
+the **source tree** and requires every library `.lean` file to be reachable from the root.
+Missing module metadata and an empty declaration population are likewise errors: a check
+that audits nothing must not report success.
+
+## What is excluded, and why that is safe
+
+Private declarations (`Lean.isPrivateName`) and compiler-internal details
+(`Name.isInternalDetail` — equation lemmas, match auxiliaries, projections) are skipped,
+or the report would be noise. This loses nothing: a private declaration used by a public
+one is inside that public one's dependency closure, so its axioms are still caught.
 -/
 
 open Lean Elab Command
@@ -52,6 +78,94 @@ elab "assert_standard_axioms " n:ident : command => do
   unless unexpected.isEmpty do
     throwError "{name} depends on non-standard axioms: {unexpected.toList}\n\
       accepted: {acceptedAxioms}"
+
+/-- The project modules present in the *imported* environment, with their indices. -/
+def importedProjectModules (env : Environment) : Array (Name × Nat) :=
+  env.header.moduleNames.zipIdx.filter fun (m, _) =>
+    m == `LoebMeasure || (`LoebMeasure).isPrefixOf m
+
+/-- Every `.lean` file under a directory, recursively. -/
+private partial def leanFilesIn (dir : System.FilePath) : IO (Array System.FilePath) := do
+  let mut out := #[]
+  for entry in (← dir.readDir) do
+    if (← entry.path.isDir) then
+      out := out ++ (← leanFilesIn entry.path)
+    else if entry.path.extension == some "lean" then
+      out := out.push entry.path
+  return out
+
+/-- Module names for every source file of the library: the root `LoebMeasure.lean`
+together with everything under `LoebMeasure/`.
+
+Read from **disk**, not from the environment, because that is the whole point: a module
+the umbrella root forgot to import is absent from the environment and would otherwise be
+invisible to an environment-only check. Fails if the source tree is not where expected,
+rather than reporting an empty set. -/
+def sourceModules : IO (Array Name) := do
+  let dir : System.FilePath := "LoebMeasure"
+  unless (← dir.isDir) do
+    throw <| IO.userError s!"expected the library source at {dir}, relative to the \
+      repository root; run this from there"
+  let files ← leanFilesIn dir
+  let toModule (p : System.FilePath) : Name :=
+    (p.withExtension "").components.foldl Name.mkStr Name.anonymous
+  return #[`LoebMeasure] ++ files.map toModule
+
+/-- **The coverage check.** Audits every public declaration of every project module, and
+fails closed if the population it is auditing looks wrong.
+
+Three ways it refuses to pass vacuously, each guarding a way the check could silently
+audit nothing:
+
+* **every source module must be imported.** The environment only knows about modules the
+  umbrella root reaches; a new module whose import was forgotten would contribute no
+  declarations and raise no complaint. That is exactly the silent drift the named-root
+  list used to catch by hand, so it is checked against the source tree directly;
+* **missing module metadata is an error**, not a skipped module;
+* **an empty declaration population is an error.** A check that audits nothing must not
+  report success.
+
+Unlike the named roots this needs no maintenance: adding a module or a public declaration
+extends what is checked automatically. -/
+elab "audit_project_declarations" : command => do
+  let env ← getEnv
+  let imported := importedProjectModules env
+  if imported.isEmpty then
+    throwError "no project modules found in the environment; the audit would pass vacuously"
+  -- Fail closed on a module that exists on disk but is not reachable from the root.
+  let onDisk ← liftM sourceModules
+  let importedNames := imported.map (·.1)
+  let missing := onDisk.filter fun m => !importedNames.contains m
+  unless missing.isEmpty do
+    let list := MessageData.joinSep (missing.toList.map toMessageData) (m!"\n  ")
+    throwError "these library modules are not reachable from the root import, so nothing \
+      in them is audited:\n  {list}\n\
+      add them to LoebMeasure.lean"
+  let mut names := #[]
+  for (moduleName, idx) in imported do
+    match env.header.moduleData[idx]? with
+    | some data =>
+      for n in data.constNames do
+        unless Lean.isPrivateName n || n.isInternalDetail do
+          names := names.push n
+    | none =>
+      throwError "no module data for {moduleName}; refusing to audit an incomplete \
+        environment"
+  if names.isEmpty then
+    throwError "no public project declarations found; the audit would pass vacuously"
+  let mut offenders := #[]
+  for name in names do
+    let axioms ← Lean.collectAxioms name
+    let unexpected := axioms.filter fun a => !(acceptedAxioms.contains a)
+    unless unexpected.isEmpty do
+      offenders := offenders.push m!"{name}: {unexpected.toList}"
+  unless offenders.isEmpty do
+    let list := MessageData.joinSep offenders.toList (m!"\n")
+    throwError "public project declarations depending on non-standard axioms:\n\
+      {list}\n\
+      accepted: {acceptedAxioms}"
+  logInfo m!"axiom audit: {names.size} public declarations across {imported.size} modules \
+    ({onDisk.size} source files, all imported)"
 
 end LoebMeasure.AxiomAudit
 
@@ -88,7 +202,17 @@ example {ι : Type} {U : Ultrafilter ι} {X : ι → Type} (k : ℕ)
       = Filter.Product.ofFun fun i ↦ f i j := by
   simp
 
-/-! ## Audited boundary declarations -/
+/-! ## Whole-library coverage
+
+Job 1: every public declaration of every project module. No list to maintain. -/
+
+audit_project_declarations
+
+/-! ## Documented API surface
+
+Job 2: the named entry points the library offers, which a reader can scan and which CI
+breaks on if one is renamed or removed. Coverage no longer depends on this list being
+complete — that is `audit_project_declarations`' job above. -/
 
 -- Project facade
 assert_standard_axioms Loeb.Ultraproduct

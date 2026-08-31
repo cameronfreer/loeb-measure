@@ -78,9 +78,11 @@ and confirm:
 
 - no `sorry` in the PR scope;
 - no new nonstandard axioms;
-- if a public module or capability changed, `scripts/AxiomAudit.lean` has been
-  reviewed and updated — its list of audited boundary declarations must keep covering
-  the substance of the library, which no automated check can verify;
+- if a public module or capability changed, consider whether `scripts/AxiomAudit.lean`
+  should name any new entry point. This is a **documentation** judgement, not a coverage
+  one: `audit_project_declarations` already checks every public declaration in every
+  project module by provenance, so axiom coverage cannot be lost by forgetting to add a
+  name here (#36). The named list exists so a reader can see what the library offers;
 - if this PR implements declarations sketched in [docs/blueprint.md](docs/blueprint.md),
   those sketches have been replaced with a pointer to the compiled module and its
   docstring — the blueprint covers what does not exist yet, and code supersedes it
