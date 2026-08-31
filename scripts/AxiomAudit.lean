@@ -45,6 +45,15 @@ intended public API surface: a reader can see what the library claims to offer, 
 rename or removal breaks CI here. That is a communication artifact. It is no longer a
 correctness dependency, so forgetting to extend it can no longer cause an audit gap.
 
+## Failing closed
+
+An environment-only check has a blind spot: it sees only modules the umbrella root
+imports, so a new module whose import was forgotten would contribute nothing and raise no
+complaint — reintroducing the silent drift #36 exists to remove. The check therefore reads
+the **source tree** and requires every library `.lean` file to be reachable from the root.
+Missing module metadata and an empty declaration population are likewise errors: a check
+that audits nothing must not report success.
+
 ## What is excluded, and why that is safe
 
 Private declarations (`Lean.isPrivateName`) and compiler-internal details
@@ -70,33 +79,80 @@ elab "assert_standard_axioms " n:ident : command => do
     throwError "{name} depends on non-standard axioms: {unexpected.toList}\n\
       accepted: {acceptedAxioms}"
 
-/-- Every public declaration originating in a `LoebMeasure` module.
+/-- The project modules present in the *imported* environment, with their indices. -/
+def importedProjectModules (env : Environment) : Array (Name × Nat) :=
+  env.header.moduleNames.zipIdx.filter fun (m, _) =>
+    m == `LoebMeasure || (`LoebMeasure).isPrefixOf m
 
-Provenance is by *module*, via the imported module data, so a declaration counts as the
-project's exactly when a project module declares it — which is the population the old
-checklist rule was trying to describe. Declarations this library states in mathlib
-namespaces (`Filter.Product.ofFun` and the like) are therefore included, correctly:
-they are ours, wherever their name lives. -/
-def projectDeclarations (env : Environment) : Array Name := Id.run do
-  let mut result := #[]
-  for (moduleName, idx) in env.header.moduleNames.zipIdx do
-    unless moduleName == `LoebMeasure || (`LoebMeasure).isPrefixOf moduleName do
-      continue
+/-- Every `.lean` file under a directory, recursively. -/
+private partial def leanFilesIn (dir : System.FilePath) : IO (Array System.FilePath) := do
+  let mut out := #[]
+  for entry in (← dir.readDir) do
+    if (← entry.path.isDir) then
+      out := out ++ (← leanFilesIn entry.path)
+    else if entry.path.extension == some "lean" then
+      out := out.push entry.path
+  return out
+
+/-- Module names for every source file of the library: the root `LoebMeasure.lean`
+together with everything under `LoebMeasure/`.
+
+Read from **disk**, not from the environment, because that is the whole point: a module
+the umbrella root forgot to import is absent from the environment and would otherwise be
+invisible to an environment-only check. Fails if the source tree is not where expected,
+rather than reporting an empty set. -/
+def sourceModules : IO (Array Name) := do
+  let dir : System.FilePath := "LoebMeasure"
+  unless (← dir.isDir) do
+    throw <| IO.userError s!"expected the library source at {dir}, relative to the \
+      repository root; run this from there"
+  let files ← leanFilesIn dir
+  let toModule (p : System.FilePath) : Name :=
+    (p.withExtension "").components.foldl Name.mkStr Name.anonymous
+  return #[`LoebMeasure] ++ files.map toModule
+
+/-- **The coverage check.** Audits every public declaration of every project module, and
+fails closed if the population it is auditing looks wrong.
+
+Three ways it refuses to pass vacuously, each guarding a way the check could silently
+audit nothing:
+
+* **every source module must be imported.** The environment only knows about modules the
+  umbrella root reaches; a new module whose import was forgotten would contribute no
+  declarations and raise no complaint. That is exactly the silent drift the named-root
+  list used to catch by hand, so it is checked against the source tree directly;
+* **missing module metadata is an error**, not a skipped module;
+* **an empty declaration population is an error.** A check that audits nothing must not
+  report success.
+
+Unlike the named roots this needs no maintenance: adding a module or a public declaration
+extends what is checked automatically. -/
+elab "audit_project_declarations" : command => do
+  let env ← getEnv
+  let imported := importedProjectModules env
+  if imported.isEmpty then
+    throwError "no project modules found in the environment; the audit would pass vacuously"
+  -- Fail closed on a module that exists on disk but is not reachable from the root.
+  let onDisk ← liftM sourceModules
+  let importedNames := imported.map (·.1)
+  let missing := onDisk.filter fun m => !importedNames.contains m
+  unless missing.isEmpty do
+    let list := MessageData.joinSep (missing.toList.map toMessageData) (m!"\n  ")
+    throwError "these library modules are not reachable from the root import, so nothing \
+      in them is audited:\n  {list}\n\
+      add them to LoebMeasure.lean"
+  let mut names := #[]
+  for (moduleName, idx) in imported do
     match env.header.moduleData[idx]? with
     | some data =>
       for n in data.constNames do
         unless Lean.isPrivateName n || n.isInternalDetail do
-          result := result.push n
-    | none => pure ()
-  return result
-
-/-- **The coverage check.** Audits every public declaration of every project module.
-
-Unlike the named roots this needs no maintenance: adding a module or a public
-declaration extends what is checked automatically. -/
-elab "audit_project_declarations" : command => do
-  let env ← getEnv
-  let names := projectDeclarations env
+          names := names.push n
+    | none =>
+      throwError "no module data for {moduleName}; refusing to audit an incomplete \
+        environment"
+  if names.isEmpty then
+    throwError "no public project declarations found; the audit would pass vacuously"
   let mut offenders := #[]
   for name in names do
     let axioms ← Lean.collectAxioms name
@@ -104,10 +160,12 @@ elab "audit_project_declarations" : command => do
     unless unexpected.isEmpty do
       offenders := offenders.push m!"{name}: {unexpected.toList}"
   unless offenders.isEmpty do
+    let list := MessageData.joinSep offenders.toList (m!"\n")
     throwError "public project declarations depending on non-standard axioms:\n\
-      {MessageData.joinSep offenders.toList "\n"}\n\
+      {list}\n\
       accepted: {acceptedAxioms}"
-  logInfo m!"axiom audit: {names.size} public project declarations checked"
+  logInfo m!"axiom audit: {names.size} public declarations across {imported.size} modules \
+    ({onDisk.size} source files, all imported)"
 
 end LoebMeasure.AxiomAudit
 

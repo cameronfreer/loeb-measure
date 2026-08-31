@@ -88,6 +88,10 @@ provenance, not from a hand-kept list — must depend only on `propext`,
 declarations are skipped, which loses nothing, since a private declaration used by a
 public one lies inside that public one's dependency closure.
 
+The check fails closed: it reads the source tree and rejects any library module the
+umbrella root does not import, so a new module cannot escape the audit by being
+unreachable, and an empty declaration population is an error rather than a pass.
+
 `scripts/AxiomAudit.lean` also names selected entry points explicitly. Those document the
 intended API surface and break CI if one is renamed away; they are not what makes the
 audit complete.
