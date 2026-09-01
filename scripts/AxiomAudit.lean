@@ -290,6 +290,7 @@ assert_standard_axioms Ultrafilter.norm_ultralimit_le
 assert_standard_axioms Ultrafilter.abs_ultralimit_le
 assert_standard_axioms Ultrafilter.ultralimit_add_of_eventually_norm_le
 assert_standard_axioms Ultrafilter.ultralimit_neg_of_eventually_norm_le
+assert_standard_axioms Ultrafilter.ultralimit_const_mul_of_eventually_norm_le
 
 -- Probability ultralimits
 assert_standard_axioms Loeb.ultralimit_zero
@@ -383,6 +384,12 @@ assert_standard_axioms Loeb.InternalMap.IsUniformlyBounded.neg
 assert_standard_axioms Loeb.InternalMap.IsUniformlyBounded.add
 assert_standard_axioms Loeb.InternalMap.lift_neg_ofFun
 assert_standard_axioms Loeb.InternalMap.lift_add_ofFun
+assert_standard_axioms Loeb.InternalMap.constMul
+assert_standard_axioms Loeb.InternalMap.IsUniformlyBounded.constMul
+assert_standard_axioms Loeb.InternalMap.lift_constMul_ofFun
+assert_standard_axioms Loeb.InternalMap.lift_neg
+assert_standard_axioms Loeb.InternalMap.lift_add
+assert_standard_axioms Loeb.InternalMap.lift_constMul
 
 -- Internal graphs
 assert_standard_axioms Loeb.internalEdgeRelation

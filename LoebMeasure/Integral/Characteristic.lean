@@ -32,12 +32,21 @@ those cases, and a general filter admits neither.
 That makes this the first place in Layer B where an ultrafilter property beyond F0's
 convergence argument is consumed.
 
-## Arithmetic needs boundedness
+## Arithmetic takes boundedness, and stays above the quotient
 
-`lift_add` and `lift_neg` take boundedness, and not as bookkeeping: an ultralimit is
-additive only when the summands converge, which on `ℝ` is what a bound supplies. The
-`ℝ≥0∞` analogue `Loeb.ultralimit_add` is unconditional precisely because that space is
-compact and every family converges.
+`lift_neg`, `lift_add` and `lift_constMul` take `IsUniformlyBounded` on their arguments,
+not a named bound, so downstream code never has to choose representatives. The
+`…_ofFun` forms below them are the representative computation rules, kept for proofs that
+already hold a bound.
+
+The hypothesis is what these proofs use, and it is **sufficient**; it is not shown
+necessary. `lift` is total, so a divergent family still has a value, and nothing rules out
+such junk values happening to satisfy an arithmetic identity. What is true is that no
+*unconditional* real-valued law is available: without convergence there is nothing forcing
+the value to respect sums.
+
+The `ℝ≥0∞` analogue `Loeb.ultralimit_add` *is* unconditional — that space is compact, so
+every family converges and no hypothesis is needed.
 
 ## Hypotheses
 
@@ -71,6 +80,7 @@ well-definedness obligation. -/
 noncomputable def indicatorMap (A : InternalSet U X) : InternalMap U X fun _ ↦ ℝ :=
   Filter.Product.map (fun _ s ↦ Set.indicator s fun _ ↦ (1 : ℝ)) A
 
+/-- The representative computation rule for `indicatorMap`. -/
 @[simp]
 theorem indicatorMap_ofFun (A : (i : ι) → Set (X i)) :
     indicatorMap (Filter.Product.ofFun A : InternalSet U X)
@@ -121,6 +131,8 @@ noncomputable def BoundedInternalFunction.indicator (A : InternalSet U X) :
     BoundedInternalFunction U X :=
   ⟨InternalSet.indicatorMap A, InternalSet.isUniformlyBounded_indicatorMap A⟩
 
+/-- The set bridge for the bundled form — `InternalSet.lift_indicatorMap` through
+`BoundedInternalFunction.indicator`. -/
 @[simp]
 theorem BoundedInternalFunction.lift_indicator (A : InternalSet U X) (x : Ultraproduct U X) :
     (BoundedInternalFunction.indicator A).lift x
@@ -142,18 +154,32 @@ def neg (f : InternalMap U X fun _ ↦ ℝ) : InternalMap U X fun _ ↦ ℝ :=
 def add (f g : InternalMap U X fun _ ↦ ℝ) : InternalMap U X fun _ ↦ ℝ :=
   Filter.Product.map₂ (fun _ a b ↦ a + b) f g
 
+/-- Scaling an internal map by a real constant, stagewise. -/
+def constMul (c : ℝ) (f : InternalMap U X fun _ ↦ ℝ) : InternalMap U X fun _ ↦ ℝ :=
+  Filter.Product.map (fun _ g x ↦ c * g x) f
+
+/-- The representative computation rule for negation. -/
 @[simp]
 theorem neg_ofFun (g : (i : ι) → X i → ℝ) :
     neg (Filter.Product.ofFun g : InternalMap U X fun _ ↦ ℝ)
       = Filter.Product.ofFun fun i ↦ -g i :=
   Filter.Product.map_ofFun _ _
 
+/-- The representative computation rule for addition. -/
 @[simp]
 theorem add_ofFun (g h : (i : ι) → X i → ℝ) :
     add (Filter.Product.ofFun g : InternalMap U X fun _ ↦ ℝ) (Filter.Product.ofFun h)
       = Filter.Product.ofFun fun i ↦ g i + h i :=
   Filter.Product.map₂_ofFun _ _ _
 
+/-- The representative computation rule for scaling. -/
+@[simp]
+theorem constMul_ofFun (c : ℝ) (g : (i : ι) → X i → ℝ) :
+    constMul c (Filter.Product.ofFun g : InternalMap U X fun _ ↦ ℝ)
+      = Filter.Product.ofFun fun i x ↦ c * g i x :=
+  Filter.Product.map_ofFun _ _
+
+/-- **Negation preserves uniform boundedness**, with the same bound. -/
 theorem IsUniformlyBounded.neg {f : InternalMap U X fun _ ↦ ℝ}
     (hf : f.IsUniformlyBounded) : (neg f).IsUniformlyBounded := by
   induction f using Filter.Product.inductionOn with
@@ -162,6 +188,7 @@ theorem IsUniformlyBounded.neg {f : InternalMap U X fun _ ↦ ℝ}
     rw [neg_ofFun, isUniformlyBounded_ofFun]
     exact ⟨C, hC.mono fun i hi x ↦ by simpa using hi x⟩
 
+/-- **Addition preserves uniform boundedness**, with the bounds adding. -/
 theorem IsUniformlyBounded.add {f g : InternalMap U X fun _ ↦ ℝ}
     (hf : f.IsUniformlyBounded) (hg : g.IsUniformlyBounded) :
     (add f g).IsUniformlyBounded := by
@@ -173,6 +200,17 @@ theorem IsUniformlyBounded.add {f g : InternalMap U X fun _ ↦ ℝ}
     refine ⟨C + D, ?_⟩
     filter_upwards [hC, hD] with i hi hi' x
     exact (norm_add_le _ _).trans (add_le_add (hi x) (hi' x))
+
+/-- **Scaling preserves uniform boundedness**, with the bound scaled by `|c|`. -/
+theorem IsUniformlyBounded.constMul {f : InternalMap U X fun _ ↦ ℝ} (c : ℝ)
+    (hf : f.IsUniformlyBounded) : (constMul c f).IsUniformlyBounded := by
+  induction f using Filter.Product.inductionOn with
+  | _ g =>
+    obtain ⟨C, hC⟩ := (isUniformlyBounded_ofFun g).1 hf
+    rw [constMul_ofFun, isUniformlyBounded_ofFun]
+    refine ⟨|c| * C, hC.mono fun i hi x ↦ ?_⟩
+    rw [Real.norm_eq_abs, abs_mul]
+    exact mul_le_mul_of_nonneg_left (by rw [← Real.norm_eq_abs]; exact hi x) (abs_nonneg c)
 
 /-- **The lift commutes with negation**, given a bound. -/
 theorem lift_neg_ofFun {g : (i : ι) → X i → ℝ} {C : ℝ}
@@ -186,8 +224,8 @@ theorem lift_neg_ofFun {g : (i : ι) → X i → ℝ} {C : ℝ}
 
 /-- **The lift commutes with addition**, given bounds.
 
-Boundedness is load-bearing rather than bookkeeping: an ultralimit is additive only when
-the summands converge, which on `ℝ` is what a bound supplies. -/
+The representative form; `lift_add` below is the quotient-level one downstream code should
+prefer. -/
 theorem lift_add_ofFun {g h : (i : ι) → X i → ℝ} {C D : ℝ}
     (hC : ∀ᶠ i in (U : Filter ι), ∀ y, ‖g i y‖ ≤ C)
     (hD : ∀ᶠ i in (U : Filter ι), ∀ y, ‖h i y‖ ≤ D) (x : Ultraproduct U X) :
@@ -199,6 +237,49 @@ theorem lift_add_ofFun {g h : (i : ι) → X i → ℝ} {C D : ℝ}
     rw [add_ofFun, lift_ofFun, lift_ofFun, lift_ofFun]
     exact Ultrafilter.ultralimit_add_of_eventually_norm_le
       (hC.mono fun i hi ↦ hi (x' i)) (hD.mono fun i hi ↦ hi (x' i))
+
+/-- **The lift commutes with scaling**, given a bound. -/
+theorem lift_constMul_ofFun {g : (i : ι) → X i → ℝ} {C : ℝ} (c : ℝ)
+    (hC : ∀ᶠ i in (U : Filter ι), ∀ y, ‖g i y‖ ≤ C) (x : Ultraproduct U X) :
+    lift (constMul c (Filter.Product.ofFun g : InternalMap U X fun _ ↦ ℝ)) x
+      = c * lift (Filter.Product.ofFun g) x := by
+  induction x using Filter.Product.inductionOn with
+  | _ x' =>
+    rw [constMul_ofFun, lift_ofFun, lift_ofFun]
+    exact Ultrafilter.ultralimit_const_mul_of_eventually_norm_le
+      (hC.mono fun i hi ↦ hi (x' i))
+
+/-! ### Quotient-level laws
+
+The forms downstream code should use. Each takes `IsUniformlyBounded` on the arguments
+rather than a named bound, so a caller never has to choose representatives — F3 can work
+entirely above the quotient, which is what F1's abstraction boundary is for. -/
+
+/-- **The lift commutes with negation.** -/
+theorem lift_neg {f : InternalMap U X fun _ ↦ ℝ} (hf : f.IsUniformlyBounded)
+    (x : Ultraproduct U X) : lift (neg f) x = -lift f x := by
+  induction f using Filter.Product.inductionOn with
+  | _ g =>
+    obtain ⟨C, hC⟩ := (isUniformlyBounded_ofFun g).1 hf
+    exact lift_neg_ofFun hC x
+
+/-- **The lift commutes with addition.** -/
+theorem lift_add {f g : InternalMap U X fun _ ↦ ℝ} (hf : f.IsUniformlyBounded)
+    (hg : g.IsUniformlyBounded) (x : Ultraproduct U X) :
+    lift (add f g) x = lift f x + lift g x := by
+  induction f, g using Filter.Product.inductionOn₂ with
+  | _ f' g' =>
+    obtain ⟨C, hC⟩ := (isUniformlyBounded_ofFun f').1 hf
+    obtain ⟨D, hD⟩ := (isUniformlyBounded_ofFun g').1 hg
+    exact lift_add_ofFun hC hD x
+
+/-- **The lift commutes with scaling.** -/
+theorem lift_constMul {f : InternalMap U X fun _ ↦ ℝ} (c : ℝ) (hf : f.IsUniformlyBounded)
+    (x : Ultraproduct U X) : lift (constMul c f) x = c * lift f x := by
+  induction f using Filter.Product.inductionOn with
+  | _ g =>
+    obtain ⟨C, hC⟩ := (isUniformlyBounded_ofFun g).1 hf
+    exact lift_constMul_ofFun c hC x
 
 end InternalMap
 
@@ -248,7 +329,38 @@ example {f g : InternalMap U X fun _ ↦ ℝ} (hf : f.IsUniformlyBounded)
     (hg : g.IsUniformlyBounded) : (InternalMap.add f g).IsUniformlyBounded :=
   hf.add hg
 
-/-- The lift commutes with addition, given bounds. -/
+/-- **The quotient-level laws need no representatives**, which is the point of stating
+them: an arbitrary internal map, boundedness as a hypothesis, no `ofFun` in sight. This is
+the form F3 will consume. -/
+example {f g : InternalMap U X fun _ ↦ ℝ} (hf : f.IsUniformlyBounded)
+    (hg : g.IsUniformlyBounded) (x : Ultraproduct U X) :
+    InternalMap.lift (InternalMap.add f g) x
+      = InternalMap.lift f x + InternalMap.lift g x :=
+  InternalMap.lift_add hf hg x
+
+/-- Negation, likewise. -/
+example {f : InternalMap U X fun _ ↦ ℝ} (hf : f.IsUniformlyBounded)
+    (x : Ultraproduct U X) :
+    InternalMap.lift (InternalMap.neg f) x = -InternalMap.lift f x :=
+  InternalMap.lift_neg hf x
+
+/-- **Scalars**, which F3 needs for linearity of the integral. -/
+example {f : InternalMap U X fun _ ↦ ℝ} (c : ℝ) (hf : f.IsUniformlyBounded)
+    (x : Ultraproduct U X) :
+    InternalMap.lift (InternalMap.constMul c f) x = c * InternalMap.lift f x :=
+  InternalMap.lift_constMul c hf x
+
+/-- **An affine combination**, assembling all three laws — the shape a linearity argument
+actually takes, and a check that they compose without dropping back to representatives. -/
+example {f g : InternalMap U X fun _ ↦ ℝ} (a b : ℝ) (hf : f.IsUniformlyBounded)
+    (hg : g.IsUniformlyBounded) (x : Ultraproduct U X) :
+    InternalMap.lift
+        (InternalMap.add (InternalMap.constMul a f) (InternalMap.constMul b g)) x
+      = a * InternalMap.lift f x + b * InternalMap.lift g x := by
+  rw [InternalMap.lift_add (hf.constMul a) (hg.constMul b),
+    InternalMap.lift_constMul a hf, InternalMap.lift_constMul b hg]
+
+/-- The representative form is still available for proofs that already hold a bound. -/
 example {g h : (i : ι) → X i → ℝ} {C D : ℝ}
     (hC : ∀ᶠ i in (U : Filter ι), ∀ y, ‖g i y‖ ≤ C)
     (hD : ∀ᶠ i in (U : Filter ι), ∀ y, ‖h i y‖ ≤ D) (x : Ultraproduct U X) :

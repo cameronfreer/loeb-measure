@@ -487,11 +487,20 @@ makes it the first place in Layer B consuming an ultrafilter property beyond F0'
 convergence argument, and it composes with M2's carrier laws (`carrier_bot` gives the zero
 function, `carrier_top` the constant one).
 
-Negation and addition close on bounded maps, and the lift commutes with both — but only
-given bounds, since an ultralimit is additive precisely when the summands converge. On
-`ℝ≥0∞` the analogue `Loeb.ultralimit_add` is unconditional because that space is compact;
-the real forms `Ultrafilter.ultralimit_add_of_eventually_norm_le` and
-`ultralimit_neg_of_eventually_norm_le` were added to F0's module for this.
+Negation, addition and scaling by a real constant close on bounded maps, and the lift
+commutes with all three. The laws come in two forms: `lift_neg`, `lift_add` and
+`lift_constMul` take `IsUniformlyBounded` on arbitrary internal maps, so downstream code
+never chooses representatives, while the `…_ofFun` forms beneath them serve proofs that
+already hold a bound. Keeping the quotient-level forms is what stops F3 from having to
+reopen quotient induction.
+
+Boundedness is what those proofs use and is **sufficient**; it is not shown necessary.
+`lift` is total, so a divergent family still has a value and nothing rules out such a junk
+value satisfying an identity by accident. What is true is that no *unconditional*
+real-valued law is available. On `ℝ≥0∞` the analogue `Loeb.ultralimit_add` is
+unconditional, because that space is compact and every family converges. The real forms
+`ultralimit_add_of_eventually_norm_le`, `ultralimit_neg_of_eventually_norm_le` and
+`ultralimit_const_mul_of_eventually_norm_le` were added to F0's module for this.
 
 F1a had left open whether `BoundedInternalFunction` wants a bundled `ofFun`-style
 constructor, with this unit's indicator as the test. The answer is **no**:
