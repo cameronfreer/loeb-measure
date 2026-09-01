@@ -428,8 +428,9 @@ limit argument, and is not part of M3.
 
 ## Layer B — bounded internal functions
 
-**F1 is implemented** in `LoebMeasure/Integral/Bounded.lean`, and supersedes this section's
-sketch on two counts.
+**F1a is implemented** in `LoebMeasure/Integral/Bounded.lean`, and supersedes this
+section's sketch on two counts. F1b — characteristic functions and cheap algebraic closure
+(#104) — is still open.
 
 The sketch was a `structure` carrying `bound : ℝ` alongside the function. That is wrong:
 it would distinguish the same function equipped with two different bounds. Boundedness is
@@ -456,20 +457,34 @@ noncomputable def InternalMap.lift (f : InternalMap U X fun _ ↦ ℝ) : Ultrapr
 
 Totality is the same convention `Ultrafilter.ultralimit` already uses — junk where no
 limit exists — so boundedness is not what makes the lift *definable*, only what makes it a
-genuine limit. That division is visible in the API: `lift_ofFun` is a hypothesis-free
-definitional rule, while `tendsto_lift_ofFun`, `norm_lift_ofFun_le`, and
-`exists_forall_norm_lift_le` all take boundedness.
+genuine limit. That division is visible in the API, at two levels of the quotient:
+`lift_ofFun` is a hypothesis-free definitional rule; the representative-level
+`tendsto_lift_ofFun` and `norm_lift_ofFun_le` take an explicit eventual bound, since a
+named bound is what their conclusions mention; and only the quotient-level
+`exists_forall_norm_lift_le` takes `IsUniformlyBounded` itself.
 
 The lift descends **one** quotient, not two: `InternalMap.toFun` already performs the
 quotient-safe pointwise application (Layer I), so only its real ultrapower result needs
 descending, and the single well-definedness obligation is `ultralimit_congr`. A nested
 `liftOn` over function and point would have rebuilt that abstraction.
 
-F1 takes **no hypotheses at all** — no measure, no countable incompleteness, no stage
+F1a takes **no additional hypotheses** — no measure, no countable incompleteness, no stage
 finiteness, nonemptiness, or measurability. It is quotient-level and analytic; the measure
 enters at F2.
 
-Still to come:
+The `Ultrafilter` structure is load-bearing, though, and not merely inherited notation:
+F0's convergence theorem obtains a limit from a cluster point of the pushed-forward
+*ultra*filter, so `tendsto_lift_ofFun` would fail for a general filter.
+
+**F1b (#104)** is next, and deliberately before F2: characteristic functions must recover
+the M3 set API — the lift of a stagewise indicator being the indicator of the realized
+carrier, which needs the ultrafilter dichotomy and is not purely formal — together with
+cheap algebraic closure under negation and sums. It is measure-free, which is why it
+belongs here rather than inside measurability, and its indicator construction is what
+should decide whether a bundled `ofFun`-style constructor for
+`BoundedInternalFunction` is worth adding.
+
+Still to come after that:
 
 ```lean
 theorem BoundedInternalFunction.measurable_lift
