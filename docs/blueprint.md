@@ -428,46 +428,76 @@ limit argument, and is not part of M3.
 
 ## Layer B — bounded internal functions
 
-Module candidates:
+**F1a is implemented** in `LoebMeasure/Integral/Bounded.lean`, and supersedes this
+section's sketch on two counts. F1b — characteristic functions and cheap algebraic closure
+(#104) — is still open.
 
-```text
-LoebMeasure/Integral/Bounded.lean
-LoebMeasure/Integral/InternalFunction.lean
-```
-
-Not `LoebMeasure/Internal/Function.lean`, which this list once named: that module exists
-and holds *internal maps* between ultraproducts — a different notion from a bounded
-real-valued internal function, and one this layer will consume rather than extend.
-
-Initial functions are uniformly bounded and real-valued:
+The sketch was a `structure` carrying `bound : ℝ` alongside the function. That is wrong:
+it would distinguish the same function equipped with two different bounds. Boundedness is
+a fact *about* a function, not part of what the function is, so the shipped representation
+is a subtype over a `Prop`:
 
 ```lean
-structure BoundedInternalFunction
-    (U : Ultrafilter ι) (X : ι → Type*) where
-  bound : ℝ
-  fn : ∀ i, X i → ℝ
-  norm_le : ∀ i x, ‖fn i x‖ ≤ bound
+def InternalMap.IsUniformlyBounded (f : InternalMap U X fun _ ↦ ℝ) : Prop
+def BoundedInternalFunction (U) (X) := {f : InternalMap U X fun _ ↦ ℝ // f.IsUniformlyBounded}
 ```
 
-The representation will likely also quotient eventually equal families. Required
-public results:
+with `Subtype.ext` delivering the identity, compiled as `BoundedInternalFunction.ext`. The
+`liftOn` formulation was chosen over the equivalent existential-over-representatives one
+because its computation rule is `Iff.rfl`; the equivalence is recorded as
+`isUniformlyBounded_iff_exists_ofFun` so the choice reads as ergonomic rather than
+mathematical.
+
+The sketch also placed the lift on the bundled type. It is on **all** of `InternalMap`
+instead:
 
 ```lean
-def BoundedInternalFunction.lift :
-    Ultraproduct U X → ℝ
+noncomputable def InternalMap.lift (f : InternalMap U X fun _ ↦ ℝ) : Ultraproduct U X → ℝ
+```
 
+Totality is the same convention `Ultrafilter.ultralimit` already uses — junk where no
+limit exists — so boundedness is not what makes the lift *definable*, only what makes it a
+genuine limit. That division is visible in the API, at two levels of the quotient:
+`lift_ofFun` is a hypothesis-free definitional rule; the representative-level
+`tendsto_lift_ofFun` and `norm_lift_ofFun_le` take an explicit eventual bound, since a
+named bound is what their conclusions mention; and only the quotient-level
+`exists_forall_norm_lift_le` takes `IsUniformlyBounded` itself.
+
+The lift descends **one** quotient, not two: `InternalMap.toFun` already performs the
+quotient-safe pointwise application (Layer I), so only its real ultrapower result needs
+descending, and the single well-definedness obligation is `ultralimit_congr`. A nested
+`liftOn` over function and point would have rebuilt that abstraction.
+
+F1a takes **no additional hypotheses** — no measure, no countable incompleteness, no stage
+finiteness, nonemptiness, or measurability. It is quotient-level and analytic; the measure
+enters at F2.
+
+The `Ultrafilter` structure is load-bearing, though, and not merely inherited notation:
+F0's convergence theorem obtains a limit from a cluster point of the pushed-forward
+*ultra*filter, so `tendsto_lift_ofFun` would fail for a general filter.
+
+**F1b (#104)** is next, and deliberately before F2: characteristic functions must recover
+the M3 set API — the lift of a stagewise indicator being the indicator of the realized
+carrier, which needs the ultrafilter dichotomy and is not purely formal — together with
+cheap algebraic closure under negation and sums. It is measure-free, which is why it
+belongs here rather than inside measurability, and its indicator construction is what
+should decide whether a bundled `ofFun`-style constructor for
+`BoundedInternalFunction` is worth adding.
+
+Still to come after that:
+
+```lean
 theorem BoundedInternalFunction.measurable_lift
     (hX : ∀ i, Nonempty (X i)) :
     Measurable[loebMeasurableSpace hX] f.lift
 
-theorem integral_internalFunction
+theorem integral_boundedInternalFunction
     (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i)) :
-    ∫ x, f.lift x ∂loebMeasure hU hX =
-      probabilityUltralimit U
-        (fun i => ∫ x, f.fn i x ∂normalizedCounting i)
+    ∫ x, f.lift x ∂loebMeasure hU hX = …
 ```
 
-The average-over-finite-types form should be an explicit corollary.
+The average-over-finite-types form should be an explicit corollary, and characteristic
+functions must recover the M3 set API.
 
 ## Layer G — graded powers and Fubini
 
