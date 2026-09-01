@@ -80,6 +80,29 @@ theorem norm_ultralimit_le (h : ∀ᶠ i in U, ‖f i‖ ≤ C) : ‖U.ultralimi
 theorem abs_ultralimit_le (h : ∀ᶠ i in U, |f i| ≤ C) : |U.ultralimit f| ≤ C :=
   norm_ultralimit_le h
 
+/-! ### Arithmetic
+
+Both rules need boundedness, and genuinely so: an ultralimit is additive only when the
+summands converge, and on `ℝ` that is exactly what a bound supplies. Contrast
+`Loeb.ultralimit_add` on `ℝ≥0∞`, which is unconditional because that space is compact. -/
+
+/-- **Ultralimits of bounded real families are additive.** -/
+theorem ultralimit_add_of_eventually_norm_le {g : ι → ℝ} {C D : ℝ}
+    (hf : ∀ᶠ i in U, ‖f i‖ ≤ C) (hg : ∀ᶠ i in U, ‖g i‖ ≤ D) :
+    U.ultralimit (fun i ↦ f i + g i) = U.ultralimit f + U.ultralimit g := by
+  refine tendsto_nhds_unique (tendsto_ultralimit_of_eventually_norm_le
+    (C := C + D) ?_) ((tendsto_ultralimit_of_eventually_norm_le hf).add
+      (tendsto_ultralimit_of_eventually_norm_le hg))
+  filter_upwards [hf, hg] with i hi hi'
+  exact (norm_add_le _ _).trans (add_le_add hi hi')
+
+/-- **And negation passes through.** -/
+theorem ultralimit_neg_of_eventually_norm_le {C : ℝ} (hf : ∀ᶠ i in U, ‖f i‖ ≤ C) :
+    U.ultralimit (fun i ↦ -f i) = -U.ultralimit f :=
+  tendsto_nhds_unique
+    (tendsto_ultralimit_of_eventually_norm_le (C := C) (by simpa using hf))
+    (tendsto_ultralimit_of_eventually_norm_le hf).neg
+
 /-! ### API tests -/
 
 section Tests

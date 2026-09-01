@@ -476,15 +476,29 @@ The `Ultrafilter` structure is load-bearing, though, and not merely inherited no
 F0's convergence theorem obtains a limit from a cluster point of the pushed-forward
 *ultra*filter, so `tendsto_lift_ofFun` would fail for a general filter.
 
-**F1b (#104)** is next, and deliberately before F2: characteristic functions must recover
-the M3 set API — the lift of a stagewise indicator being the indicator of the realized
-carrier, which needs the ultrafilter dichotomy and is not purely formal — together with
-cheap algebraic closure under negation and sums. It is measure-free, which is why it
-belongs here rather than inside measurability, and its indicator construction is what
-should decide whether a bundled `ofFun`-style constructor for
-`BoundedInternalFunction` is worth adding.
+**F1b is implemented** too, in `LoebMeasure/Integral/Characteristic.lean`, and stayed
+before F2 because it is measure-free.
 
-Still to come after that:
+`InternalSet.lift_indicatorMap` is the set bridge E5 committed to: the lift of an internal
+set's characteristic function is the characteristic function of its realized carrier. It is
+**not formal** — the stagewise family is `{0, 1}`-valued and which value the ultralimit
+takes is decided by the **ultrafilter dichotomy**, via `Ultrafilter.eventually_not`. That
+makes it the first place in Layer B consuming an ultrafilter property beyond F0's
+convergence argument, and it composes with M2's carrier laws (`carrier_bot` gives the zero
+function, `carrier_top` the constant one).
+
+Negation and addition close on bounded maps, and the lift commutes with both — but only
+given bounds, since an ultralimit is additive precisely when the summands converge. On
+`ℝ≥0∞` the analogue `Loeb.ultralimit_add` is unconditional because that space is compact;
+the real forms `Ultrafilter.ultralimit_add_of_eventually_norm_le` and
+`ultralimit_neg_of_eventually_norm_le` were added to F0's module for this.
+
+F1a had left open whether `BoundedInternalFunction` wants a bundled `ofFun`-style
+constructor, with this unit's indicator as the test. The answer is **no**:
+`BoundedInternalFunction.indicator` builds the bundled object in one line, and a generic
+constructor would not have shortened it.
+
+Still to come:
 
 ```lean
 theorem BoundedInternalFunction.measurable_lift
