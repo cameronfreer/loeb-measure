@@ -30,13 +30,16 @@ The content is `lift_preimage_Iic`:
 lift f ⁻¹' Set.Iic r = ⋂ n, InternalSet.carrier (f.strictSublevel (r + 1 / (n + 1)))
 ```
 
-The lift's sublevel sets are **not internal** — that is the whole difficulty — but they are
-countable intersections of internal carriers, which is exactly what the Carathéodory
-σ-algebra is closed under. `measurableSet_internal` supplies each piece.
+A sublevel set of the lift **need not be internal** — that is the difficulty, though it is
+not always so: a constant lift has sublevel sets `∅` or `univ`, both internal. What is
+always true, and what the σ-algebra needs, is that it is a countable intersection of
+internal carriers, which the Carathéodory σ-algebra is closed under.
+`measurableSet_internal` supplies each piece.
 
-Both inclusions run through F1a's `tendsto_lift_ofFun`, so **boundedness is load-bearing
-here**, not inherited bookkeeping. It is the first place in M5 where boundedness does
-something beyond bounding a value:
+Both inclusions run through F1a's `tendsto_lift_ofFun`, so **boundedness is load-bearing**
+for the characterization and hence for measurability — not inherited bookkeeping.
+(F1b's arithmetic already used it for the same reason, to obtain algebraic identities from
+convergence; this is not the first such use.)
 
 * forwards, a limit `≤ r` is *strictly* below `r + 1/(n+1)`, and convergence turns that
   into an eventual strict stagewise inequality — which is carrier membership;
@@ -105,23 +108,21 @@ theorem lift_preimage_Iic {f : InternalMap U X fun _ ↦ ℝ} (hf : f.IsUniforml
     ext x
     induction x using Filter.Product.inductionOn with
     | _ x' =>
+      -- Bound once, through F1a's API, and use it for both directions.
+      have htend := tendsto_lift_ofFun hC x'
+      rw [lift_ofFun] at htend
       simp only [Set.mem_preimage, Set.mem_Iic, Set.mem_iInter, strictSublevel_ofFun,
         InternalSet.mem_carrier_ofFun, Set.mem_setOf_eq, lift_ofFun]
       constructor
       · -- A limit at most `r` is strictly below `r + 1/(n+1)`, so eventually the values are.
         intro hle n
-        have hlt : U.ultralimit (fun i ↦ g i (x' i)) < r + 1 / (n + 1 : ℝ) := by
-          linarith [hpos n]
-        exact ((Ultrafilter.tendsto_ultralimit_of_eventually_norm_le
-          (hC.mono fun i hi ↦ hi (x' i))).eventually_lt_const hlt)
+        exact htend.eventually_lt_const (by linarith [hpos n])
       · -- Eventual membership at every `n` bounds the limit by every `r + 1/(n+1)`.
         intro hmem
         by_contra hgt
         push Not at hgt
         obtain ⟨n, hn⟩ := exists_nat_one_div_lt (sub_pos.2 hgt)
-        have hbound : U.ultralimit (fun i ↦ g i (x' i)) ≤ r + 1 / (n + 1 : ℝ) :=
-          le_of_tendsto (Ultrafilter.tendsto_ultralimit_of_eventually_norm_le
-            (hC.mono fun i hi ↦ hi (x' i))) ((hmem n).mono fun _ hi ↦ hi.le)
+        have hbound := le_of_tendsto htend ((hmem n).mono fun _ hi ↦ hi.le)
         linarith
 
 /-- **The lift of a uniformly bounded internal map is Loeb measurable.**
