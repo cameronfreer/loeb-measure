@@ -391,6 +391,13 @@ assert_standard_axioms Loeb.InternalMap.lift_neg
 assert_standard_axioms Loeb.InternalMap.lift_add
 assert_standard_axioms Loeb.InternalMap.lift_constMul
 
+-- Measurability of the lift
+assert_standard_axioms Loeb.InternalMap.strictSublevel
+assert_standard_axioms Loeb.InternalMap.strictSublevel_ofFun
+assert_standard_axioms Loeb.InternalMap.lift_preimage_Iic
+assert_standard_axioms Loeb.InternalMap.measurable_lift
+assert_standard_axioms Loeb.BoundedInternalFunction.measurable_lift
+
 -- Internal graphs
 assert_standard_axioms Loeb.internalEdgeRelation
 assert_standard_axioms Loeb.mem_carrier_internalEdgeRelation_ofFun
