@@ -80,6 +80,47 @@ theorem norm_ultralimit_le (h : ∀ᶠ i in U, ‖f i‖ ≤ C) : ‖U.ultralimi
 theorem abs_ultralimit_le (h : ∀ᶠ i in U, |f i| ≤ C) : |U.ultralimit f| ≤ C :=
   norm_ultralimit_le h
 
+/-! ### Arithmetic
+
+Each rule takes a bound, and that is what its proof uses. The hypothesis is **sufficient**,
+not shown necessary: `ultralimit` is total, so a divergent family still has a value, and
+nothing rules out such junk values happening to satisfy an arithmetic identity. What is
+true is that no *unconditional* real-valued additivity law is available, because without
+convergence there is nothing forcing the value to respect sums at all.
+
+Contrast `Loeb.ultralimit_add` on `ℝ≥0∞`, which is unconditional — that space is compact,
+so every family converges and no hypothesis is needed. -/
+
+/-- **Ultralimits of bounded real families are additive.** -/
+theorem ultralimit_add_of_eventually_norm_le {g : ι → ℝ} {C D : ℝ}
+    (hf : ∀ᶠ i in U, ‖f i‖ ≤ C) (hg : ∀ᶠ i in U, ‖g i‖ ≤ D) :
+    U.ultralimit (fun i ↦ f i + g i) = U.ultralimit f + U.ultralimit g := by
+  refine tendsto_nhds_unique (tendsto_ultralimit_of_eventually_norm_le
+    (C := C + D) ?_) ((tendsto_ultralimit_of_eventually_norm_le hf).add
+      (tendsto_ultralimit_of_eventually_norm_le hg))
+  filter_upwards [hf, hg] with i hi hi'
+  exact (norm_add_le _ _).trans (add_le_add hi hi')
+
+/-- **And negation passes through.** -/
+theorem ultralimit_neg_of_eventually_norm_le {C : ℝ} (hf : ∀ᶠ i in U, ‖f i‖ ≤ C) :
+    U.ultralimit (fun i ↦ -f i) = -U.ultralimit f :=
+  tendsto_nhds_unique
+    (tendsto_ultralimit_of_eventually_norm_le (C := C) (by simpa using hf))
+    (tendsto_ultralimit_of_eventually_norm_le hf).neg
+
+/-- **Scaling by a real constant passes through.**
+
+Unlike the `ℝ≥0∞` form `Loeb.ultralimit_const_mul`, which needs `c ≠ ∞` because of the
+discontinuity of `(∞ * ·)` at `0`, multiplication by a real constant is continuous
+everywhere and no side condition on `c` appears. -/
+theorem ultralimit_const_mul_of_eventually_norm_le {c C : ℝ} (hf : ∀ᶠ i in U, ‖f i‖ ≤ C) :
+    U.ultralimit (fun i ↦ c * f i) = c * U.ultralimit f :=
+  tendsto_nhds_unique
+    (tendsto_ultralimit_of_eventually_norm_le (C := |c| * C) (hf.mono fun i hi ↦ by
+      rw [Real.norm_eq_abs, abs_mul]
+      exact mul_le_mul_of_nonneg_left (by rwa [← Real.norm_eq_abs]) (abs_nonneg c)))
+    ((tendsto_ultralimit_of_eventually_norm_le hf).const_mul c)
+
 /-! ### API tests -/
 
 section Tests

@@ -36,3 +36,4 @@ import LoebMeasure.GraphLimit.InternalGraph
 import LoebMeasure.GraphLimit.HomEvent
 import LoebMeasure.GraphLimit.HomDensity
 import LoebMeasure.Integral.Bounded
+import LoebMeasure.Integral.Characteristic
