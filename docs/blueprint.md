@@ -507,13 +507,37 @@ constructor, with this unit's indicator as the test. The answer is **no**:
 `BoundedInternalFunction.indicator` builds the bundled object in one line, and a generic
 constructor would not have shortened it.
 
+**F2 is implemented** in `LoebMeasure/Integral/Measurable.lean`, and it is where the Loeb
+**σ-algebra** enters M5 — not the measure. `loebMeasure` and `hU` appear nowhere in it:
+measurability is a statement about which sets are measurable, and countable incompleteness
+has nothing to do with that, mirroring `loebMeasurableSpace` itself taking only `hX`.
+
+The content is `lift_preimage_Iic`. A sublevel set of the lift **need not be internal** —
+that is the difficulty, though not invariably so, since a constant lift has sublevel sets
+`∅` or `univ`. What always holds is that it is a countable intersection of internal
+carriers:
+
+```lean
+lift f ⁻¹' Set.Iic r
+  = ⋂ n, InternalSet.carrier (f.strictSublevel (r + 1 / (n + 1 : ℝ)))
+```
+
+which the Carathéodory σ-algebra is closed under, each piece measurable by
+`measurableSet_internal`. Both inclusions run through F1a's `tendsto_lift_ofFun`, so
+**boundedness is load-bearing** for the characterization and hence for measurability — as
+it already was for F1b's algebraic identities, which drew them from the same convergence.
+The stagewise threshold is deliberately *strict*: convergence yields eventual strict
+inequality below a strict bound, and a non-strict threshold would not follow.
+
+Stated through `strictSublevel`, an internal set built by `Filter.Product.map`, so no
+chosen representative appears in the public statement — and it takes **no stage instances
+at all**, not even measurability. Those are needed only to conclude the carriers are
+measurable, which happens in `measurable_lift`. It is deliberately not `@[simp]`: expanding
+a preimage into an infinite intersection is no one's normal form.
+
 Still to come:
 
 ```lean
-theorem BoundedInternalFunction.measurable_lift
-    (hX : ∀ i, Nonempty (X i)) :
-    Measurable[loebMeasurableSpace hX] f.lift
-
 theorem integral_boundedInternalFunction
     (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i)) :
     ∫ x, f.lift x ∂loebMeasure hU hX = …
