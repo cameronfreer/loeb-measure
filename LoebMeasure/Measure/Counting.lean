@@ -97,6 +97,14 @@ theorem normalizedCounting_singleton [Finite X] [MeasurableSingletonClass X] (a 
     normalizedCounting X ({a} : Set X) = ((Nat.card X : ℝ≥0∞))⁻¹ := by
   rw [normalizedCounting_apply_natCard, Set.ncard_singleton, Nat.cast_one, one_div]
 
+/-- **Finiteness needs no nonemptiness either.** `uniformOn` is
+`IsZeroOrProbabilityMeasure` unconditionally, so the total mass is `0` or `1` and never
+`∞`. Registered as an instance because the integral layer needs it on every stage,
+including empty ones. -/
+instance instIsFiniteMeasureNormalizedCounting : IsFiniteMeasure (normalizedCounting X) := by
+  rw [normalizedCounting_eq_uniformOn]
+  infer_instance
+
 /-- The normalized-average form, as a `Finset` sum over the whole type — the shape the
 stagewise content computations use. -/
 theorem normalizedCounting_apply_eq_sum [Fintype X] [MeasurableSingletonClass X]

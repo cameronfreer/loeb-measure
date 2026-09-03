@@ -535,13 +535,52 @@ at all**, not even measurability. Those are needed only to conclude the carriers
 measurable, which happens in `measurable_lift`. It is deliberately not `@[simp]`: expanding
 a preimage into an infinite intersection is no one's normal form.
 
-Still to come:
+**F3a is implemented** in `LoebMeasure/Integral/Mean.lean`: the integration primitives,
+deliberately without any quantizer or approximation proof, which are F3b.
+
+`InternalMap.internalMean` is the stagewise average as a quotient-level real functional —
+the ultralimit of the stage integrals against `normalizedCounting`. Total on all internal
+maps, like `lift`, and taking neither `hU` nor `hX`.
+
+One thing worth recording, because it is easy to assume otherwise: **F1b's arithmetic does
+not give linearity of `internalMean`.** Those laws concern the *lifted function*, hence one
+side of the eventual identity; the other side needs finite-stage integral linearity plus
+F0's bounded-real ultralimit arithmetic, which is what `internalMean_add_ofFun` and
+`internalMean_constMul_ofFun` supply. F3b consumes both.
+
+`loebMeasure` and `hU` enter M5 here for the first time — F1 and F2 have neither — and only
+in the statements mentioning the Loeb integral: `integrable_lift` and
+`integral_lift_indicatorMap`. `internalMean` is **Loeb-measure-free** rather than
+measure-free, being built from the stage measures.
+
+The indicator calculation exists on both sides — `integral_lift_indicatorMap` and the
+hypothesis-free `internalMean_indicatorMap` — so F3b gets the pair rather than developing
+one of them. Together they are E5's characteristic-function commitment at its third rung,
+after values (F1b) and measurability (F2). The `ℝ≥0∞`-to-`ℝ` conversion of the *Loeb measure
+and the internal content* is confined to those two, through `MeasureTheory.Measure.real`
+and `ENNReal.toReal`; no parallel real-valued content is introduced.
+
+The algebraic laws come at both levels, as elsewhere in M5: `internalMean_add` and
+`internalMean_constMul` take `IsUniformlyBounded` on arbitrary internal maps, with the
+`…_ofFun` forms beneath them, so neither F3b nor M6 has to reopen quotient induction.
+
+An `IsFiniteMeasure` instance for `normalizedCounting` was added in `Measure/Counting.lean`
+along the way, needing no nonemptiness — `uniformOn` is `IsZeroOrProbabilityMeasure`
+unconditionally.
+
+Still to come, as F3b:
 
 ```lean
-theorem integral_boundedInternalFunction
-    (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i)) :
-    ∫ x, f.lift x ∂loebMeasure hU hX = …
+theorem InternalMap.integral_lift
+    (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i))
+    (hf : f.IsUniformlyBounded) :
+    ∫ x, f.lift x ∂loebMeasure hU hX = f.internalMean
 ```
+
+with the bundled wrapper, a representative corollary, the explicit normalized finite-sum
+form, and the uniform internal step-approximation theorem the proof needs — whose statement
+must record that the approximant is finite-valued, not merely that some internal map is
+close.
 
 The average-over-finite-types form should be an explicit corollary, and characteristic
 functions must recover the M3 set API.
