@@ -53,7 +53,7 @@ content, in `ℝ≥0∞`.
 no `hX`. Integrable and Loeb-integral statements: both, and `hU` only through
 `loebMeasure`. Nothing here imports saturation or the M3 approximation layer.
 
-`norm_internalMean_le` does take `0 ≤ C`, and genuinely: on an empty stage the bound
+`norm_internalMean_ofFun_le` does take `0 ≤ C`, and genuinely: on an empty stage the bound
 hypothesis is vacuous while the stage integral is `0`, so a negative bound would be
 contradicted.
 -/
@@ -90,8 +90,12 @@ theorem internalMean_ofFun (g : (i : ι) → X i → ℝ) :
 
 omit [∀ i, Finite (X i)] [∀ i, MeasurableSingletonClass (X i)] in
 /-- A stagewise bound bounds each stage integral, since the stage measures have mass at
-most one. The step `internalMean`'s own bound and its arithmetic laws both rest on. -/
-theorem norm_integral_normalizedCounting_le {g : (i : ι) → X i → ℝ} {C : ℝ} (hC : 0 ≤ C)
+most one. The step `internalMean`'s own bound and its arithmetic laws both rest on.
+
+`private`: it mentions no internal map, so its present home in the `InternalMap` namespace
+would be misleading, and it has no consumer outside this module. Should F3b want it
+publicly, promote it under `Loeb` rather than here. -/
+private theorem norm_integral_normalizedCounting_le {g : (i : ι) → X i → ℝ} {C : ℝ} (hC : 0 ≤ C)
     (i : ι) (h : ∀ y, ‖g i y‖ ≤ C) :
     ‖∫ y, g i y ∂normalizedCounting (X i)‖ ≤ C := by
   refine (norm_integral_le_of_norm_le_const (ae_of_all _ h)).trans ?_
@@ -102,7 +106,7 @@ theorem norm_integral_normalizedCounting_le {g : (i : ι) → X i → ℝ} {C : 
 
 omit [∀ i, Finite (X i)] [∀ i, MeasurableSingletonClass (X i)] in
 /-- **A uniformly bounded internal map has a bounded mean**, with the same bound. -/
-theorem norm_internalMean_le {g : (i : ι) → X i → ℝ} {C : ℝ} (hC : 0 ≤ C)
+theorem norm_internalMean_ofFun_le {g : (i : ι) → X i → ℝ} {C : ℝ} (hC : 0 ≤ C)
     (h : ∀ᶠ i in (U : Filter ι), ∀ y, ‖g i y‖ ≤ C) :
     ‖internalMean (Filter.Product.ofFun g : InternalMap U X fun _ ↦ ℝ)‖ ≤ C := by
   rw [internalMean_ofFun]
@@ -267,7 +271,7 @@ end BoundedInternalFunction
 
 section Tests
 
-/-- `internalMean` is measure-free: this statement mentions neither `hU` nor `hX`. -/
+/-- `internalMean` is Loeb-measure-free: this statement mentions neither `hU` nor `hX`. -/
 example (g : (i : ι) → X i → ℝ) :
     InternalMap.internalMean (Filter.Product.ofFun g : InternalMap U X fun _ ↦ ℝ)
       = U.ultralimit fun i ↦ ∫ y, g i y ∂normalizedCounting (X i) :=
@@ -319,7 +323,7 @@ example {f : InternalMap U X fun _ ↦ ℝ} (c : ℝ) (hf : f.IsUniformlyBounded
 example {g : (i : ι) → X i → ℝ} {C : ℝ} (hC : 0 ≤ C)
     (h : ∀ᶠ i in (U : Filter ι), ∀ y, ‖g i y‖ ≤ C) :
     ‖InternalMap.internalMean (Filter.Product.ofFun g : InternalMap U X fun _ ↦ ℝ)‖ ≤ C :=
-  InternalMap.norm_internalMean_le hC h
+  InternalMap.norm_internalMean_ofFun_le hC h
 
 /-- **A genuinely dependent family** of stage types. -/
 example (U : Ultrafilter ℕ) (g : (i : ℕ) → Fin (i + 1) → ℝ) :

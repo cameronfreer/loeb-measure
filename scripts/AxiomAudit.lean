@@ -401,7 +401,7 @@ assert_standard_axioms Loeb.BoundedInternalFunction.measurable_lift
 -- Integration primitives
 assert_standard_axioms Loeb.InternalMap.internalMean
 assert_standard_axioms Loeb.InternalMap.internalMean_ofFun
-assert_standard_axioms Loeb.InternalMap.norm_internalMean_le
+assert_standard_axioms Loeb.InternalMap.norm_internalMean_ofFun_le
 assert_standard_axioms Loeb.InternalMap.internalMean_add_ofFun
 assert_standard_axioms Loeb.InternalMap.internalMean_constMul_ofFun
 assert_standard_axioms Loeb.InternalMap.internalMean_indicatorMap
