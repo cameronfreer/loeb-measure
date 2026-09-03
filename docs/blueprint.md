@@ -549,11 +549,20 @@ F0's bounded-real ultralimit arithmetic, which is what `internalMean_add_ofFun` 
 `internalMean_constMul_ofFun` supply. F3b consumes both.
 
 `loebMeasure` and `hU` enter M5 here for the first time — F1 and F2 have neither — and only
-in the statements mentioning an integral: `integrable_lift` and
-`integral_lift_indicatorMap`. The latter is E5's characteristic-function commitment at its
-third rung, after values (F1b) and measurability (F2), and the `ℝ≥0∞`-to-`ℝ` conversion is
-confined to it, through `MeasureTheory.Measure.real`. No parallel real-valued content is
-introduced; the project keeps one content, in `ℝ≥0∞`.
+in the statements mentioning the Loeb integral: `integrable_lift` and
+`integral_lift_indicatorMap`. `internalMean` is **Loeb-measure-free** rather than
+measure-free, being built from the stage measures.
+
+The indicator calculation exists on both sides — `integral_lift_indicatorMap` and the
+hypothesis-free `internalMean_indicatorMap` — so F3b gets the pair rather than developing
+one of them. Together they are E5's characteristic-function commitment at its third rung,
+after values (F1b) and measurability (F2). The `ℝ≥0∞`-to-`ℝ` conversion of the *Loeb measure
+and the internal content* is confined to those two, through `MeasureTheory.Measure.real`
+and `ENNReal.toReal`; no parallel real-valued content is introduced.
+
+The algebraic laws come at both levels, as elsewhere in M5: `internalMean_add` and
+`internalMean_constMul` take `IsUniformlyBounded` on arbitrary internal maps, with the
+`…_ofFun` forms beneath them, so neither F3b nor M6 has to reopen quotient induction.
 
 An `IsFiniteMeasure` instance for `normalizedCounting` was added in `Measure/Counting.lean`
 along the way, needing no nonemptiness — `uniformOn` is `IsZeroOrProbabilityMeasure`

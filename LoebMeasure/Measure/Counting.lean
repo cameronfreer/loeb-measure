@@ -101,8 +101,9 @@ theorem normalizedCounting_singleton [Finite X] [MeasurableSingletonClass X] (a 
 `IsZeroOrProbabilityMeasure` unconditionally, so the total mass is `0` or `1` and never
 `∞`. Registered as an instance because the integral layer needs it on every stage,
 including empty ones. -/
-instance instIsFiniteMeasureNormalizedCounting : IsFiniteMeasure (normalizedCounting X) :=
-  ⟨lt_of_le_of_lt (normalizedCounting_le_one Set.univ) ENNReal.one_lt_top⟩
+instance instIsFiniteMeasureNormalizedCounting : IsFiniteMeasure (normalizedCounting X) := by
+  rw [normalizedCounting_eq_uniformOn]
+  infer_instance
 
 /-- The normalized-average form, as a `Finset` sum over the whole type — the shape the
 stagewise content computations use. -/

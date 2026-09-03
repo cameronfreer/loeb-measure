@@ -33,22 +33,29 @@ side needs finite-stage integral linearity together with F0's bounded-real ultra
 arithmetic, which is what `internalMean_add` and `internalMean_constMul` below supply. The
 two are proved separately because they are separate facts.
 
-## Where the measure enters, and the `ℝ≥0∞` boundary
+## Where the Loeb measure enters, and the `ℝ≥0∞` boundary
 
 `loebMeasure` and `hU` appear here for the first time in M5 — F1 and F2 have neither — and
-only in the statements that mention the integral. `internalMean` and its computation rule
-are measure-free.
+only in the statements that mention the Loeb integral. `internalMean` is **Loeb-measure-free**,
+not measure-free: it is built from the stage measures `normalizedCounting`, and only the
+Loeb measure is absent from it.
 
-The `ℝ≥0∞`-to-`ℝ` conversion is confined to `integral_lift_indicatorMap`, and goes through
-mathlib's `MeasureTheory.Measure.real`. No parallel real-valued content is introduced: the
-project has one content, in `ℝ≥0∞`, and this is a conversion at the integral boundary
-rather than a second notion.
+Conversions from `ℝ≥0∞` to `ℝ` are unavoidable at this layer, since `internalContent` and
+`loebMeasure` are `ℝ≥0∞`-valued while `∫` is real. What is confined is the conversion of the
+**Loeb measure and the internal content**, which happens in `integral_lift_indicatorMap`
+and `internalMean_indicatorMap` and goes through `MeasureTheory.Measure.real` and
+`ENNReal.toReal`. No parallel real-valued content is introduced: the project has one
+content, in `ℝ≥0∞`.
 
 ## Hypotheses
 
-`internalMean`, its computation rule, and the algebraic laws: no `hU`, no `hX`. Integrable
-and integral statements: both, and `hU` only through `loebMeasure`. Nothing here imports
-saturation or the M3 approximation layer.
+`internalMean`, its computation rule, the algebraic laws and the indicator mean: no `hU`,
+no `hX`. Integrable and Loeb-integral statements: both, and `hU` only through
+`loebMeasure`. Nothing here imports saturation or the M3 approximation layer.
+
+`norm_internalMean_le` does take `0 ≤ C`, and genuinely: on an empty stage the bound
+hypothesis is vacuous while the stage integral is `0`, so a negative bound would be
+contradicted.
 -/
 
 namespace Loeb
@@ -109,7 +116,7 @@ concern the ultralimit of stage integrals, and need finite-stage integral linear
 together with F0's bounded-real ultralimit rules. F3b consumes both sides. -/
 
 /-- **The mean is additive**, given bounds. -/
-theorem internalMean_add_ofFun {g h : (i : ι) → X i → ℝ} {C D : ℝ} (hC : 0 ≤ C) (hD : 0 ≤ D)
+theorem internalMean_add_ofFun {g h : (i : ι) → X i → ℝ} {C D : ℝ}
     (hg : ∀ᶠ i in (U : Filter ι), ∀ y, ‖g i y‖ ≤ C)
     (hh : ∀ᶠ i in (U : Filter ι), ∀ y, ‖h i y‖ ≤ D) :
     internalMean (add (Filter.Product.ofFun g : InternalMap U X fun _ ↦ ℝ)
@@ -117,17 +124,21 @@ theorem internalMean_add_ofFun {g h : (i : ι) → X i → ℝ} {C D : ℝ} (hC 
       = internalMean (Filter.Product.ofFun g : InternalMap U X fun _ ↦ ℝ)
         + internalMean (Filter.Product.ofFun h : InternalMap U X fun _ ↦ ℝ) := by
   rw [add_ofFun, internalMean_ofFun, internalMean_ofFun, internalMean_ofFun,
-    ← Ultrafilter.ultralimit_add_of_eventually_norm_le
-      (hg.mono fun i hi ↦ norm_integral_normalizedCounting_le hC i hi)
-      (hh.mono fun i hi ↦ norm_integral_normalizedCounting_le hD i hi)]
+    ← Ultrafilter.ultralimit_add_of_eventually_norm_le (C := |C|) (D := |D|)
+      (hg.mono fun i hi ↦ norm_integral_normalizedCounting_le (abs_nonneg C) i
+        fun y ↦ (hi y).trans (le_abs_self C))
+      (hh.mono fun i hi ↦ norm_integral_normalizedCounting_le (abs_nonneg D) i
+        fun y ↦ (hi y).trans (le_abs_self D))]
   refine Ultrafilter.ultralimit_congr (Eventually.of_forall fun i ↦ ?_)
   -- The stages are finite, so every stagewise function is integrable outright.
   exact integral_add (Integrable.of_finite) (Integrable.of_finite)
 
 omit [∀ i, Finite (X i)] [∀ i, MeasurableSingletonClass (X i)] in
-/-- **The mean commutes with scaling.** No bound needed: `integral_const_mul` and F0's
-scalar rule both hold outright, the latter because real scalar multiplication is
-continuous everywhere. -/
+/-- **The mean commutes with scaling.**
+
+A bound is still required, as for additivity — F0's scalar rule needs one. What needs no
+side condition is the **scalar** `c` itself, unlike the `ℝ≥0∞` form which requires
+`c ≠ ∞`, because real multiplication is continuous everywhere. -/
 theorem internalMean_constMul_ofFun {g : (i : ι) → X i → ℝ} {C : ℝ} (c : ℝ)
     (hg : ∀ᶠ i in (U : Filter ι), ∀ y, ‖g i y‖ ≤ C) :
     internalMean (constMul c (Filter.Product.ofFun g : InternalMap U X fun _ ↦ ℝ))
@@ -139,7 +150,63 @@ theorem internalMean_constMul_ofFun {g : (i : ι) → X i → ℝ} {C : ℝ} (c 
   exact Ultrafilter.ultralimit_congr
     (Eventually.of_forall fun i ↦ integral_const_mul c (g i))
 
-/-! ### The measure enters -/
+/-- **The mean of an indicator is the content**, converted to a real.
+
+The right-hand counterpart of `integral_lift_indicatorMap`, and **Loeb-measure-free**: it
+takes neither `hU` nor `hX`, so F3b gets both sides of the indicator calculation without
+developing this one itself.
+
+The conversion goes through the ultralimit rather than around it: the stagewise values are
+`(normalizedCounting (X i)).real (A i)`, whose ultralimit is the `toReal` of the content
+because the content is finite and `ENNReal.toReal` is continuous there. -/
+theorem internalMean_indicatorMap (A : InternalSet U X) :
+    internalMean (InternalSet.indicatorMap A) = (internalContent U A).toReal := by
+  induction A using Filter.Product.inductionOn with
+  | _ A' =>
+    rw [InternalSet.indicatorMap_ofFun, internalMean_ofFun, internalContent_ofFun]
+    have hstage : ∀ i, ∫ y, Set.indicator (A' i) (fun _ ↦ (1 : ℝ)) y
+        ∂normalizedCounting (X i) = (normalizedCounting (X i) (A' i)).toReal := fun i ↦ by
+      rw [show (fun _ ↦ (1 : ℝ)) = (1 : X i → ℝ) from rfl,
+        integral_indicator_one (Set.toFinite (A' i)).measurableSet]
+      rfl
+    rw [Ultrafilter.ultralimit_congr (Eventually.of_forall hstage)]
+    refine tendsto_nhds_unique
+      (Ultrafilter.tendsto_ultralimit_of_eventually_norm_le (C := 1)
+        (Eventually.of_forall fun i ↦ ?_)) ?_
+    · rw [Real.norm_eq_abs, abs_of_nonneg ENNReal.toReal_nonneg]
+      exact ENNReal.toReal_le_of_le_ofReal zero_le_one
+        (by simpa using normalizedCounting_le_one (X := X i) (A' i))
+    · exact (ENNReal.tendsto_toReal
+        (internalContent_ne_top (U := U) (Filter.Product.ofFun A'))).comp
+          (Ultrafilter.tendsto_ultralimit U _)
+
+/-! ### Quotient-level laws
+
+The forms F3b and later layers should use: `IsUniformlyBounded` on arbitrary internal
+maps, with no representative in sight. The `…_ofFun` rules above stay for proofs that
+already hold a named bound. -/
+
+/-- **The mean is additive**, at the quotient level. -/
+theorem internalMean_add {f g : InternalMap U X fun _ ↦ ℝ} (hf : f.IsUniformlyBounded)
+    (hg : g.IsUniformlyBounded) :
+    internalMean (add f g) = internalMean f + internalMean g := by
+  induction f, g using Filter.Product.inductionOn₂ with
+  | _ f' g' =>
+    obtain ⟨C, hC⟩ := (isUniformlyBounded_ofFun f').1 hf
+    obtain ⟨D, hD⟩ := (isUniformlyBounded_ofFun g').1 hg
+    exact internalMean_add_ofFun hC hD
+
+omit [∀ i, Finite (X i)] [∀ i, MeasurableSingletonClass (X i)] in
+/-- **The mean commutes with scaling**, at the quotient level. -/
+theorem internalMean_constMul {f : InternalMap U X fun _ ↦ ℝ} (c : ℝ)
+    (hf : f.IsUniformlyBounded) :
+    internalMean (constMul c f) = c * internalMean f := by
+  induction f using Filter.Product.inductionOn with
+  | _ g =>
+    obtain ⟨C, hC⟩ := (isUniformlyBounded_ofFun g).1 hf
+    exact internalMean_constMul_ofFun c hC
+
+/-! ### The Loeb measure enters -/
 
 /-- **The lift of a uniformly bounded internal map is integrable.**
 
@@ -223,14 +290,30 @@ example (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i)
 /-- **The two linearities are different facts.** F1b's law is about the lifted function;
 this one is about the ultralimit of stage integrals. Both are needed by F3b, and neither
 implies the other. -/
-example {g h : (i : ι) → X i → ℝ} {C D : ℝ} (hC : 0 ≤ C) (hD : 0 ≤ D)
-    (hg : ∀ᶠ i in (U : Filter ι), ∀ y, ‖g i y‖ ≤ C)
-    (hh : ∀ᶠ i in (U : Filter ι), ∀ y, ‖h i y‖ ≤ D) :
-    InternalMap.internalMean (InternalMap.add
-        (Filter.Product.ofFun g : InternalMap U X fun _ ↦ ℝ) (Filter.Product.ofFun h))
-      = InternalMap.internalMean (Filter.Product.ofFun g : InternalMap U X fun _ ↦ ℝ)
-        + InternalMap.internalMean (Filter.Product.ofFun h : InternalMap U X fun _ ↦ ℝ) :=
-  InternalMap.internalMean_add_ofFun hC hD hg hh
+example {f g : InternalMap U X fun _ ↦ ℝ} (hf : f.IsUniformlyBounded)
+    (hg : g.IsUniformlyBounded) :
+    InternalMap.internalMean (InternalMap.add f g)
+      = InternalMap.internalMean f + InternalMap.internalMean g :=
+  InternalMap.internalMean_add hf hg
+
+/-- **Both indicator calculations**, the Loeb-integral side and the mean side. F3b consumes
+the pair; neither has to be developed there. -/
+example (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i))
+    (A : InternalSet U X) :
+    ∫ x, InternalMap.lift (InternalSet.indicatorMap A) x ∂(loebMeasure hU hX)
+      = InternalMap.internalMean (InternalSet.indicatorMap A) := by
+  rw [InternalMap.integral_lift_indicatorMap, InternalMap.internalMean_indicatorMap]
+
+/-- **The mean side needs no Loeb-measure hypotheses** — neither `hU` nor `hX` appears. -/
+example (A : InternalSet U X) :
+    InternalMap.internalMean (InternalSet.indicatorMap A) = (internalContent U A).toReal :=
+  InternalMap.internalMean_indicatorMap A
+
+/-- Scaling, at the quotient level. -/
+example {f : InternalMap U X fun _ ↦ ℝ} (c : ℝ) (hf : f.IsUniformlyBounded) :
+    InternalMap.internalMean (InternalMap.constMul c f)
+      = c * InternalMap.internalMean f :=
+  InternalMap.internalMean_constMul c hf
 
 /-- The mean is bounded by any stagewise bound. -/
 example {g : (i : ι) → X i → ℝ} {C : ℝ} (hC : 0 ≤ C)
