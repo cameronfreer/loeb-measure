@@ -101,7 +101,15 @@ sets.
 
 The first check that the `List` codebook serves the quantizer F3b-ii needs: it reduces a
 step map to an explicit stagewise finite sum, which is the form the error estimate will be
-made against. -/
+made against.
+
+Marked `@[simp]`, but with a caveat worth knowing: the left-hand side is
+`stepMap (l.map fun p ↦ (p.1, ofFun p.2))`, and `simp`'s own `List.map_map` fuses that
+outer map into any map producing `l`, dissolving the pattern before this rule can fire. So
+it applies when a goal already has this literal shape, and a codebook assembled as a single
+`map` over an index type — the shape the quantizer produces — needs the rule instantiated by
+hand first. The test below does exactly that. -/
+@[simp]
 theorem stepMap_ofFun (l : List (ℝ × ((i : ι) → Set (X i)))) :
     stepMap (l.map fun p ↦ (p.1, (Filter.Product.ofFun p.2 : InternalSet U X)))
       = Filter.Product.ofFun fun i y ↦
@@ -189,6 +197,8 @@ example (a b : ℤ) (ε : ℝ) (A : ℤ → (i : ι) → Set (X i)) :
       = Filter.Product.ofFun fun i y ↦
           ((Finset.Icc a b).toList.map fun k : ℤ ↦
             (k : ℝ) * ε * Set.indicator (A k i) (fun _ ↦ (1 : ℝ)) y).sum := by
+  -- Instantiated explicitly rather than left to `simp`: see the note on
+  -- `stepMap_ofFun`'s `@[simp]` attribute.
   have h := stepMap_ofFun (U := U) ((Finset.Icc a b).toList.map fun k : ℤ ↦ ((k : ℝ) * ε, A k))
   simpa [List.map_map, Function.comp_def, mul_assoc] using h
 
