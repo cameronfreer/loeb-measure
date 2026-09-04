@@ -417,6 +417,7 @@ assert_standard_axioms Loeb.BoundedInternalFunction.integral_lift_indicator
 assert_standard_axioms Loeb.InternalMap.zeroMap
 assert_standard_axioms Loeb.InternalMap.stepMap
 assert_standard_axioms Loeb.InternalMap.isUniformlyBounded_stepMap
+assert_standard_axioms Loeb.InternalMap.stepMap_ofFun
 assert_standard_axioms Loeb.InternalMap.lift_stepMap
 assert_standard_axioms Loeb.InternalMap.internalMean_stepMap
 assert_standard_axioms Loeb.InternalMap.integral_lift_stepMap

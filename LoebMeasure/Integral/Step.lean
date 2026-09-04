@@ -17,8 +17,9 @@ Finite linear combinations of internal indicators, and the integral identity for
 introduced merely to write a sum: the combination is the only thing needed, so it is what
 gets a name.
 
-The list is the **codebook**: a finite set of coefficients paired with internal sets, fixed
-independently of the stage. That is what makes the approximation in
+The list is the **codebook**: a finite *list* of coefficients paired with internal sets,
+fixed independently of the stage. A list rather than a set — `stepMap` permits duplicate
+entries, and their contributions add. That is what makes the approximation in
 `LoebMeasure/Integral/Identity.lean` usable — a per-stage finite range would be automatic,
 since each `X i` is finite, and would say nothing.
 
@@ -45,26 +46,31 @@ namespace InternalMap
 /-- The zero internal map. -/
 def zeroMap : InternalMap U X fun _ ↦ ℝ := Filter.Product.ofFun fun _ _ ↦ 0
 
+/-- The zero map lifts to the zero function. -/
 @[simp]
 theorem lift_zeroMap (x : Ultraproduct U X) : lift (zeroMap : InternalMap U X fun _ ↦ ℝ) x = 0 := by
   induction x using Filter.Product.inductionOn with
   | _ x' => simp [zeroMap]
 
+/-- The zero map is uniformly bounded, by `0`. -/
 theorem isUniformlyBounded_zeroMap :
     (zeroMap : InternalMap U X fun _ ↦ ℝ).IsUniformlyBounded :=
   ⟨0, Eventually.of_forall fun _ _ ↦ by simp⟩
 
 /-- **A finite linear combination of internal indicators.**
 
-The list is a codebook fixed independently of the stage. Built by recursion from `add`,
-`constMul` and `indicatorMap` rather than through an algebraic instance. -/
+The list is a codebook fixed independently of the stage. It is a list rather than a set:
+duplicate entries are permitted and their contributions add. Built by recursion from
+`add`, `constMul` and `indicatorMap` rather than through an algebraic instance. -/
 noncomputable def stepMap : List (ℝ × InternalSet U X) → InternalMap U X fun _ ↦ ℝ
   | [] => zeroMap
   | p :: t => add (constMul p.1 (InternalSet.indicatorMap p.2)) (stepMap t)
 
+/-- The empty codebook gives the zero map. -/
 @[simp]
 theorem stepMap_nil : stepMap ([] : List (ℝ × InternalSet U X)) = zeroMap := rfl
 
+/-- Consing onto the codebook adds one scaled indicator. -/
 @[simp]
 theorem stepMap_cons (p : ℝ × InternalSet U X) (t : List (ℝ × InternalSet U X)) :
     stepMap (p :: t) = add (constMul p.1 (InternalSet.indicatorMap p.2)) (stepMap t) := rfl
@@ -90,10 +96,28 @@ theorem lift_stepMap (l : List (ℝ × InternalSet U X)) (x : Ultraproduct U X) 
       (InternalSet.isUniformlyBounded_indicatorMap p.2), InternalSet.lift_indicatorMap, ih]
     simp
 
+/-- **The representative computation rule** for a step map built from represented internal
+sets.
+
+The first check that the `List` codebook serves the quantizer F3b-ii needs: it reduces a
+step map to an explicit stagewise finite sum, which is the form the error estimate will be
+made against. -/
+theorem stepMap_ofFun (l : List (ℝ × ((i : ι) → Set (X i)))) :
+    stepMap (l.map fun p ↦ (p.1, (Filter.Product.ofFun p.2 : InternalSet U X)))
+      = Filter.Product.ofFun fun i y ↦
+          (l.map fun p ↦ p.1 * Set.indicator (p.2 i) (fun _ ↦ (1 : ℝ)) y).sum := by
+  induction l with
+  | nil => rfl
+  | cons p t ih =>
+    rw [List.map_cons, stepMap_cons, ih, InternalSet.indicatorMap_ofFun, constMul_ofFun,
+      add_ofFun]
+    rfl
+
 section Stage
 
 variable [∀ i, MeasurableSpace (X i)]
 
+/-- The zero map has zero mean. -/
 @[simp]
 theorem internalMean_zeroMap :
     internalMean (zeroMap : InternalMap U X fun _ ↦ ℝ) = 0 := by
@@ -148,6 +172,35 @@ theorem integral_lift_stepMap (hU : (U : Filter ι).IsCountablyIncomplete)
 end Discrete
 
 end Stage
+
+/-! ### API tests -/
+
+section Tests
+
+/-- **The codebook shape F3b-ii will use**: coefficients indexed by a finite range of
+integers, obtained from `Finset.toList`, with the stagewise sets given by a stagewise
+predicate.
+
+This is the smoke test that the `List` representation composes with `Finset.Icc`, which is
+where the quantizer's stage-independent index set comes from. -/
+example (a b : ℤ) (ε : ℝ) (A : ℤ → (i : ι) → Set (X i)) :
+    stepMap ((Finset.Icc a b).toList.map fun k : ℤ ↦
+        ((k : ℝ) * ε, (Filter.Product.ofFun (A k) : InternalSet U X)))
+      = Filter.Product.ofFun fun i y ↦
+          ((Finset.Icc a b).toList.map fun k : ℤ ↦
+            (k : ℝ) * ε * Set.indicator (A k i) (fun _ ↦ (1 : ℝ)) y).sum := by
+  have h := stepMap_ofFun (U := U) ((Finset.Icc a b).toList.map fun k : ℤ ↦ ((k : ℝ) * ε, A k))
+  simpa [List.map_map, Function.comp_def, mul_assoc] using h
+
+/-- The codebook may repeat an entry; contributions add rather than collapse, which is why
+it is a list and not a set. -/
+example (c : ℝ) (A : InternalSet U X) (x : Ultraproduct U X) :
+    lift (stepMap [(c, A), (c, A)]) x = 2 * lift (stepMap [(c, A)]) x := by
+  rw [lift_stepMap, lift_stepMap]
+  simp
+  ring
+
+end Tests
 
 end InternalMap
 

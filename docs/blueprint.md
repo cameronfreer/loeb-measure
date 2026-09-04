@@ -568,7 +568,21 @@ An `IsFiniteMeasure` instance for `normalizedCounting` was added in `Measure/Cou
 along the way, needing no nonemptiness — `uniformOn` is `IsZeroOrProbabilityMeasure`
 unconditionally.
 
-Still to come, as F3b:
+**F3b-i is implemented** in `LoebMeasure/Integral/Step.lean`: `InternalMap.stepMap`, the
+finite linear combination of internal indicators, together with `integral_lift_stepMap` —
+the integral identity for step maps, which is the base case of the general theorem.
+
+The codebook is a finite **list** of coefficients paired with internal sets, fixed
+independently of the stage. A list rather than a set, since duplicate entries are permitted
+and their contributions add. No global `Add` or `SMul` instance on `InternalMap` was
+introduced merely to write the sum: the combination is what gets a name.
+
+The module stratifies three ways by instance need, which the sections record: the
+construction and the *value* side need **no stage instances at all**, not even
+`MeasurableSpace`; the mean side needs the finite discrete structure; and only
+`integral_lift_stepMap` mentions `loebMeasure`, `hU` or `hX`.
+
+Still to come, as **F3b-ii**:
 
 ```lean
 theorem InternalMap.integral_lift
@@ -578,12 +592,15 @@ theorem InternalMap.integral_lift
 ```
 
 with the bundled wrapper, a representative corollary, the explicit normalized finite-sum
-form, and the uniform internal step-approximation theorem the proof needs — whose statement
-must record that the approximant is finite-valued, not merely that some internal map is
-close.
+form, and the uniform internal step-approximation theorem the proof needs.
 
-The average-over-finite-types form should be an explicit corollary, and characteristic
-functions must recover the M3 set API.
+That approximation must supply a **single finite codebook independent of the stage** — as
+an explicit `stepMap` — with `0 < ε` assumed and a quantitative uniform error. "Finite-valued"
+would be vacuous as a criterion, since each `X i` is already finite, and "some internal map
+within ε" would be unusable, since the proof needs linearity and the indicator calculation
+to apply. The quantization cuts the range stagewise with the *same* index set at every
+stage, which is what makes the codebook stage-independent, and the level sets are internal
+by construction rather than by an argument.
 
 ## Layer G — graded powers and Fubini
 
