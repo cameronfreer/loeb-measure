@@ -20,14 +20,16 @@ to infinity, that measure is atomless — indeed every measurable set bisects ex
 
 The library also proves that, for every fixed finite pattern graph, the Loeb measure of
 the internal homomorphism event is the ultralimit of the finite homomorphism densities.
-Bounded internal integration, the graded structure and its Fubini theorem,
-exchangeability, and graphon realization are still in progress.
+For bounded internal functions it proves the integral identity: the Loeb integral of the
+lift is the ultralimit of the finite-stage averages. The graded structure and its Fubini
+theorem, exchangeability, and graphon realization are still in progress.
 
 | Layer | Available now | Next boundary |
 | --- | --- | --- |
 | Dependent ultraproducts | Representatives and eliminators; coordinatewise maps; binary and finite-power equivalences; reindexing and permutations | — |
 | Internal sets | Faithful carriers; Boolean algebra and the realized set ring; internal maps, preimages, and relations; countable saturation | — |
-| Loeb measure | Internal content on ultraproducts of finite counting spaces; the Carathéodory extension as a complete probability measure agreeing with the content on internal sets; internal envelopes; outer approximation and the internal-modulo-null characterization; exact measurable bisection and atomlessness, under stage cardinalities tending to infinity | Bounded internal integration |
+| Loeb measure | Internal content on ultraproducts of finite counting spaces; the Carathéodory extension as a complete probability measure agreeing with the content on internal sets; internal envelopes; outer approximation and the internal-modulo-null characterization; exact measurable bisection and atomlessness, under stage cardinalities tending to infinity | — |
+| Bounded internal functions | Uniformly bounded internal maps and their lift; characteristic functions recovering the set API at values, measurability, and integrals; measurability of the lift; the stagewise mean; internal step maps with a stage-independent codebook; the integral identity with the normalized finite-sum corollary | Graded finite powers and Fubini |
 | Graph limits | Internal edge relations and the ultraproduct graph; the internal homomorphism event for a fixed finite pattern; the Loeb measure of that event as the ultralimit of the finite homomorphism densities | Graphon realization (needs the graded layer) |
 
 The [roadmap](ROADMAP.md) describes the capability sequence; GitHub milestones and
