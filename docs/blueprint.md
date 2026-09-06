@@ -582,25 +582,44 @@ construction and the *value* side need **no stage instances at all**, not even
 `MeasurableSpace`; the mean side needs the finite discrete structure; and only
 `integral_lift_stepMap` mentions `loebMeasure`, `hU` or `hX`.
 
-Still to come, as **F3b-ii**:
+**F3b-ii is implemented** in `LoebMeasure/Integral/Identity.lean`, and closes E5:
 
 ```lean
 theorem InternalMap.integral_lift
     (hU : (U : Filter ι).IsCountablyIncomplete) (hX : ∀ i, Nonempty (X i))
     (hf : f.IsUniformlyBounded) :
-    ∫ x, f.lift x ∂loebMeasure hU hX = f.internalMean
+    ∫ x, lift f x ∂loebMeasure hU hX = internalMean f
 ```
 
-with the bundled wrapper, a representative corollary, the explicit normalized finite-sum
-form, and the uniform internal step-approximation theorem the proof needs.
+with the bundled `BoundedInternalFunction.integral_lift`, the representative corollary
+`integral_lift_ofFun` exposing the ultralimit of stage integrals, and the normalized
+finite-sum corollary `integral_lift_ofFun_eq_ultralimit_sum`, whose stagewise ingredient
+`integral_normalizedCounting` — `∫ g ∂normalizedCounting Y = (1 / |Y|) * ∑ y, g y` — needs
+no nonemptiness and is exercised on `Empty`. That standalone formula lives in the integral
+layer, so `Measure/Counting.lean` acquires no Bochner dependency.
 
-That approximation must supply a **single finite codebook independent of the stage** — as
-an explicit `stepMap` — with `0 < ε` assumed and a quantitative uniform error. "Finite-valued"
-would be vacuous as a criterion, since each `X i` is already finite, and "some internal map
-within ε" would be unusable, since the proof needs linearity and the indicator calculation
-to apply. The quantization cuts the range stagewise with the *same* index set at every
-stage, which is what makes the codebook stage-independent, and the level sets are internal
-by construction rather than by an argument.
+The approximation is `InternalMap.quantizer ε C g`: **one finite codebook, independent of
+the stage**, indexed by `Finset.Icc ⌊-C / ε⌋ ⌊C / ε⌋` and pairing the level `k * ε` with the
+internal level set `{y | ⌊g i y / ε⌋ = k}`. The level sets are internal by construction.
+`stepMap_quantizer` is the only place the list/`Finset` conversion happens. The
+representative-level theorem `exists_stepMap_eventually_abs_sub_lt` gives the strict
+stagewise error `< ε` on the stages where the bound holds, with no stage instances and
+neither `hU` nor `hX`; the quotient-level `exists_stepMap_abs_sub_le` transfers it to
+**both sides** — every value of the lift, and the mean — as `≤ ε`, since limits do not
+preserve strictness. A lift-only approximation would have left the mean uncontrolled.
+
+The proof of the identity is then three inequalities and one identity: the two sides are
+each within `ε / 2` of the corresponding side for the step map, the identity holds for step
+maps by F3b-i, and the Loeb measure is a probability measure. Countable incompleteness
+enters only through `loebMeasure`; nothing from saturation or the M3 approximation layer is
+used.
+
+The main theorem cannot cover empty stages, `hX` being part of the Loeb construction; the
+finite-stage formula can. That asymmetry is stated in the module rather than hidden.
+
+The roadmap's conditional item — a bounded internal lifting theorem, "if it follows
+cleanly" — was not pursued in M5. Nothing downstream has asked for it, and it would be
+speculative API until something does.
 
 ## Layer G — graded powers and Fubini
 
