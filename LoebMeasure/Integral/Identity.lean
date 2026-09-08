@@ -70,8 +70,8 @@ variable {ι : Type*} {X : ι → Type*} {U : Ultrafilter ι}
 
 /-! ### The finite-stage formula
 
-Kept in the integral layer: `Measure/Counting.lean` has no Bochner dependency, and this is
-the one place the normalized counting measure meets an integral. -/
+Kept in the integral layer, so that `Measure/Counting.lean` acquires no Bochner
+dependency. -/
 
 section FiniteStage
 
@@ -171,9 +171,13 @@ variable [∀ i, MeasurableSpace (X i)] [∀ i, Finite (X i)] [∀ i, Measurable
 /-- **Uniform step approximation, on both sides.**
 
 A uniformly bounded internal map is within `ε` of a step map at every point of the lift
-*and* in the mean. The two transfers are separate — the first through F0's bounded
-ultralimit arithmetic on values, the second through F3a's mean laws — because the two
-linearities are separate facts.
+*and* in the mean. Both transfers go the same way: the difference is the internal map
+`add f (constMul (-1) q)`, which F1b's `lift_add` and `lift_constMul` and F3a's
+`internalMean_add` and `internalMean_constMul` each identify with the difference of the
+two sides, and F1a's `norm_lift_ofFun_le` and F3a's `norm_internalMean_ofFun_le` then
+bound it by the stagewise error. The two are still separate facts — the lift laws say
+nothing about the mean — but they are used in parallel. Boundedness of the approximant is
+`isUniformlyBounded_stepMap`, transported along its representative.
 
 The bound is `≤ ε`, not `< ε`: the stagewise error is strict, but limits do not preserve
 strictness, and the identity only needs the weak form. No `hU`, no `hX`. -/
@@ -186,37 +190,29 @@ theorem exists_stepMap_abs_sub_le {f : InternalMap U X fun _ ↦ ℝ} (hf : f.Is
   | _ g =>
     obtain ⟨C, hC⟩ := (isUniformlyBounded_ofFun g).1 hf
     obtain ⟨l, q, hl, hq⟩ := exists_stepMap_eventually_abs_sub_lt hC hε
-    -- The approximant inherits a bound from `g` and the error.
-    have hqC : ∀ᶠ i in (U : Filter ι), ∀ y, ‖q i y‖ ≤ C + ε := by
-      filter_upwards [hC, hq] with i hi hi' y
-      have h1 := hi y
-      have h2 := hi' y
-      rw [Real.norm_eq_abs] at h1 ⊢
-      linarith [abs_sub_abs_le_abs_sub (q i y) (g i y), abs_sub_comm (q i y) (g i y)]
     have hqb : IsUniformlyBounded (Filter.Product.ofFun q : InternalMap U X fun _ ↦ ℝ) :=
-      (isUniformlyBounded_ofFun q).2 ⟨C + ε, hqC⟩
+      hl ▸ isUniformlyBounded_stepMap l
     have hgb : IsUniformlyBounded (Filter.Product.ofFun g : InternalMap U X fun _ ↦ ℝ) :=
       (isUniformlyBounded_ofFun g).2 ⟨C, hC⟩
+    -- The stagewise error, in the form both bounds consume.
+    have herr : ∀ᶠ i in (U : Filter ι), ∀ y, ‖(g i + fun y ↦ -1 * q i y) y‖ ≤ ε :=
+      hq.mono fun i hi y ↦ by
+        have : g i y + -1 * q i y = g i y - q i y := by ring
+        rw [Pi.add_apply, this, Real.norm_eq_abs]
+        exact (hi y).le
     refine ⟨l, fun x ↦ ?_, ?_⟩
-    · -- Values: the difference of ultralimits is the ultralimit of the difference.
-      induction x using Filter.Product.inductionOn with
-      | _ x' =>
-        rw [hl, lift_ofFun, lift_ofFun, sub_eq_add_neg,
-          ← Ultrafilter.ultralimit_neg_of_eventually_norm_le (hqC.mono fun i hi ↦ hi (x' i)),
-          ← Ultrafilter.ultralimit_add_of_eventually_norm_le (hC.mono fun i hi ↦ hi (x' i))
-            (hqC.mono fun i hi ↦ by simpa using hi (x' i))]
-        exact Ultrafilter.abs_ultralimit_le (hq.mono fun i hi ↦ by
-          simpa [sub_eq_add_neg] using (hi (x' i)).le)
-    · -- Means: the difference of means is the mean of the difference.
-      rw [hl, show internalMean (Filter.Product.ofFun g : InternalMap U X fun _ ↦ ℝ)
+    · rw [hl, show lift (Filter.Product.ofFun g : InternalMap U X fun _ ↦ ℝ) x
+          - lift (Filter.Product.ofFun q : InternalMap U X fun _ ↦ ℝ) x
+          = lift (add (Filter.Product.ofFun g) (constMul (-1) (Filter.Product.ofFun q))) x
+          by rw [lift_add hgb (hqb.constMul (-1)), lift_constMul (-1) hqb]; ring,
+        constMul_ofFun, add_ofFun, ← Real.norm_eq_abs]
+      exact norm_lift_ofFun_le herr x
+    · rw [hl, show internalMean (Filter.Product.ofFun g : InternalMap U X fun _ ↦ ℝ)
           - internalMean (Filter.Product.ofFun q : InternalMap U X fun _ ↦ ℝ)
           = internalMean (add (Filter.Product.ofFun g) (constMul (-1) (Filter.Product.ofFun q)))
           by rw [internalMean_add hgb (hqb.constMul (-1)), internalMean_constMul (-1) hqb]; ring,
         constMul_ofFun, add_ofFun, ← Real.norm_eq_abs]
-      refine norm_internalMean_ofFun_le hε.le (hq.mono fun i hi y ↦ ?_)
-      have : g i y + -1 * q i y = g i y - q i y := by ring
-      rw [Pi.add_apply, this, Real.norm_eq_abs]
-      exact (hi y).le
+      exact norm_internalMean_ofFun_le hε.le herr
 
 /-! ### The identity -/
 
@@ -315,9 +311,9 @@ example (g : Fin 4 → ℝ) : ∫ y, g y ∂normalizedCounting (Fin 4) = (1 / 4 
   norm_num
 
 /-- **A family whose stagewise ranges grow.** On stage `n` the values `y / (n + 1)` for
-`y : Fin (n + 1)` are `n + 1` distinct points filling out `[0, 1)` — the range is not
-finite uniformly in `n`, so nothing about it is a step map, and the identity is the
-general theorem's. -/
+`y : Fin (n + 1)` are `n + 1` distinct points, so the stagewise range has no bound on its
+size uniform in `n`. That is the stagewise claim and no more: the test says nothing about
+how the map is represented in the quotient. -/
 example (U : Ultrafilter ℕ) (hU : (U : Filter ℕ).IsCountablyIncomplete) :
     ∫ x, InternalMap.lift (Filter.Product.ofFun fun n (y : Fin (n + 1)) ↦ (y : ℝ) / (n + 1)
         : InternalMap U (fun n ↦ Fin (n + 1)) fun _ ↦ ℝ) x ∂(loebMeasure hU fun _ ↦ inferInstance)
@@ -330,9 +326,15 @@ example (U : Ultrafilter ℕ) (hU : (U : Filter ℕ).IsCountablyIncomplete) :
       have h : (y : ℝ) ≤ n := by exact_mod_cast this
       linarith)
 
-/-- And the ranges really do grow: stage `n` attains `n / (n + 1)`. -/
-example (n : ℕ) : ((Fin.last n : Fin (n + 1)) : ℝ) / (n + 1) = n / (n + 1) := by
-  simp
+/-- And the ranges really do grow: on stage `n` the map is injective, so its range has
+exactly `n + 1` elements. -/
+example (n : ℕ) : Function.Injective fun y : Fin (n + 1) ↦ (y : ℝ) / (n + 1) := by
+  intro y z h
+  have h' : (y : ℝ) = z := by
+    have hn : (n : ℝ) + 1 ≠ 0 := by positivity
+    field_simp at h
+    exact_mod_cast h
+  exact Fin.ext (by exact_mod_cast h')
 
 /-- **Eventual-only boundedness.** The family is `n` on even stages and a bounded profile
 on odd ones. If the odd stages are `U`-large, the map is uniformly bounded in the eventual
