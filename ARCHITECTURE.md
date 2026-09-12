@@ -231,9 +231,8 @@ invariants; [docs/decisions/README.md](docs/decisions/README.md) owns their stat
 4. whether general probability spaces cost essentially more than finite counting spaces
    (ADR-0004) — counting-first.
 
-One decision remains deliberately deferred, with its activation trigger:
+5. what `Graded.ProbabilitySpace` bundles (ADR-0005) — explicit degree-indexed
+   measurable spaces and measures, with probability and compatibility as proofs; the
+   compatibility fields themselves wait for their laws.
 
-- what `Graded.ProbabilitySpace` bundles — measurable spaces, measures, or both with
-  explicit compatibility proofs — activate before M6.
-
-See [docs/decisions/README.md](docs/decisions/README.md).
+No decision remains deferred. See [docs/decisions/README.md](docs/decisions/README.md).

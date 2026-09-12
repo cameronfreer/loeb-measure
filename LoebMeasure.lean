@@ -41,3 +41,4 @@ import LoebMeasure.Integral.Measurable
 import LoebMeasure.Integral.Mean
 import LoebMeasure.Integral.Step
 import LoebMeasure.Integral.Identity
+import LoebMeasure.Graded.Power
