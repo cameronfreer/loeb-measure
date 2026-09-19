@@ -25,10 +25,11 @@ package; the bundle itself does not appear here.
 ## Not the product σ-algebra
 
 `powerMeasurableSpace n` is the **full Loeb σ-algebra** on the realized power. It is not
-`MeasurableSpace.pi`, and in general it is strictly larger. No instance is registered on
-`Fin n → Ultraproduct U X`, precisely so that nothing can pick up the product σ-algebra by
-accident; every use binds the degree's space explicitly, as `loebMeasurableSpace` already
-requires.
+`MeasurableSpace.pi`, and in general it is strictly larger. What prevents the product
+σ-algebra from being selected by accident is that every statement here takes its
+measurable space as an **explicit argument**, as `loebMeasurableSpace` already requires;
+declining to register an instance would not by itself prevent it, since an ambient
+instance on `Ultraproduct U X` would induce `MeasurableSpace.pi` regardless.
 
 ## Hypotheses
 
@@ -110,12 +111,15 @@ noncomputable def realizeEquiv (n : ℕ) (hXn : ∀ i, Nonempty (Fin n → X i))
       change MeasurableSet[loebMeasurableSpace hXn] (realize n ⁻¹' ((realize n).symm ⁻¹' s))
       rwa [Equiv.preimage_symm_preimage] }
 
+/-- The measurable equivalence acts as the realization. -/
 @[simp]
 theorem realizeEquiv_apply (n : ℕ) (hXn : ∀ i, Nonempty (Fin n → X i))
     (x : Ultraproduct U fun i ↦ Fin n → X i) :
     realizeEquiv n hXn x = realize n x :=
   rfl
 
+/-- And its inverse acts as the inverse realization. Stated with the two spaces
+explicit, since `.symm` cannot find them otherwise. -/
 @[simp]
 theorem realizeEquiv_symm_apply (n : ℕ) (hXn : ∀ i, Nonempty (Fin n → X i))
     (x : Fin n → Ultraproduct U X) :
@@ -199,7 +203,11 @@ instance isComplete_powerMeasure (n : ℕ) (hU : (U : Filter ι).IsCountablyInco
 
 /-- **The internal-relation interface**: the power measure of a tuple carrier is the
 internal content of the relation. Composes the transport rule with M3's
-`loebMeasure_internal`. -/
+`loebMeasure_internal`.
+
+A simp rule, while `powerMeasure_apply` stays plain: this is the evaluation a goal wants
+closed, and the transport rule is a tool for proofs rather than a normal form. -/
+@[simp]
 theorem powerMeasure_tupleCarrier (n : ℕ) (hU : (U : Filter ι).IsCountablyIncomplete)
     (hXn : ∀ i, Nonempty (Fin n → X i)) (R : InternalRelation U X n) :
     powerMeasure n hU hXn (InternalRelation.tupleCarrier R) = internalContent U R := by
@@ -270,19 +278,22 @@ example (n : ℕ) (hXn : ∀ i, Nonempty (Fin n → X i)) :
 measure equal to its content. -/
 example (n : ℕ) (hU : (U : Filter ι).IsCountablyIncomplete) (hXn : ∀ i, Nonempty (Fin n → X i))
     (R : InternalRelation U X n) :
-    powerMeasure n hU hXn (InternalRelation.tupleCarrier R) = internalContent U R :=
-  powerMeasure_tupleCarrier n hU hXn R
+    powerMeasure n hU hXn (InternalRelation.tupleCarrier R) = internalContent U R := by
+  simp
 
 /-- The σ-algebra results need no `hU`: this statement mentions only power nonemptiness. -/
 example (n : ℕ) (hXn : ∀ i, Nonempty (Fin n → X i)) (R : InternalRelation U X n) :
     @MeasurableSet _ (powerMeasurableSpace n hXn) (InternalRelation.tupleCarrier R) :=
   measurableSet_tupleCarrier n hXn R
 
-/-- Completeness, usable as an instance under the explicit space. -/
+/-- **Completeness through instance inference**: with the degree's space bound locally,
+mathlib's `measurableSet_of_null` finds `isComplete_powerMeasure` on its own. Calling the
+instance by name would pass even if it were not registered; this does not. -/
 example (n : ℕ) (hU : (U : Filter ι).IsCountablyIncomplete) (hXn : ∀ i, Nonempty (Fin n → X i))
     (s : Set (Fin n → Ultraproduct U X)) (hs : powerMeasure n hU hXn s = 0) :
     @MeasurableSet _ (powerMeasurableSpace n hXn) s :=
-  (isComplete_powerMeasure n hU hXn).out s hs
+  letI := powerMeasurableSpace (U := U) n hXn
+  measurableSet_of_null hs
 
 end Tests
 

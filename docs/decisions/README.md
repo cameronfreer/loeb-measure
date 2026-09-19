@@ -56,4 +56,6 @@ Accepted records:
   compatibility as proofs; the exact compatibility fields are deferred until their laws
   exist.
 
-No records are anticipated beyond these.
+No further records are anticipated. ADR-0005 settles the bundle's data layout only; its
+compatibility fields remain deferred until their laws exist, and are recorded on that
+ADR rather than in a new one.

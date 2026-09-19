@@ -235,4 +235,6 @@ invariants; [docs/decisions/README.md](docs/decisions/README.md) owns their stat
    measurable spaces and measures, with probability and compatibility as proofs; the
    compatibility fields themselves wait for their laws.
 
-No decision remains deferred. See [docs/decisions/README.md](docs/decisions/README.md).
+No decision about **data layout** remains deferred. The bundle's compatibility fields are
+still deferred, until their laws exist. See
+[docs/decisions/README.md](docs/decisions/README.md).

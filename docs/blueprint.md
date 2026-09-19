@@ -623,11 +623,10 @@ speculative API until something does.
 
 ## Layer G — graded powers and Fubini
 
-Module candidates:
+Implemented: `LoebMeasure/Graded/Power.lean`. Module candidates for the rest:
 
 ```text
 LoebMeasure/Graded/Basic.lean
-LoebMeasure/Graded/Power.lean
 LoebMeasure/Graded/Section.lean
 LoebMeasure/Graded/Fubini.lean
 ```
@@ -638,9 +637,10 @@ construction, before any bundle. For each degree `n`, with `realize n` the exist
 
 * `powerMeasurableSpace n hXn` is the full Loeb σ-algebra of the ultraproduct of `n`-th
   stage powers, transported along `realize n` by `MeasurableSpace.map`. `@[reducible]`,
-  for the same linter reason as `loebMeasurableSpace`. Not the product σ-algebra, and no
-  instance is registered on `Fin n → Ultraproduct U X`, so nothing can select the product
-  σ-algebra by accident;
+  for the same linter reason as `loebMeasurableSpace`. Not the product σ-algebra; what
+  prevents the product σ-algebra from being selected by accident is that every statement
+  takes its measurable space as an explicit argument — not the absence of a registered
+  instance, which by itself would prevent nothing;
 * `realizeEquiv n hXn` is the realization as a `MeasurableEquiv`, with
   `measurable_realize` and `measurable_realize_symm` the two directions;
 * `powerMeasure n hU hXn` is `loebMeasure` on the ultraproduct of powers pushed forward
@@ -652,7 +652,9 @@ construction, before any bundle. For each degree `n`, with `realize n` the exist
   interface: a tuple carrier is measurable and its power measure is the content.
 
 The hypothesis boundary is M3's, degree by degree: the σ-algebra results take nonemptiness
-of the stage **powers** and nothing else; the measure results additionally take `hU`.
+of the stage **powers** as their only **explicit** hypothesis; the measure results
+additionally take `hU`. The finite discrete stage structure — `MeasurableSpace`, `Finite`
+and `MeasurableSingletonClass` on each stage — remains ambient throughout.
 Power nonemptiness rather than stage nonemptiness is what makes degree zero available over
 empty stages, and a test exercises exactly that on `Empty`. `nonempty_fin_pi` and the
 `…OfNonempty` abbreviations serve callers holding ordinary `hX`.
@@ -679,9 +681,10 @@ end Loeb.Graded
 
 Two things the bundle will **not** carry, frozen in E6: an unconditional "every section is
 measurable" field — completion permits arbitrary subsets of null fibers, so the exceptional
-sections of an arbitrary measurable set need not be measurable, and only internal sets have
-sections that are exact everywhere — and a requirement that the canonical split be a
-measurable equivalence with the ordinary product σ-algebra. The probe also shows that a
+sections of an arbitrary measurable set need not be measurable; what *is* guaranteed is
+that every section of an internal set is internal, hence measurable, and other sets may or
+may not share that property — and a requirement that the canonical split `Loeb.splitEquiv`
+be a measurable equivalence with the ordinary product σ-algebra. The probe also shows that a
 whole family over an empty base cannot exist, which is why degree zero is tested through
 the construction and not through a bundle.
 
@@ -711,8 +714,8 @@ theorem lintegral_sectionMeasure ...
 theorem integral_sectionAt ...
 ```
 
-The degree-`m+n` measurable-space hypothesis is the graded space's own `mspace
-(m+n)`, not a product-space equality.
+The degree-`m+n` measurable-space hypothesis is the graded space's own
+`measurableSpace (m+n)`, not a product-space equality.
 
 ## First application seam
 

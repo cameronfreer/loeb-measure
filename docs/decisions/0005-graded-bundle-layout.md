@@ -28,9 +28,10 @@ selected by accident.
   reachable without the bundle.
 - Completeness permits arbitrary subsets of null fibers, so the sections of an arbitrary
   measurable set need not all be measurable. The bundle must not assert that they are.
-- The canonical split `Fin (m + n) → Ω ≃ (Fin m → Ω) × (Fin n → Ω)` is not a measurable
-  equivalence with the product of the degree-`m` and degree-`n` spaces in general, and the
-  bundle must not require it to be.
+- The canonical split `Loeb.splitEquiv Ω m n : (Fin m → Ω) × (Fin n → Ω) ≃ (Fin (m + n) → Ω)`
+  — whose inverse `.symm` takes a combined tuple to its pair — is not a measurable
+  equivalence between the product of the degree-`m` and degree-`n` spaces and the
+  degree-`(m + n)` space in general, and the bundle must not require it to be.
 
 ## Options considered
 
