@@ -51,11 +51,11 @@ Accepted records:
   Carathéodory-first.
 - [ADR-0004: general measured families versus counting spaces](0004-general-versus-counting.md)
   — counting-first.
+- [ADR-0005: graded bundle layout](0005-graded-bundle-layout.md) — explicit
+  degree-indexed measurable spaces, measures typed against them, probability and
+  compatibility as proofs; the exact compatibility fields are deferred until their laws
+  exist.
 
-Anticipated records, deliberately not created yet so unstable work is not seeded
-prematurely:
-
-- contents of `Graded.ProbabilitySpace` — activate before M6 implementation starts.
-
-This corresponds to open decision 5 in [ARCHITECTURE.md](../../ARCHITECTURE.md); it
-receives an ADR number when activated.
+No further records are anticipated. ADR-0005 settles the bundle's data layout only; its
+compatibility fields remain deferred until their laws exist, and are recorded on that
+ADR rather than in a new one.
