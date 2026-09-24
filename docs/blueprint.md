@@ -623,7 +623,8 @@ speculative API until something does.
 
 ## Layer G — graded powers and Fubini
 
-Implemented: `LoebMeasure/Graded/Power.lean`. Module candidates for the rest:
+Implemented: `LoebMeasure/Graded/Power.lean`, `LoebMeasure/Graded/Permutation.lean`. Module
+candidates for the rest:
 
 ```text
 LoebMeasure/Graded/Basic.lean
@@ -662,6 +663,31 @@ empty stages, and a test exercises exactly that on `Empty`. `nonempty_fin_pi` an
 Degree-one agreement with `loebMeasure` on `X` itself is **not** claimed: no transport of
 the Loeb measure along stagewise bijections exists, and it belongs to coordinate
 compatibility.
+
+**P3 is implemented** in `LoebMeasure/Graded/Permutation.lean`: for `σ : Equiv.Perm (Fin n)`
+the coordinate permutation `pσ x = x ∘ σ` is a measurable self-equivalence `permuteEquiv`
+of `powerMeasurableSpace n hXn` and preserves `powerMeasure n hU hXn` — on **every** set
+(`powerMeasure_preimage_perm`, with no measurability hypothesis) and as a
+`MeasurePreserving` statement. The route is upwards from the stages, and the hypotheses grow
+with the height: normalized counting is invariant under a bijection of finite types
+(`normalizedCounting_preimage_equiv`, in the counting module); the internal content is
+invariant under `InternalRelation.comap σ` with no explicit hypotheses; the Loeb outer
+measure on the ultraproduct of powers is invariant under `Filter.Product.permute σ` on every
+set, taking `hXn`; Carathéodory measurability transports; and P2's realization carries all of
+it to tuples through U5's `finPowerEquiv_permute`, consumed in one private lemma.
+
+Two small mirror lemmas made the outer-measure step possible. Mathlib's
+`inducedOuterMeasure_preimage` requires the generating family to be closed under countable
+unions, which internal carriers are not — the obstruction C7b met.
+`MeasureTheory.inducedOuterMeasure_preimage_of_injective` needs only injectivity, through
+`OuterMeasure.map_ofFunction`; and `OuterMeasure.IsCaratheodory.preimage_of_leftInverse`
+transports Carathéodory measurability along a map with a left inverse under which the outer
+measure is invariant. Both are upstream candidates not yet tracked by an issue.
+
+The composition convention is the contravariant one of `Filter.Product.permute_mul`:
+`permuteEquiv_mul_apply` says `p(σ * τ) = pτ ∘ pσ`, as a plain theorem. No `MulAction` is
+registered. Lemma names say `permute` for U5's action on the ultraproduct of powers and
+`perm` for precomposition on tuples.
 
 **ADR-0005 is accepted** on the strength of the probe recorded on #117. The bundle's data is
 explicit degree-indexed measurable spaces and measures typed against them, with probability
