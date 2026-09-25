@@ -6,21 +6,22 @@ Authors: Cameron Freer
 import Mathlib.MeasureTheory.OuterMeasure.Caratheodory
 
 /-!
-# Null sets are Carathéodory measurable
+# Null sets and transported sets are Carathéodory measurable
 
 Upstream-oriented material: these declarations concern only mathlib objects and live in
-mathlib namespaces. See `LoebMeasure/Mathlib/README.md` for the mirror-path convention,
-and issue #10 for the upstreaming proposal.
+mathlib namespaces. See `LoebMeasure/Mathlib/README.md` for the mirror-path convention.
+Two upstreaming proposals share this file: issue #10 for the null-set lemma, and issue
+#121 for the transport lemma.
 
-Promoted here because the Loeb measure's completeness instance must **wrap** these
-results rather than reprove them (ADR-0003). Upstream acceptance is nonblocking; local
-availability is not.
+The null-set lemma is promoted here because the Loeb measure's completeness instance must
+**wrap** it rather than reprove it (ADR-0003). Upstream acceptance is nonblocking; local
+availability is not. Its measure-layer consequence cannot live here, since mathlib's
+`Mathlib/MeasureTheory/OuterMeasure/Caratheodory.lean` is below `Measure` and knows
+nothing of it; it is at `LoebMeasure/Mathlib/MeasureTheory/Measure/NullMeasurable.lean`,
+mirroring where `MeasureTheory.Measure.IsComplete` is defined.
 
-This module holds only what belongs at mathlib's
-`Mathlib/MeasureTheory/OuterMeasure/Caratheodory.lean`, which is below `Measure` and
-knows nothing of it. The measure-layer consequence therefore cannot live here; it is at
-`LoebMeasure/Mathlib/MeasureTheory/Measure/NullMeasurable.lean`, mirroring where
-`MeasureTheory.Measure.IsComplete` is defined.
+The transport lemma is what the graded layer's permutation invariance uses to carry
+Carathéodory measurability along a coordinate permutation.
 
 ## Main results
 

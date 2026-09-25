@@ -36,8 +36,9 @@ Upwards from the stages, and the hypotheses grow with the height:
    `powerMeasure_preimage_perm` and `measurePreserving_perm`, which take `hU`.
 
 The trap at step 3 is that mathlib's `inducedOuterMeasure_preimage` requires the
-generating family to be closed under countable unions, which internal carriers are not.
-The mirror lemma `inducedOuterMeasure_preimage_of_injective` needs only injectivity,
+generating family to be closed under countable unions. Internal carriers need not be, and
+that hypothesis is unavailable in general — I3 gives them only a ring. The mirror lemma
+`inducedOuterMeasure_preimage_of_injective` needs only injectivity,
 which `permute σ` has because `permute σ⁻¹` inverts it. That machinery stays behind the
 public statements here; nothing imports the internal-mod-null approximation to obtain
 measurability.
@@ -168,20 +169,22 @@ noncomputable def permuteEquiv (n : ℕ) (hXn : ∀ i, Nonempty (Fin n → X i))
       rw [realize_preimage_comp_perm]
       exact measurableSet_preimage_permute hXn σ⁻¹ hs }
 
-/-- The forward action is precomposition. -/
+/-- The forward action is precomposition. The right-hand side is a lambda rather than
+`x ∘ σ`, so that a subsequent evaluation or cancellation is a beta-reduction `simp` performs
+on its own, instead of a composition it cannot reassociate. -/
 @[simp]
 theorem permuteEquiv_apply (n : ℕ) (hXn : ∀ i, Nonempty (Fin n → X i)) (σ : Equiv.Perm (Fin n))
     (x : Fin n → Ultraproduct U X) :
-    permuteEquiv n hXn σ x = x ∘ σ :=
+    permuteEquiv n hXn σ x = fun a ↦ x (σ a) :=
   rfl
 
-/-- The inverse action is precomposition by the inverse permutation. Stated with the two
-spaces explicit, since `.symm` cannot find them otherwise. -/
+/-- The inverse action is precomposition by the inverse permutation, in the same lambda
+form. Stated with the two spaces explicit, since `.symm` cannot find them otherwise. -/
 @[simp]
 theorem permuteEquiv_symm_apply (n : ℕ) (hXn : ∀ i, Nonempty (Fin n → X i))
     (σ : Equiv.Perm (Fin n)) (x : Fin n → Ultraproduct U X) :
     @MeasurableEquiv.symm _ _ (powerMeasurableSpace n hXn) (powerMeasurableSpace n hXn)
-      (permuteEquiv n hXn σ) x = x ∘ ⇑σ⁻¹ :=
+      (permuteEquiv n hXn σ) x = fun a ↦ x (σ.symm a) :=
   rfl
 
 /-- The identity permutation acts trivially. -/
@@ -243,28 +246,36 @@ Measurable spaces are explicit in every statement, as in `LoebMeasure/Graded/Pow
 
 section Tests
 
+/-- Coordinate evaluation, forward and inverse, by bare `simp`. -/
+example (hXn : ∀ i, Nonempty (Fin n → X i)) (σ : Equiv.Perm (Fin n))
+    (x : Fin n → Ultraproduct U X) (a : Fin n) :
+    letI := powerMeasurableSpace (U := U) n hXn
+    permuteEquiv n hXn σ x a = x (σ a) ∧ (permuteEquiv n hXn σ).symm x a = x (σ.symm a) := by
+  simp
+
 /-- **A three-cycle**, checking coordinates. A swap could not distinguish `σ` from `σ⁻¹`;
-this does: `σ` sends `0 ↦ 1`, so `pσ x` reads `x 1` at `0`, while `σ⁻¹` sends `0 ↦ 2`. -/
+this does: `σ` sends `0 ↦ 1`, so `pσ x` reads `x 1` at `0`, while `σ⁻¹` sends `0 ↦ 2`.
+The application rules reduce both sides to values of `x`; evaluating the swaps is the
+rest. -/
 example (hXn : ∀ i, Nonempty (Fin 3 → X i)) (x : Fin 3 → Ultraproduct U X) :
     permuteEquiv 3 hXn (Equiv.swap 0 1 * Equiv.swap 1 2) x 0 = x 1
       ∧ permuteEquiv 3 hXn (Equiv.swap 0 1 * Equiv.swap 1 2)⁻¹ x 0 = x 2 := by
-  constructor <;> rfl
+  simp [Equiv.swap_apply_def]
 
-/-- Forward and inverse round-trips, by `simp`. The application rules fire first and
-leave two precompositions, so associativity of composition is supplied to let the
-equivalence cancel against its inverse. -/
+/-- Forward and inverse round-trips, and the identity, by bare `simp`. -/
 example (hXn : ∀ i, Nonempty (Fin n → X i)) (σ : Equiv.Perm (Fin n))
     (x : Fin n → Ultraproduct U X) :
     letI := powerMeasurableSpace (U := U) n hXn
     (permuteEquiv n hXn σ).symm (permuteEquiv n hXn σ x) = x
-      ∧ permuteEquiv n hXn σ ((permuteEquiv n hXn σ).symm x) = x := by
-  simp [Function.comp_assoc]
+      ∧ permuteEquiv n hXn σ ((permuteEquiv n hXn σ).symm x) = x
+      ∧ permuteEquiv n hXn 1 x = x := by
+  simp
 
 /-- The inverse action written out, by `simp`. -/
 example (hXn : ∀ i, Nonempty (Fin n → X i)) (σ : Equiv.Perm (Fin n))
     (x : Fin n → Ultraproduct U X) :
     letI := powerMeasurableSpace (U := U) n hXn
-    (permuteEquiv n hXn σ).symm x = x ∘ ⇑σ⁻¹ := by
+    (permuteEquiv n hXn σ).symm x = fun a ↦ x (σ.symm a) := by
   simp
 
 /-- **The contravariant orientation**: `p(σ * τ)` applies `pσ` first. -/

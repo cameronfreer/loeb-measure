@@ -678,11 +678,12 @@ it to tuples through U5's `finPowerEquiv_permute`, consumed in one private lemma
 
 Two small mirror lemmas made the outer-measure step possible. Mathlib's
 `inducedOuterMeasure_preimage` requires the generating family to be closed under countable
-unions, which internal carriers are not — the obstruction C7b met.
+unions; internal carriers need not be, and that hypothesis is unavailable in general — the
+obstruction C7b met.
 `MeasureTheory.inducedOuterMeasure_preimage_of_injective` needs only injectivity, through
 `OuterMeasure.map_ofFunction`; and `OuterMeasure.IsCaratheodory.preimage_of_leftInverse`
 transports Carathéodory measurability along a map with a left inverse under which the outer
-measure is invariant. Both are upstream candidates not yet tracked by an issue.
+measure is invariant. Both are proposed upstream in #121.
 
 The composition convention is the contravariant one of `Filter.Product.permute_mul`:
 `permuteEquiv_mul_apply` says `p(σ * τ) = pτ ∘ pσ`, as a plain theorem. No `MulAction` is

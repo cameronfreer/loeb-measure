@@ -10,15 +10,17 @@ import Mathlib.MeasureTheory.OuterMeasure.Induced
 
 Upstream-oriented material: these declarations concern only mathlib objects and live in
 mathlib namespaces. See `LoebMeasure/Mathlib/README.md` for the mirror-path convention,
-and issue #10 for the upstreaming proposal.
+and issue #121 for the upstreaming proposal.
 
 Mathlib's `MeasureTheory.inducedOuterMeasure_preimage` transports an induced outer
 measure along a bijection, but it goes through `inducedOuterMeasure_eq_iInf` and so
 inherits that lemma's hypotheses: the generating family must be closed under countable
 unions, and the generating function must be monotone and countably subadditive on it.
-A family that is merely a set ring — such as the realized internal sets of a Loeb
-construction — has none of those, yet the invariance still holds, because
-`OuterMeasure.map_ofFunction` needs only injectivity.
+The lemma below does not require those additional hypotheses: the invariance holds for
+any generating family and function, because `OuterMeasure.map_ofFunction` needs only
+injectivity. That is what makes it usable when the family is only a set ring, as for
+the realized internal sets of a Loeb construction, where closure under countable unions
+is unavailable in general.
 
 ## Main results
 
