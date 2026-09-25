@@ -119,6 +119,15 @@ theorem normalizedCounting_apply_eq_sum [Fintype X] [MeasurableSingletonClass X]
   ext x
   simp
 
+/-- **Normalized counting is invariant under a bijection of finite types.** Precomposition
+of a set with an equivalence preserves its cardinality, and the two types have the same
+cardinality. No nonemptiness: on empty types both sides are `0`. -/
+theorem normalizedCounting_preimage_equiv {Y : Type*} [MeasurableSpace Y] [Finite Y]
+    [MeasurableSingletonClass Y] [Finite X] [MeasurableSingletonClass X] (e : Y ≃ X)
+    (s : Set X) : normalizedCounting Y (e ⁻¹' s) = normalizedCounting X s := by
+  rw [normalizedCounting_apply_natCard, normalizedCounting_apply_natCard, Nat.card_congr e,
+    Set.ncard_preimage_of_injective_subset_range e.injective (by simp)]
+
 /-! ### API tests -/
 
 section Tests
@@ -129,6 +138,12 @@ example [Finite X] [Nonempty X] : normalizedCounting X Set.univ = 1 := by simp
 /-- The bound holds with no nonemptiness hypothesis — including on an empty stage. -/
 example (s : Set X) : normalizedCounting X s ≤ 1 :=
   normalizedCounting_le_one s
+
+/-- **Invariance under a bijection**, with no nonemptiness hypothesis. -/
+example {Y : Type*} [MeasurableSpace Y] [Finite Y] [MeasurableSingletonClass Y] [Finite X]
+    [MeasurableSingletonClass X] (e : Y ≃ X) (s : Set X) :
+    normalizedCounting Y (e ⁻¹' s) = normalizedCounting X s :=
+  normalizedCounting_preimage_equiv e s
 
 /-- **A varying family of finite types**, which is how the ultraproduct uses this: the
 stage spaces are not one fixed type. -/
