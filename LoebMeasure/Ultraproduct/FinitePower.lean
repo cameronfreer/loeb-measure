@@ -131,8 +131,9 @@ evaluation and naturality laws below. This module does not depend on U5; the U5 
 appear in the table only so the obligation is visible in one place.
 
 Compatibility with the canonical coordinate split is likewise absent: the `splitEquiv`
-wrapper around `Fin.appendEquiv` fixed by the D0.4 audit has not yet reached `main`,
-so split compatibility follows whenever that wrapper is promoted.
+wrapper around `Fin.appendEquiv` lives in `LoebMeasure/Graded/Split.lean`, and its
+compatibility with these equivalences is proved in `LoebMeasure/Graded/Section.lean` from
+the evaluation laws here.
 
 Everything is generic in `l : Filter ι`: no ultrafilter and no countable-incompleteness
 hypothesis, per ADR-0001.

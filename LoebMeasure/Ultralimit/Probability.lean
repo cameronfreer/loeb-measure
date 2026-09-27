@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Cameron Freer
 -/
 import LoebMeasure.Mathlib.Topology.Compactness.Ultralimit
+import LoebMeasure.Ultralimit.BoundedReal
 import Mathlib.Topology.Instances.ENNReal.Lemmas
 
 /-!
@@ -91,6 +92,19 @@ theorem ultralimit_ne_top_of_le {b : ℝ≥0∞} (hb : b ≠ ∞) (h : ∀ᶠ i 
 
 theorem ultralimit_ne_top (h : ∀ᶠ i in U, f i ≤ 1) : U.ultralimit f ≠ ∞ :=
   ultralimit_ne_top_of_le ENNReal.one_ne_top h
+
+/-- **`toReal` commutes with the ultralimit of an eventually probability-bounded family.**
+The real family is eventually bounded by `1`, so it tends to its ultralimit by F0's
+`tendsto_ultralimit_of_eventually_norm_le`; the `ℝ≥0∞` family tends to its ultralimit, which
+is finite, so `ENNReal.toReal` is continuous there; and limits in `ℝ` are unique. Shared by
+the indicator mean and the section content, which both convert stagewise probabilities. -/
+theorem ultralimit_toReal (h : ∀ᶠ i in U, f i ≤ 1) :
+    U.ultralimit (fun i ↦ (f i).toReal) = (U.ultralimit f).toReal := by
+  refine tendsto_nhds_unique
+    (Ultrafilter.tendsto_ultralimit_of_eventually_norm_le (C := 1) (h.mono fun i hi ↦ ?_))
+    ((ENNReal.tendsto_toReal (ultralimit_ne_top h)).comp (Ultrafilter.tendsto_ultralimit U f))
+  rw [Real.norm_eq_abs, abs_of_nonneg ENNReal.toReal_nonneg]
+  exact (ENNReal.toReal_mono ENNReal.one_ne_top hi).trans_eq ENNReal.toReal_one
 
 /-! ### Vanishing reciprocals -/
 
