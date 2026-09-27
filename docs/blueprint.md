@@ -96,9 +96,9 @@ wrapped as `Loeb.splitEquiv`. Fixed conventions:
 
 Note the distinction this preserves: the `finitePiEquiv`/`finPowerEquiv` *ultraproduct*
 equivalences are a different thing from the canonical split, which is about plain finite
-powers `Fin n → Ω`. Compatibility between the two is still deferred, because
-`splitEquiv` has not landed; when it does, it must respect the contravariance
-convention above.
+powers `Fin n → Ω`. `splitEquiv` landed with P4 in `LoebMeasure/Graded/Split.lean`, and
+the compatibility between the two is `Graded.realize_splitMap` in
+`LoebMeasure/Graded/Section.lean`, proved through the coordinate API.
 
 ## Layer I — internal sets
 
@@ -623,8 +623,9 @@ speculative API until something does.
 
 ## Layer G — graded powers and Fubini
 
-Implemented: `LoebMeasure/Graded/Power.lean`, `LoebMeasure/Graded/Permutation.lean`. Module
-candidates for the rest:
+Implemented: `LoebMeasure/Graded/Power.lean`, `LoebMeasure/Graded/Permutation.lean`,
+`LoebMeasure/Graded/Split.lean`, `LoebMeasure/Graded/Section.lean`. Module candidates for the
+rest:
 
 ```text
 LoebMeasure/Graded/Basic.lean
@@ -689,6 +690,41 @@ The composition convention is the contravariant one of `Filter.Product.permute_m
 `permuteEquiv_mul_apply` says `p(σ * τ) = pτ ∘ pσ`, as a plain theorem. No `MulAction` is
 registered. Lemma names say `permute` for U5's action on the ultraproduct of powers and
 `perm` for precomposition on tuples.
+
+**P4 is implemented** in `LoebMeasure/Graded/Split.lean` and `LoebMeasure/Graded/Section.lean`.
+The split module is measure-free: it promotes the canonical `Loeb.splitEquiv` from D0.4 as an
+opaque `def` with its coordinate and inverse simp rules, and defines the algebraic section
+`Graded.sectionAt s x = {y | splitEquiv Ω m n (x, y) ∈ s}`. Nothing from the D0.4 mock bundle
+is promoted.
+
+The section module then delivers, for `R : InternalRelation U X (m + n)`:
+
+* `InternalRelation.sectionAt R x`, an internal relation of arity `n` at every tuple
+  `x : Fin m → Ultraproduct U X`, built by `Filter.Product.map₂` from the stagewise
+  sections and the assembly `(realize m).symm x` — no chosen representative and no fresh
+  quotient lift — with `sectionAt_ofFun` as the representative computation rule;
+* **exact internality**, `tupleCarrier_sectionAt`: the realized section is the algebraic
+  section of the realized relation. It rests on `Graded.realize_splitMap`, the
+  realization/split compatibility proved coordinatewise through M1's `eval` API and never by
+  unfolding `Fin.appendEquiv`. The construction and the identity need no stage structure;
+* `sectionContent R x = internalContent U (R.sectionAt x)`, the `ℝ≥0∞`-valued function P5
+  integrates, and `sectionContentMap R`, the real-valued internal map on the stagewise
+  `m`-powers represented by `a ↦ (normalizedCounting (Fin n → X i) {b | split (a, b) ∈ Rᵢ}).toReal`,
+  built by `Filter.Product.map`, uniformly bounded by `1`, with the exact lift bridge
+  `lift_sectionContentMap` at `(realize m).symm x`. Stage `MeasurableSpace` alone suffices
+  for these. The `toReal`/ultralimit exchange is L2's new `ultralimit_toReal`, which the
+  indicator mean now shares rather than duplicates;
+* `measurable_sectionContent`, from M5's `measurable_lift` and P2's inverse realization,
+  taking the finite discrete stage structure and **left**-power nonemptiness;
+* the P2 connection without Fubini: every section of a tuple carrier is measurable for the
+  degree-`n` space (right-power nonemptiness), and its degree-`n` power measure is the
+  content of the internal section (additionally `hU`).
+
+Combined-power nonemptiness is imposed nowhere. The exclusions are deliberate: no integral
+identity, no section theorem for arbitrary Loeb-measurable sets, no claim that inserting a
+fixed tuple is measurable for the completed spaces, and no product-σ-algebra equivalence —
+the distinctions that keep exact internal sections apart from P6's almost-everywhere
+sections.
 
 **ADR-0005 is accepted** on the strength of the probe recorded on #117. The bundle's data is
 explicit degree-indexed measurable spaces and measures typed against them, with probability

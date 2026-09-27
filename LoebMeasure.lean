@@ -44,3 +44,5 @@ import LoebMeasure.Integral.Step
 import LoebMeasure.Integral.Identity
 import LoebMeasure.Graded.Power
 import LoebMeasure.Graded.Permutation
+import LoebMeasure.Graded.Split
+import LoebMeasure.Graded.Section

@@ -161,8 +161,8 @@ takes neither `hU` nor `hX`, so F3b gets both sides of the indicator calculation
 developing this one itself.
 
 The conversion goes through the ultralimit rather than around it: the stagewise values are
-`(normalizedCounting (X i)).real (A i)`, whose ultralimit is the `toReal` of the content
-because the content is finite and `ENNReal.toReal` is continuous there. -/
+`(normalizedCounting (X i)).real (A i)`, whose ultralimit is the `toReal` of the content by
+L2's `ultralimit_toReal`, since the stagewise values are probabilities. -/
 theorem internalMean_indicatorMap (A : InternalSet U X) :
     internalMean (InternalSet.indicatorMap A) = (internalContent U A).toReal := by
   induction A using Filter.Product.inductionOn with
@@ -174,15 +174,7 @@ theorem internalMean_indicatorMap (A : InternalSet U X) :
         integral_indicator_one (Set.toFinite (A' i)).measurableSet]
       rfl
     rw [Ultrafilter.ultralimit_congr (Eventually.of_forall hstage)]
-    refine tendsto_nhds_unique
-      (Ultrafilter.tendsto_ultralimit_of_eventually_norm_le (C := 1)
-        (Eventually.of_forall fun i ↦ ?_)) ?_
-    · rw [Real.norm_eq_abs, abs_of_nonneg ENNReal.toReal_nonneg]
-      exact ENNReal.toReal_le_of_le_ofReal zero_le_one
-        (by simpa using normalizedCounting_le_one (X := X i) (A' i))
-    · exact (ENNReal.tendsto_toReal
-        (internalContent_ne_top (U := U) (Filter.Product.ofFun A'))).comp
-          (Ultrafilter.tendsto_ultralimit U _)
+    exact ultralimit_toReal (Eventually.of_forall fun i ↦ normalizedCounting_le_one (A' i))
 
 /-! ### Quotient-level laws
 
